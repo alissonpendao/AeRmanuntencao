@@ -1251,7 +1251,7 @@
         <div class="section-card">
           <div class="section-title" id="lista-titulo">Chamados</div>
           <div id="finalizados-hint" class="hidden" style="background:#EFF6FF;border:1px solid #BFDBFE;color:#1E3A8A;padding:12px;border-radius:12px;font-size:13px;margin-bottom:14px;">
-            💡 <strong>Agrupar em Nota de Serviço:</strong> Defina os valores em cada serviço finalizado e marque as caixinhas dos chamados da mesma loja (ex: 4 serviços do Castro Supermercado) para gerar uma única notinha consolidada.
+            💡 <strong>Agrupar em Nota de Serviço:</strong> Defina os valores em cada serviço finalizado e marque as caixinhas dos chamados da mesma loja para gerar uma única notinha consolidada.
           </div>
           <button class="btn-primary" style="margin-bottom:14px;" onclick="navigate('novo-chamado')">+ Novo chamado</button>
           <div id="chamados-container"></div>
@@ -1306,6 +1306,10 @@
             <div class="form-group">
               <label>Nome da Loja / Unidade</label>
               <input type="text" id="lj-nome" class="form-control" placeholder="Ex: Castro Supermercado" required />
+            </div>
+            <div class="form-group">
+              <label>CNPJ da Loja</label>
+              <input type="text" id="lj-cnpj" class="form-control" placeholder="Ex: 00.000.000/0001-00" required />
             </div>
             <div class="form-group">
               <label>Usuário de Acesso (Login)</label>
@@ -1474,6 +1478,7 @@
     let compressedNotaPhotoBase64 = "";
     let cachedChamados = [];
     let cachedNotas = [];
+    let cachedLojas = [];
     let selectedTicketIds = new Set();
     let lastKnownOpenCount = null;
 
@@ -1915,9 +1920,11 @@
       if (selectedList.length === 0) return;
 
       const lojaNome = selectedList[0].loja;
+      const foundLoja = cachedLojas.find(l => l.nome === lojaNome);
+      const lojaCnpj = foundLoja ? foundLoja.cnpj : "";
+
       const totalGeral = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
       
-      // GERAÇÃO DE NÚMERO SEQUENCIAL (NS:0001, NS:0002, etc.)
       const nextSeq = cachedNotas.length + 1;
       const numeroNota = "NS:" + String(nextSeq).padStart(4, "0");
 
@@ -1937,6 +1944,7 @@
       const notaId = await addItem("notas_servico", {
         numero: numeroNota,
         loja: lojaNome,
+        lojaCnpj: lojaCnpj,
         itens: itensNota,
         valorTotal: totalGeral,
         pix: document.getElementById("nota-pix").value.trim(),
@@ -2021,6 +2029,7 @@
               <div>
                 <div style="color:#64748B;font-size:11px;font-weight:700;">CLIENTE / UNIDADE</div>
                 <div style="font-size:15px;font-weight:900;color:var(--navy);">${nota.loja}</div>
+                ${nota.lojaCnpj ? `<div style="font-size:12px;color:#475569;font-weight:700;">CNPJ: ${nota.lojaCnpj}</div>` : ""}
               </div>
               <div style="text-align:right;">
                 <div style="color:#64748B;font-size:11px;font-weight:700;">EMISSÃO</div>
@@ -2163,6 +2172,7 @@
       const passHash = await hashPassword(rawPass);
       await addItem("lojas", {
         nome: document.getElementById("lj-nome").value.trim(),
+        cnpj: document.getElementById("lj-cnpj").value.trim(),
         user: document.getElementById("lj-user").value.trim(),
         pass: rawPass,
         passHash: passHash,
@@ -2209,6 +2219,7 @@
 
     async function refreshAll() {
       const lojas = await fetchCollection("lojas");
+      cachedLojas = lojas;
       const equipamentos = await fetchCollection("equipamentos");
       let chamados = await fetchCollection("chamados");
       let notas = await fetchCollection("notas_servico");
@@ -2377,6 +2388,7 @@
             <div class="item-title">${formatBRL(n.valorTotal)} <span style="font-size:13px;font-weight:600;color:var(--muted);">(${(n.itens || []).length} serviço(s))</span></div>
             <div class="item-meta">
               Emitida em: ${n.createdAt || "-"}
+              ${n.lojaCnpj ? `<br/>CNPJ: ${n.lojaCnpj}` : ""}
               ${n.paidAt ? ` • Pago em: ${n.paidAt}` : ""}
             </div>
             <div style="font-size:13px;color:var(--text);margin-bottom:10px;">
@@ -2395,7 +2407,7 @@
       document.getElementById("lista-lojas").innerHTML = lojas.length ? lojas.map(l => `
         <div class="item-card">
           <div class="item-title">${l.nome}</div>
-          <div class="item-meta">Login: <strong>${l.user}</strong></div>
+          <div class="item-meta">CNPJ: <strong>${l.cnpj || 'Não informado'}</strong> | Login: <strong>${l.user}</strong></div>
           <button class="btn-sm btn-del" onclick="deleteItem('lojas', '${l.id}')">Excluir Loja</button>
         </div>
       `).join("") : `<p style="color:var(--muted);font-size:13px;">Nenhuma loja cadastrada.</p>`;
