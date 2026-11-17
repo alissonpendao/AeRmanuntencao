@@ -30,8 +30,9 @@
 
         .logo-container img {
             width: 100%; height: 100%;
-            object-fit: contain; /* Mantém a proporção sem cortar */
-            background-color: #0F2537; /* Fundo escuro para cobrir áreas transparentes da imagem */
+            object-fit: contain;
+            border-radius: 50%;
+            background-color: #0F2537;
         }
 
         .app-title {
@@ -51,7 +52,7 @@
 
         #login-card .logo-container {
             width: 120px; height: 120px; margin: 0 auto 20px auto;
-            background-color: #0F2537; /* Garante o fundo escuro também no card */
+            background-color: #0F2537;
         }
 
         #login-card .logo-container img {
@@ -89,7 +90,7 @@
             <img src="logo.png" alt="A&R Logo">
         </div>
         <div class="app-title">A&R MANUTENÇÃO</div>
-        <div class="app-slogan">⚡ SOLUÇÕES RÁPAS E PRECISAS</div>
+        <div class="app-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
     </div>
 
     <div id="login-card">
@@ -102,7 +103,7 @@
         <form id="loginForm" style="margin-top: 30px;">
             <div class="input-group">
                 <label for="unitLogin">LOGIN DA UNIDADE (OU DEIXE EM BRANCO PARA TÉCNICO)</label>
-                <input type="text" id="unitLogin" placeholder="Ex: saogeraldo, loja01...">
+                <input type="text" id="unitLogin" placeholder="Usuário">
             </div>
             <div class="input-group">
                 <label for="password">SENHA DE ACESSO</label>
