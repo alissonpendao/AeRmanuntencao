@@ -1352,6 +1352,37 @@
       </div>
     </div>
 
+    <!-- MODAL EDITAR CHAMADO -->
+    <div id="edit-ticket-modal" class="modal-overlay" onclick="closeModalById('edit-ticket-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;color:var(--navy);">✏️ Editar Chamado</strong>
+          <button onclick="closeModalById('edit-ticket-modal')" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-edit-chamado">
+          <input type="hidden" id="edit-ch-id" />
+          <div class="form-group">
+            <label>Prioridade</label>
+            <select id="edit-ch-prioridade" class="form-control">
+              <option value="Urgente">🚨 Urgente</option>
+              <option value="Alta">Alta</option>
+              <option value="Média">Média</option>
+              <option value="Baixa">Baixa</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Título</label>
+            <input type="text" id="edit-ch-titulo" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Descrição</label>
+            <textarea id="edit-ch-descricao" class="form-control" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+
     <!-- MODAL DEFINIR VALOR DO SERVIÇO -->
     <div id="price-modal" class="modal-overlay" onclick="closeModalById('price-modal', event)">
       <div class="modal-box" onclick="event.stopPropagation()">
@@ -1810,6 +1841,35 @@
       refreshAll();
     }
 
+    // ================= FUNÇÃO DE EDITAR CHAMADO =================
+    function openEditTicketModal(id) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+      document.getElementById("edit-ch-id").value = ticket.id;
+      document.getElementById("edit-ch-prioridade").value = ticket.prioridade || "Média";
+      document.getElementById("edit-ch-titulo").value = ticket.titulo || "";
+      document.getElementById("edit-ch-descricao").value = ticket.descricao || "";
+      closeModalById("ticket-modal");
+      document.getElementById("edit-ticket-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-edit-chamado").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("edit-ch-id").value;
+      const prioridade = document.getElementById("edit-ch-prioridade").value;
+      const titulo = document.getElementById("edit-ch-titulo").value.trim();
+      const descricao = document.getElementById("edit-ch-descricao").value.trim();
+
+      await updateDocItem("chamados", id, {
+        prioridade: prioridade,
+        titulo: titulo,
+        descricao: descricao
+      });
+
+      closeModalById("edit-ticket-modal");
+      alert("Chamado atualizado com sucesso!");
+    });
+
     function openPriceModal(id) {
       const ticket = cachedChamados.find(c => c.id === id);
       if (!ticket) return;
@@ -2122,11 +2182,11 @@
 
       const actionsHtml = currentUser.role === "admin" ? `
         <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
-          ${(ticket.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar Chamado</button>` : ""}
-          ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${ticket.id}', 'finalizados')">✅ Finalizar Chamado</button>` : ""}
-          ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Definir / Editar Valor</button>` : ""}
-          ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `<button class="btn-sm btn-unattended" onclick="updateStatus('${ticket.id}', 'nao_atendidos')">🚫 Não Atendido</button>` : ""}
-          ${(ticket.status === "abertos" || ticket.status === "visualizado" || ticket.status === "nao_atendidos") ? `<button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>` : ""}
+          <button class="btn-sm btn-status" onclick="openEditTicketModal('${ticket.id}')">✏️ Editar</button>
+          ${(ticket.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar</button>` : ""}
+          ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${ticket.id}', 'finalizados')">✅ Finalizar</button>` : ""}
+          ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Valor</button>` : ""}
+          <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
         </div>
       ` : "";
 
@@ -2357,13 +2417,13 @@
           ` : ""}
           ${c.foto ? `<img src="${c.foto}" class="ticket-photo" alt="Foto do chamado" onclick="viewTicket('${c.id}')" />` : ""}
           <div class="item-actions">
-            <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir / Detalhes</button>
+            <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir</button>
             ${currentUser.role === "admin" ? `
+              <button class="btn-sm btn-status" onclick="openEditTicketModal('${c.id}')">✏️ Editar</button>
               ${(c.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
               ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${c.id}', 'finalizados')">✅ Finalizar</button>` : ""}
               ${isFinalizado ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 ${c.valorTotal > 0 ? 'Editar Valor' : 'Definir Valor'}</button>` : ""}
-              ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-unattended" onclick="updateStatus('${c.id}', 'nao_atendidos')">🚫 Não Atendido</button>` : ""}
-              ${(c.status === "abertos" || c.status === "visualizado" || c.status === "nao_atendidos") ? `<button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">Excluir</button>` : ""}
+              <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">🗑️ Excluir</button>
             ` : ""}
           </div>
         </div>
