@@ -1,1299 +1,204 @@
-    // ================= CONFIGURAÇÃO DO FIREBASE =================
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCBkKbHelBdh5dr3yrAEbPXp4RQbvhZ5E",
-      authDomain: "aermanuntencao.firebaseapp.com",
-      projectId: "aermanuntencao",
-      storageBucket: "aermanuntencao.firebasestorage.app",
-      messagingSenderId: "786994474703",
-      appId: "1:786994474703:web:dbf7bf64afeeb28fc4d1ba",
-      measurementId: "G-EKRKTEMJ85"
-    };
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A&R Manutenção - Sistema de Gestão</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col">
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    <!-- TELA DE LOGIN -->
+    <div id="login-view" class="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full mb-4 text-2xl font-bold">
+                    A&R
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900">A&R Manutenção</h1>
+                <p class="text-sm text-gray-500 mt-1">Sistema de Gestão e Chamados</p>
+            </div>
 
-    const ADMIN_EMAIL = "aermanutencao@superdito.com.br";
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">E-mail ou Usuário da Loja</label>
+                    <input type="text" id="login-email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Ex: castro ou saogeraldo">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="login-pass" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="••••••••">
+                </div>
+                <div id="login-err" class="text-red-500 text-sm hidden">E-mail ou senha incorretos.</div>
+                <button type="submit" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-md">
+                    Entrar no Sistema
+                </button>
+            </form>
+        </div>
+    </div>
 
-    // ================= GERENCIAMENTO DE INSTALAÇÃO PWA =================
-    let deferredPrompt = null;
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const btnLogin = document.getElementById("btn-install-pwa-login");
-      const btnApp = document.getElementById("btn-install-pwa");
-      if (btnLogin) btnLogin.classList.remove("hidden");
-      if (btnApp) btnApp.classList.remove("hidden");
-    });
+    <!-- TELA DO APLICATIVO -->
+    <div id="app-view" class="hidden flex-1 flex flex-col">
+        <!-- HEADER -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="font-bold text-lg text-gray-900" id="app-title">A&R Manutenção e Instalação</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="user-badge" class="text-xs bg-blue-100 text-blue-800 font-medium px-2.5 py-1 rounded-full"></span>
+                    <button id="btn-logout" class="text-gray-500 hover:text-red-600 p-2 rounded-lg transition" title="Sair">
+                        <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
 
-    function installPWA() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === "accepted") {
-            document.getElementById("btn-install-pwa-login").classList.add("hidden");
-            document.getElementById("btn-install-pwa").classList.add("hidden");
-          }
-          deferredPrompt = null;
-        });
-      }
-    }
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+            <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-900" id="page-heading">Lista de Chamados</h2>
+            </div>
 
-    // ================= TEMA ESCURO (DARK MODE) =================
-    function toggleDarkMode() {
-      const isDark = document.body.classList.toggle("dark-mode");
-      localStorage.setItem("ar_dark", isDark ? "1" : "0");
-    }
+            <!-- CONTAINER DE CHAMADOS -->
+            <div id="chamados-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-gray-500 col-span-full text-center py-8">Carregando chamados...</p>
+            </div>
+        </main>
+    </div>
 
-    let currentUser = null;
-    let pendingUnitLogin = null;
-    let currentFilter = "abertos";
-    let compressedPhotoBase64 = "";
-    let compressedNotaPhotoBase64 = "";
-    let cachedChamados = [];
-    let cachedNotas = [];
-    let cachedLojas = [];
-    let cachedEquipamentos = [];
-    let selectedTicketIds = new Set();
-    let lastKnownOpenCount = null;
-    let unsubscribeRealtime = null;
+    <!-- SCRIPT FIREBASE E APLICAÇÃO -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    function normalizeText(str) {
-      return (str || "")
-        .toString()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
-    }
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCBKbHlbd5Hr3y3raEPx4QRbVh5z7",
+            authDomain: "aermanutencao.firebaseapp.com",
+            projectId: "aermanutencao",
+            storageBucket: "aermanutencao.appspot.com",
+            messagingSenderId: "786994474703",
+            appId: "1:786994474703:web:dbf7bf64afeef28cd14be5",
+            measurementId: "G-EKKRTEMJ85"
+        };
 
-    window.addEventListener("DOMContentLoaded", () => {
-      if (localStorage.getItem("ar_dark") === "1") {
-        document.body.classList.add("dark-mode");
-      }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-      auth.onAuthStateChanged(async (firebaseUser) => {
-        const splash = document.getElementById("splash-screen");
-        if (splash && splash.style.display !== "none") {
-          splash.style.opacity = "0";
-          setTimeout(() => { splash.style.display = "none"; }, 350);
+        const ADMIN_EMAIL = "aermanutencao@superdito.com.br";
+        
+        const loginView = document.getElementById("login-view");
+        const appView = document.getElementById("app-view");
+        const loginForm = document.getElementById("login-form");
+        const loginEmail = document.getElementById("login-email");
+        const loginPass = document.getElementById("login-pass");
+        const loginErr = document.getElementById("login-err");
+        const btnLogout = document.getElementById("btn-logout");
+        const userBadge = document.getElementById("user-badge");
+        const chamadosContainer = document.getElementById("chamados-container");
+
+        function normalizeText(str) {
+            return (str || "").toLowerCase().trim();
         }
 
-        if (firebaseUser) {
-          const email = (firebaseUser.email || "").toLowerCase();
-          if (email === ADMIN_EMAIL) {
-            currentUser = { role: "admin", name: "Técnico Manutenção", loja: "Todas", email: email };
-            openApp();
-          } else {
-            const lojas = await fetchCollection("lojas");
-            const userPrefix = email.split("@")[0];
-            const cleanPrefix = normalizeText(userPrefix);
-
-            const found = lojas.find(l =>
-              (l.authEmail && l.authEmail.toLowerCase() === email) ||
-              (l.user && normalizeText(l.user) === cleanPrefix) ||
-              (l.nome && normalizeText(l.nome).includes(cleanPrefix))
-            );
-
-            if (found) {
-              if (found.firstAccess) {
-                pendingUnitLogin = found;
-                document.getElementById("login-view").style.display = "none";
-                document.getElementById("first-access-view").style.display = "flex";
-                return;
-              }
-              currentUser = { role: "loja", name: found.nome, loja: found.nome, email: email };
-              openApp();
-            } else {
-              currentUser = { role: "loja", name: userPrefix, loja: userPrefix, email: email };
-              openApp();
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            loginErr.classList.add("hidden");
+            const inputVal = normalizeText(loginEmail.value);
+            
+            let candidateEmails = [inputVal];
+            if (!inputVal.includes("@")) {
+                candidateEmails = [
+                    `${inputVal}@aermanutencao.com.br`,
+                    `${inputVal}@aermanutencao.local`
+                ];
             }
-          }
-        } else {
-          if (unsubscribeRealtime) {
-            unsubscribeRealtime();
-            unsubscribeRealtime = null;
-          }
-          currentUser = null;
-          document.getElementById("app-view").style.display = "none";
-          document.getElementById("first-access-view").style.display = "none";
-          document.getElementById("login-view").style.display = "flex";
-        }
-      });
-    });
 
-    function formatBRL(val) {
-      const num = parseFloat(val) || 0;
-      return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
+            let logged = false;
+            for (let email of candidateEmails) {
+                try {
+                    await signInWithEmailAndPassword(auth, email, loginPass.value);
+                    logged = true;
+                    break;
+                } catch (err) {
+                    console.warn("Tentativa falhou para:", email);
+                }
+            }
 
-    function getLocal(key) {
-      return JSON.parse(localStorage.getItem("ar_" + key) || "[]");
-    }
-    function setLocal(key, data) {
-      localStorage.setItem("ar_" + key, JSON.stringify(data));
-    }
-
-    function resolveAuthEmail(input) {
-      const clean = input.trim().toLowerCase();
-      if (clean === "" || clean === "tecnico" || clean === "admin") {
-        return [ADMIN_EMAIL];
-      }
-      if (clean.includes("@")) {
-        return [clean];
-      }
-      return [
-        `${clean}@aermanutencao.local`,
-        `${clean}@aermanutencao.com.br`,
-        `${clean}@manuntencao.com.br`,
-        `${clean}@manuntencao.local`
-      ];
-    }
-
-    // ================= LOGIN VIA FIREBASE AUTHENTICATION =================
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const userInput = document.getElementById("login-user").value.trim();
-      const pass = document.getElementById("login-pass").value.trim();
-      const err = document.getElementById("login-error");
-      const btn = document.getElementById("btn-login-submit");
-
-      err.style.display = "none";
-      btn.disabled = true;
-      btn.textContent = "Verificando...";
-
-      const candidateEmails = resolveAuthEmail(userInput);
-      let loggedIn = false;
-
-      for (const emailOption of candidateEmails) {
-        try {
-          await auth.signInWithEmailAndPassword(emailOption, pass);
-          loggedIn = true;
-          break;
-        } catch (error) {
-          // Tenta o próximo formato de domínio
-        }
-      }
-
-      if (!loggedIn) {
-        err.textContent = "E-mail/usuário ou senha incorretos.";
-        err.style.display = "block";
-      }
-
-      btn.disabled = false;
-      btn.textContent = "Entrar no Sistema";
-    });
-
-    // ================= TROCA DE SENHA NO 1º ACESSO =================
-    document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const p1 = document.getElementById("new-pass").value.trim();
-      const p2 = document.getElementById("confirm-pass").value.trim();
-      const err = document.getElementById("pass-error");
-      const btn = document.getElementById("btn-save-first-pass");
-      err.style.display = "none";
-
-      if (p1 !== p2 || p1.length < 6) {
-        err.style.display = "block";
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = "Atualizando senha...";
-
-      try {
-        const fbUser = auth.currentUser;
-        if (fbUser) {
-          await fbUser.updatePassword(p1);
-        }
-        await updateDocItem("lojas", pendingUnitLogin.id, {
-          firstAccess: false
+            if (!logged) {
+                loginErr.classList.remove("hidden");
+            }
         });
 
-        currentUser = { role: "loja", name: pendingUnitLogin.nome, loja: pendingUnitLogin.nome };
-        document.getElementById("first-access-view").style.display = "none";
-        openApp();
-      } catch (error) {
-        alert("Erro ao atualizar senha: " + error.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Salvar Nova Senha e Entrar";
-      }
-    });
-
-    async function logout() {
-      if (unsubscribeRealtime) {
-        unsubscribeRealtime();
-        unsubscribeRealtime = null;
-      }
-      await auth.signOut();
-      localStorage.removeItem("ar_session");
-      location.reload();
-    }
-
-    function startRealtimeSync() {
-      if (unsubscribeRealtime) unsubscribeRealtime();
-      try {
-        unsubscribeRealtime = db.collection("chamados").onSnapshot(() => {
-          refreshAll();
-        }, (err) => {
-          console.warn("Escuta em tempo real aguardando permissão:", err.message);
-        });
-      } catch (e) {
-        console.warn("Erro ao iniciar tempo real:", e);
-      }
-    }
-
-    function openApp() {
-      document.getElementById("login-view").style.display = "none";
-      document.getElementById("first-access-view").style.display = "none";
-      document.getElementById("app-view").style.display = "block";
-      document.getElementById("welcome-title").textContent = "Olá, " + currentUser.name;
-      document.getElementById("user-display-name").textContent = currentUser.name;
-      document.getElementById("user-display-role").textContent =
-        currentUser.role === "admin" ? "ADMINISTRADOR / TÉCNICO" : "UNIDADE / GERENTE";
-
-      if (currentUser.role !== "admin") {
-        document.getElementById("admin-menu").classList.add("hidden");
-        document.getElementById("btn-new-nota-shortcut").classList.add("hidden");
-        document.getElementById("client-menu").classList.remove("hidden");
-      } else {
-        document.getElementById("client-menu").classList.add("hidden");
-      }
-
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
-
-      startRealtimeSync();
-      refreshAll();
-    }
-
-    function toggleDrawer() {
-      const drawer = document.getElementById("drawer");
-      const overlay = document.getElementById("drawer-overlay");
-      const isOpen = drawer.classList.contains("open");
-      drawer.classList.toggle("open", !isOpen);
-      overlay.style.display = isOpen ? "none" : "block";
-    }
-
-    function openClientPasswordModal() {
-      document.getElementById("drawer").classList.remove("open");
-      document.getElementById("drawer-overlay").style.display = "none";
-      document.getElementById("client-new-pass").value = "";
-      document.getElementById("client-confirm-pass").value = "";
-      document.getElementById("client-pass-error").style.display = "none";
-      document.getElementById("client-password-modal").style.display = "flex";
-    }
-
-    document.getElementById("form-client-password").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const p1 = document.getElementById("client-new-pass").value.trim();
-      const p2 = document.getElementById("client-confirm-pass").value.trim();
-      const err = document.getElementById("client-pass-error");
-      err.style.display = "none";
-
-      if (p1 !== p2 || p1.length < 6) {
-        err.textContent = "As senhas devem coincidir e ter no mínimo 6 caracteres.";
-        err.style.display = "block";
-        return;
-      }
-
-      try {
-        const fbUser = auth.currentUser;
-        if (fbUser) {
-          await fbUser.updatePassword(p1);
-          closeModalById("client-password-modal");
-          alert("Senha alterada com sucesso no servidor!");
-        }
-      } catch (error) {
-        if (error.code === "auth/requires-recent-login") {
-          alert("Por segurança, saia do aplicativo e entre novamente antes de trocar a senha.");
-        } else {
-          alert("Erro ao trocar senha: " + error.message);
-        }
-      }
-    });
-
-    function onChangeChamadosLojaFilter() {
-      selectedTicketIds.clear();
-      updateSelectionBar();
-      refreshAll();
-    }
-
-    function navigate(page) {
-      document.getElementById("drawer").classList.remove("open");
-      document.getElementById("drawer-overlay").style.display = "none";
-
-      ["sec-dashboard", "sec-novo-chamado", "sec-lista", "sec-notas", "sec-equipamentos", "sec-lojas"].forEach(id => {
-        document.getElementById(id).classList.add("hidden");
-      });
-
-      if (page !== "finalizados") {
-        document.getElementById("selection-floating-bar").style.display = "none";
-      }
-
-      if (page === "dashboard") {
-        document.getElementById("sec-dashboard").classList.remove("hidden");
-      } else if (page === "novo-chamado") {
-        document.getElementById("sec-novo-chamado").classList.remove("hidden");
-      } else if (page === "notas") {
-        document.getElementById("sec-notas").classList.remove("hidden");
-      } else if (["abertos", "visualizado", "andamento", "finalizados", "nao_atendidos", "urgentes", "todos"].includes(page)) {
-        currentFilter = page;
-        const titles = {
-          abertos: "Chamados em Aberto",
-          visualizado: "Chamados Visualizados",
-          andamento: "Chamados em Andamento",
-          finalizados: "Chamados Finalizados",
-          nao_atendidos: "Chamados Não Atendidos",
-          urgentes: "🚨 Chamados Urgentes Ativos",
-          todos: "Todos os Chamados"
-        };
-        document.getElementById("lista-titulo").textContent = titles[page];
-        const hint = document.getElementById("finalizados-hint");
-        if (page === "finalizados" && currentUser.role === "admin") {
-          hint.classList.remove("hidden");
-        } else {
-          hint.classList.add("hidden");
-        }
-        document.getElementById("sec-lista").classList.remove("hidden");
-      } else if (page === "equipamentos") {
-        document.getElementById("sec-equipamentos").classList.remove("hidden");
-      } else if (page === "lojas") {
-        document.getElementById("sec-lojas").classList.remove("hidden");
-      }
-      refreshAll();
-    }
-
-    function openUrgentList() {
-      const urgents = cachedChamados.filter(c => c.prioridade === "Urgente" && c.status !== "finalizados" && c.status !== "nao_atendidos");
-      if (urgents.length === 1) {
-        viewTicket(urgents[0].id);
-      } else {
-        navigate("urgentes");
-      }
-    }
-
-    function formatDuration(ms) {
-      if (!ms || ms < 0) return "menos de 1 min";
-      const totalMins = Math.floor(ms / 60000);
-      const days = Math.floor(totalMins / 1440);
-      const hours = Math.floor((totalMins % 1440) / 60);
-      const mins = totalMins % 60;
-
-      const parts = [];
-      if (days > 0) parts.push(`${days}d`);
-      if (hours > 0) parts.push(`${hours}h`);
-      parts.push(`${mins}min`);
-      return parts.join(" ");
-    }
-
-    function timeAgo(ts) {
-      if (!ts) return "";
-      const diff = Date.now() - ts;
-      const mins = Math.floor(diff / 60000);
-      if (mins < 1) return "agora mesmo";
-      if (mins < 60) return `há ${mins} min`;
-      const hrs = Math.floor(mins / 60);
-      if (hrs < 24) return `há ${hrs}h`;
-      const days = Math.floor(hrs / 24);
-      return `há ${days} dia(s)`;
-    }
-
-    function handlePhotoCompress(event, type) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-          const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 720;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > MAX_WIDTH) {
-            height = Math.round((height * MAX_WIDTH) / width);
-            width = MAX_WIDTH;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-
-          const base64 = canvas.toDataURL("image/jpeg", 0.65);
-
-          if (type === "ticket") {
-            compressedPhotoBase64 = base64;
-            document.getElementById("photo-preview-img").src = base64;
-            document.getElementById("photo-preview-box").style.display = "block";
-          } else if (type === "nota") {
-            compressedNotaPhotoBase64 = base64;
-            document.getElementById("nota-photo-preview-img").src = base64;
-            document.getElementById("nota-photo-preview-box").style.display = "block";
-          }
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function clearPhoto(type) {
-      if (type === "ticket") {
-        compressedPhotoBase64 = "";
-        document.getElementById("ch-foto").value = "";
-        document.getElementById("photo-preview-box").style.display = "none";
-      } else if (type === "nota") {
-        compressedNotaPhotoBase64 = "";
-        document.getElementById("nota-nf-file").value = "";
-        document.getElementById("nota-photo-preview-box").style.display = "none";
-      }
-    }
-
-    async function fetchCollection(col) {
-      try {
-        const snap = await db.collection(col).get();
-        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        setLocal(col, data);
-        document.getElementById("sync-status").textContent = "● Nuvem Protegida";
-        return data;
-      } catch (e) {
-        console.warn("Modo offline/local ativo:", e);
-        document.getElementById("sync-status").textContent = "● Modo Local";
-        return getLocal(col);
-      }
-    }
-
-    async function addItem(col, item) {
-      item.createdAt = new Date().toLocaleString("pt-BR");
-      item.timestamp = Date.now();
-      try {
-        const docRef = await db.collection(col).add(item);
-        item.id = docRef.id;
-      } catch (e) {
-        const list = getLocal(col);
-        item.id = Date.now().toString();
-        list.unshift(item);
-        setLocal(col, list);
-      }
-      refreshAll();
-      return item.id;
-    }
-
-    async function updateDocItem(col, id, fields) {
-      try {
-        await db.collection(col).doc(id).update(fields);
-      } catch (e) {
-        const list = getLocal(col).map(i => i.id === id ? { ...i, ...fields } : i);
-        setLocal(col, list);
-      }
-      refreshAll();
-    }
-
-    async function updateStatus(id, newStatus, extraFields = {}) {
-      const ticket = cachedChamados.find(c => c.id === id);
-      const now = Date.now();
-      const nowStr = new Date(now).toLocaleString("pt-BR");
-      const updates = { status: newStatus, ...extraFields };
-
-      if (newStatus === "visualizado") {
-        updates.viewedAt = nowStr;
-        updates.viewedTimestamp = now;
-      } else if (newStatus === "andamento") {
-        updates.startedAt = nowStr;
-        updates.startedTimestamp = now;
-      } else if (newStatus === "finalizados") {
-        updates.finishedAt = nowStr;
-        updates.finishedTimestamp = now;
-        const startRef = (ticket && ticket.startedTimestamp) ? ticket.startedTimestamp : (ticket && ticket.timestamp ? ticket.timestamp : now);
-        updates.durationMs = now - startRef;
-        updates.totalDurationMs = ticket && ticket.timestamp ? (now - ticket.timestamp) : (now - startRef);
-      } else if (newStatus === "nao_atendidos") {
-        updates.closedAt = nowStr;
-      }
-
-      await updateDocItem("chamados", id, updates);
-      if (document.getElementById("ticket-modal").style.display === "flex") {
-        viewTicket(id);
-      }
-    }
-
-    function updateEquipamentosDropdown() {
-      const lojaSelecionada = document.getElementById("ch-loja").value;
-      const chEq = document.getElementById("ch-equipamento");
-      const eqDaLoja = cachedEquipamentos.filter(eq => normalizeText(eq.loja) === normalizeText(lojaSelecionada));
-
-      chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
-        eqDaLoja.map(eq => `<option value="${eq.nome}${eq.modelo ? ' (' + eq.modelo + ')' : ''}">${eq.nome}${eq.modelo ? ' - ' + eq.modelo : ''}</option>`).join("");
-    }
-
-    function openFinishTicketModal(id) {
-      const ticket = cachedChamados.find(c => c.id === id);
-      if (!ticket) return;
-      document.getElementById("finish-ticket-id").value = ticket.id;
-      document.getElementById("finish-ticket-header").textContent = `${ticket.loja} • ${ticket.titulo}`;
-      document.getElementById("finish-servico").value = ticket.servicoRealizado || "";
-      document.getElementById("finish-pecas").value = ticket.pecasTrocadas || "";
-      document.getElementById("finish-ticket-modal").style.display = "flex";
-    }
-
-    document.getElementById("form-finish-ticket").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = document.getElementById("finish-ticket-id").value;
-      const servico = document.getElementById("finish-servico").value.trim();
-      const pecas = document.getElementById("finish-pecas").value.trim() || "Nenhuma peça trocada";
-
-      const resumoNota = pecas !== "Nenhuma peça trocada"
-        ? `Serviço: ${servico} | Peças: ${pecas}`
-        : `Serviço: ${servico}`;
-
-      await updateStatus(id, "finalizados", {
-        servicoRealizado: servico,
-        pecasTrocadas: pecas,
-        obsTecnica: resumoNota
-      });
-
-      closeModalById("finish-ticket-modal");
-    });
-
-    async function deleteItem(col, id) {
-      if (!confirm("Deseja excluir este registro permanentemente?")) return;
-      try {
-        await db.collection(col).doc(id).delete();
-      } catch (e) {
-        const list = getLocal(col).filter(i => i.id !== id);
-        setLocal(col, list);
-      }
-      closeModalById("ticket-modal");
-      refreshAll();
-    }
-
-    function openEditTicketModal(id) {
-      const ticket = cachedChamados.find(c => c.id === id);
-      if (!ticket) return;
-      document.getElementById("edit-ch-id").value = ticket.id;
-      document.getElementById("edit-ch-prioridade").value = ticket.prioridade || "Média";
-      document.getElementById("edit-ch-titulo").value = ticket.titulo || "";
-      document.getElementById("edit-ch-descricao").value = ticket.descricao || "";
-      closeModalById("ticket-modal");
-      document.getElementById("edit-ticket-modal").style.display = "flex";
-    }
-
-    document.getElementById("form-edit-chamado").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = document.getElementById("edit-ch-id").value;
-      const prioridade = document.getElementById("edit-ch-prioridade").value;
-      const titulo = document.getElementById("edit-ch-titulo").value.trim();
-      const descricao = document.getElementById("edit-ch-descricao").value.trim();
-
-      await updateDocItem("chamados", id, {
-        prioridade: prioridade,
-        titulo: titulo,
-        descricao: descricao
-      });
-
-      closeModalById("edit-ticket-modal");
-      alert("Chamado atualizado com sucesso!");
-    });
-
-    function openPriceModal(id) {
-      const ticket = cachedChamados.find(c => c.id === id);
-      if (!ticket) return;
-      document.getElementById("price-ticket-id").value = ticket.id;
-      document.getElementById("price-ticket-title").textContent = `${ticket.loja} • ${ticket.titulo}`;
-      document.getElementById("price-labor").value = ticket.valorMaoDeObra || "";
-      document.getElementById("price-parts").value = ticket.valorPecas || 0;
-
-      const defaultNotes = ticket.obsTecnica || (
-        ticket.servicoRealizado
-          ? `Serviço: ${ticket.servicoRealizado}${ticket.pecasTrocadas ? " | Peças: " + ticket.pecasTrocadas : ""}`
-          : ""
-      );
-      document.getElementById("price-notes").value = defaultNotes;
-      document.getElementById("price-modal").style.display = "flex";
-    }
-
-    document.getElementById("form-ticket-price").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = document.getElementById("price-ticket-id").value;
-      const labor = parseFloat(document.getElementById("price-labor").value) || 0;
-      const parts = parseFloat(document.getElementById("price-parts").value) || 0;
-      const total = labor + parts;
-      const notes = document.getElementById("price-notes").value.trim();
-
-      await updateDocItem("chamados", id, {
-        valorMaoDeObra: labor,
-        valorPecas: parts,
-        valorTotal: total,
-        obsTecnica: notes
-      });
-
-      closeModalById("price-modal");
-      if (document.getElementById("ticket-modal").style.display === "flex") {
-        viewTicket(id);
-      }
-    });
-
-    function toggleTicketSelection(id) {
-      if (selectedTicketIds.has(id)) {
-        selectedTicketIds.delete(id);
-      } else {
-        selectedTicketIds.add(id);
-      }
-      updateSelectionBar();
-      refreshAll();
-    }
-
-    function clearTicketSelection() {
-      selectedTicketIds.clear();
-      updateSelectionBar();
-      refreshAll();
-    }
-
-    function updateSelectionBar() {
-      const bar = document.getElementById("selection-floating-bar");
-      if (currentFilter !== "finalizados" || currentUser.role !== "admin" || selectedTicketIds.size === 0) {
-        bar.style.display = "none";
-        return;
-      }
-
-      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
-      const sum = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
-
-      document.getElementById("sel-bar-count").textContent =
-        selectedList.length === 1 ? "1 serviço selecionado" : `${selectedList.length} serviços selecionados`;
-      document.getElementById("sel-bar-total").textContent = `Total acumulado: ${formatBRL(sum)}`;
-      bar.style.display = "flex";
-    }
-
-    function openCreateNotaModal() {
-      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
-      if (selectedList.length === 0) return;
-
-      const lojasUnicas = [...new Set(selectedList.map(c => c.loja))];
-      if (lojasUnicas.length > 1) {
-        alert("Selecione apenas serviços da MESMA loja para gerar uma nota de serviço única.");
-        return;
-      }
-
-      const lojaNome = lojasUnicas[0];
-      const total = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
-
-      const itemsHtml = selectedList.map((c, idx) => `
-        <div style="background:var(--bg-light);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;">
-          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--text);">
-            <span>${idx + 1}. ${c.titulo}</span>
-            <span>${formatBRL(c.valorTotal || 0)}</span>
-          </div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px;">
-            ${c.obsTecnica || c.servicoRealizado || c.descricao}
-          </div>
-        </div>
-      `).join("");
-
-      document.getElementById("nota-preview-summary").innerHTML = `
-        <div style="background:var(--navy);color:#FFF;padding:12px 14px;border-radius:12px;margin-bottom:10px;">
-          <div style="font-size:11px;color:var(--yellow);font-weight:800;">CLIENTE / UNIDADE</div>
-          <div style="font-size:17px;font-weight:800;">${lojaNome}</div>
-          <div style="font-size:13px;margin-top:4px;">${selectedList.length} serviço(s) agrupado(s) • <strong>Total: ${formatBRL(total)}</strong></div>
-        </div>
-        ${itemsHtml}
-      `;
-
-      compressedNotaPhotoBase64 = "";
-      document.getElementById("nota-nf-file").value = "";
-      document.getElementById("nota-photo-preview-box").style.display = "none";
-      document.getElementById("create-nota-modal").style.display = "flex";
-    }
-
-    document.getElementById("form-create-nota").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
-      if (selectedList.length === 0) return;
-
-      const lojaNome = selectedList[0].loja;
-      const foundLoja = cachedLojas.find(l => l.nome === lojaNome);
-      const lojaCnpj = foundLoja ? foundLoja.cnpj : "";
-
-      const totalGeral = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
-      
-      const nextSeq = cachedNotas.length + 1;
-      const numeroNota = "NS:" + String(nextSeq).padStart(4, "0");
-
-      const itensNota = selectedList.map(c => ({
-        ticketId: c.id,
-        titulo: c.titulo,
-        equipamento: c.equipamento,
-        motivo: c.descricao,
-        servicoRealizado: c.obsTecnica || (c.servicoRealizado ? `${c.servicoRealizado}${c.pecasTrocadas ? " | Peças: " + c.pecasTrocadas : ""}` : c.descricao),
-        dataFinalizacao: c.finishedAt || c.createdAt,
-        duracao: c.durationMs ? formatDuration(c.durationMs) : "-",
-        valorMaoDeObra: parseFloat(c.valorMaoDeObra) || 0,
-        valorPecas: parseFloat(c.valorPecas) || 0,
-        valorTotal: parseFloat(c.valorTotal) || 0
-      }));
-
-      const notaId = await addItem("notas_servico", {
-        numero: numeroNota,
-        loja: lojaNome,
-        lojaCnpj: lojaCnpj,
-        itens: itensNota,
-        valorTotal: totalGeral,
-        pix: document.getElementById("nota-pix").value.trim(),
-        observacao: document.getElementById("nota-obs").value.trim(),
-        notaFiscalFoto: compressedNotaPhotoBase64 || "",
-        statusPagamento: "em_aberto"
-      });
-
-      for (const c of selectedList) {
-        await updateDocItem("chamados", c.id, {
-          notaId: notaId,
-          notaNumero: numeroNota
-        });
-      }
-
-      selectedTicketIds.clear();
-      updateSelectionBar();
-      closeModalById("create-nota-modal");
-      navigate("notas");
-      setTimeout(() => viewNotaReceipt(notaId), 250);
-    });
-
-    async function toggleNotaStatus(notaId, newStatus) {
-      await updateDocItem("notas_servico", notaId, {
-        statusPagamento: newStatus,
-        paidAt: newStatus === "pago" ? new Date().toLocaleString("pt-BR") : ""
-      });
-      if (document.getElementById("receipt-pdf-modal").style.display === "flex") {
-        viewNotaReceipt(notaId);
-      }
-    }
-
-    function viewNotaReceipt(notaId) {
-      const nota = cachedNotas.find(n => n.id === notaId);
-      if (!nota) return;
-
-      const isPago = nota.statusPagamento === "pago";
-
-      const adminButtons = currentUser.role === "admin" ? `
-        ${!isPago
-          ? `<button class="btn-sm btn-done" onclick="toggleNotaStatus('${nota.id}', 'pago')">✅ Marcar como Pago</button>`
-          : `<button class="btn-sm btn-unattended" onclick="toggleNotaStatus('${nota.id}', 'em_aberto')">↩️ Reabrir</button>`
-        }
-        <button class="btn-sm btn-del" onclick="deleteNota('${nota.id}')">🗑️</button>
-      ` : "";
-
-      document.getElementById("receipt-admin-actions").innerHTML = adminButtons;
-
-      const itensHtml = (nota.itens || []).map((it, idx) => `
-        <div class="receipt-service-item">
-          <div class="receipt-service-top">
-            <span>${idx + 1}. ${it.titulo}</span>
-            <span>${formatBRL(it.valorTotal)}</span>
-          </div>
-          <div class="receipt-service-desc">
-            <strong>Equipamento:</strong> ${it.equipamento} • <strong>Concluído:</strong> ${it.dataFinalizacao || "-"} (${it.duracao})<br/>
-            <strong>Serviço executado:</strong> ${it.servicoRealizado}
-            ${(it.valorPecas > 0) ? `<br/><em>(Mão de obra: ${formatBRL(it.valorMaoDeObra)} + Peças: ${formatBRL(it.valorPecas)})</em>` : ""}
-          </div>
-        </div>
-      `).join("");
-
-      document.getElementById("printable-receipt-area").innerHTML = `
-        <div class="receipt-sheet">
-          <div class="receipt-header">
-            <div class="receipt-header-top">
-              <img src="logo.png" class="receipt-logo" alt="A&R" onerror="this.style.display='none'" />
-              <div class="receipt-company">
-                <div class="receipt-company-name">A&R MANUTENÇÃO E INSTALAÇÃO LTDA</div>
-                <div class="receipt-company-cnpj">CNPJ: 62.659.358/0001-88 • Cláudio - MG</div>
-                <div class="receipt-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="receipt-body-white">
-            <div style="text-align:center;font-weight:900;font-size:15px;color:#0F294A;margin-bottom:10px;text-transform:uppercase;">
-              NOTA DE PRESTAÇÃO DE SERVIÇO • ${nota.numero}
-            </div>
-
-            <div class="receipt-meta-grid">
-              <div>
-                <div style="color:#64748B;font-size:11px;font-weight:700;">CLIENTE / UNIDADE</div>
-                <div style="font-size:15px;font-weight:900;color:#0F294A;">${nota.loja}</div>
-                ${nota.lojaCnpj ? `<div style="font-size:12px;color:#475569;font-weight:700;">CNPJ: ${nota.lojaCnpj}</div>` : ""}
-              </div>
-              <div style="text-align:right;">
-                <div style="color:#64748B;font-size:11px;font-weight:700;">EMISSÃO</div>
-                <div style="font-weight:800;">${nota.createdAt || "-"}</div>
-                <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}" style="margin-top:4px;display:inline-block;">
-                  ${isPago ? '✅ PAGO' : '⏳ AGUARDANDO PAGAMENTO'}
-                </span>
-              </div>
-            </div>
-
-            <div style="font-size:11px;font-weight:800;color:#64748B;text-transform:uppercase;margin-bottom:4px;">
-              Discriminação dos Serviços Executados (${(nota.itens || []).length})
-            </div>
-
-            ${itensHtml}
-
-            ${nota.observacao ? `
-              <div style="margin-top:10px;padding:8px 10px;background:#FFFBEB;border-radius:8px;font-size:12px;color:#92400E;">
-                <strong>Obs.:</strong> ${nota.observacao}
-              </div>
-            ` : ""}
-
-            <div class="receipt-total-box">
-              <span style="font-size:14px;font-weight:900;color:#0F294A;">VALOR TOTAL DOS SERVIÇOS</span>
-              <span style="font-size:20px;font-weight:900;color:#0F294A;">${formatBRL(nota.valorTotal)}</span>
-            </div>
-
-            ${nota.notaFiscalFoto ? `
-              <div style="margin-top:16px;border-top:1.5px dashed #CBD5E1;padding-top:12px;">
-                <div style="font-size:12px;font-weight:900;color:#0F294A;margin-bottom:6px;">📎 NOTA FISCAL / COMPROVANTE ANEXADO:</div>
-                <img src="${nota.notaFiscalFoto}" style="width:100%;max-height:280px;object-fit:contain;border-radius:8px;border:1px solid #E2E8F0;" alt="Nota Fiscal Anexada" onclick="window.open(this.src)" />
-              </div>
-            ` : ""}
-          </div>
-
-          <div class="receipt-footer">
-            ${nota.pix ? `<div style="margin-bottom:6px;color:#FFD700;font-weight:800;">CHAVE PIX PARA PAGAMENTO: ${nota.pix}</div>` : ""}
-            <div>Obrigado pela confiança! Garantia técnica A&R Manutenção.</div>
-            <div class="signature-line">A&R Manutenção e Instalação LTDA / Assinatura Cliente</div>
-          </div>
-        </div>
-      `;
-
-      document.getElementById("receipt-pdf-modal").style.display = "flex";
-    }
-
-    async function deleteNota(notaId) {
-      if (!confirm("Deseja excluir esta Nota de Serviço?")) return;
-      try {
-        await db.collection("notas_servico").doc(notaId).delete();
-      } catch (e) {
-        const list = getLocal("notas_servico").filter(n => n.id !== notaId);
-        setLocal("notas_servico", list);
-      }
-      closeModalById("receipt-pdf-modal");
-      refreshAll();
-    }
-
-    async function viewTicket(id) {
-      let ticket = cachedChamados.find(c => c.id === id);
-      if (!ticket) return;
-
-      if (currentUser.role === "admin" && ticket.status === "abertos") {
-        await updateStatus(id, "visualizado");
-        ticket = cachedChamados.find(c => c.id === id) || { ...ticket, status: "visualizado" };
-      }
-
-      const statusLabels = {
-        abertos: "Em aberto",
-        visualizado: "Visualizado",
-        andamento: "Em andamento",
-        finalizados: "Finalizado",
-        nao_atendidos: "Não atendido"
-      };
-
-      const prioClass = getPriorityBadgeClass(ticket.prioridade);
-
-      const techReportHtml = (ticket.status === "finalizados" && (ticket.servicoRealizado || ticket.pecasTrocadas)) ? `
-        <div class="tech-report-box">
-          <div style="font-weight:800;color:var(--success);margin-bottom:4px;">📋 Relatório de Encerramento Técnico</div>
-          ${ticket.servicoRealizado ? `<div><strong>Serviço realizado:</strong> ${ticket.servicoRealizado}</div>` : ""}
-          ${ticket.pecasTrocadas ? `<div style="margin-top:4px;"><strong>Peças / Materiais trocados:</strong> ${ticket.pecasTrocadas}</div>` : ""}
-        </div>
-      ` : "";
-
-      const durationHtml = ticket.status === "finalizados" ? `
-        <div class="duration-pill">
-          ⏱️ Tempo gasto no atendimento: <strong>${formatDuration(ticket.durationMs)}</strong>
-        </div>
-      ` : "";
-
-      const financialHtml = (ticket.status === "finalizados" && ticket.valorTotal > 0) ? `
-        <div class="price-pill" style="display:block;margin-top:10px;">
-          🧾 Valor do Serviço: <strong>${formatBRL(ticket.valorTotal)}</strong>
-          ${ticket.notaNumero ? `<br/>Vinculado à Nota: <strong>${ticket.notaNumero}</strong>` : ""}
-        </div>
-      ` : "";
-
-      const actionsHtml = currentUser.role === "admin" ? `
-        <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
-          ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar</button>` : ""}
-          ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${ticket.id}')">✅ Finalizar</button>` : ""}
-          ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Valor</button>` : ""}
-          <button class="btn-sm btn-status" onclick="openEditTicketModal('${ticket.id}')">✏️ Editar</button>
-          <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
-        </div>
-      ` : "";
-
-      document.getElementById("ticket-modal-content").innerHTML = `
-        <div class="item-header">
-          <div class="badge-group">
-            <span class="badge ${prioClass}">${ticket.prioridade}</span>
-            <span class="badge badge-st-${ticket.status}">${statusLabels[ticket.status] || ticket.status}</span>
-          </div>
-          <span class="badge badge-status">${ticket.loja}</span>
-        </div>
-        <div class="item-title" style="font-size:19px;margin-top:6px;">${ticket.titulo}</div>
-        <div class="item-meta">
-          <strong>Equipamento:</strong> ${ticket.equipamento}<br/>
-          <strong>Aberto por:</strong> ${ticket.autor} em ${ticket.createdAt || "-"}
-        </div>
-        <p style="font-size:14px;background:var(--bg-light);padding:12px;border-radius:12px;border:1px solid var(--border);">${ticket.descricao}</p>
-        ${techReportHtml}
-        ${durationHtml}
-        ${financialHtml}
-        ${ticket.foto ? `<img src="${ticket.foto}" class="ticket-photo" alt="Foto do chamado" onclick="window.open(this.src)" />` : ""}
-        ${actionsHtml}
-      `;
-
-      document.getElementById("ticket-modal").style.display = "flex";
-    }
-
-    function closeModalById(id, e) {
-      if (!e || e.target.id === id) {
-        document.getElementById(id).style.display = "none";
-      }
-    }
-
-    function getPriorityBadgeClass(p) {
-      if (p === "Urgente") return "badge-urgente";
-      if (p === "Alta") return "badge-alta";
-      if (p === "Média") return "badge-media";
-      return "badge-baixa";
-    }
-
-    // ================= CADASTRO DE LOJA COM CONTA REAL NO FIREBASE AUTH =================
-    document.getElementById("form-loja").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById("btn-save-loja");
-      const nome = document.getElementById("lj-nome").value.trim();
-      const cnpj = document.getElementById("lj-cnpj").value.trim();
-      const rawUser = document.getElementById("lj-user").value.trim().toLowerCase().replace(/\s+/g, "");
-      const rawPass = document.getElementById("lj-pass").value.trim();
-      const authEmail = `${rawUser}@aermanutencao.local`;
-
-      btn.disabled = true;
-      btn.textContent = "Criando conta segura...";
-
-      try {
-        const secondaryApp = firebase.apps.find(a => a.name === "Secondary") || firebase.initializeApp(firebaseConfig, "Secondary");
-        await secondaryApp.auth().createUserWithEmailAndPassword(authEmail, rawPass);
-        await secondaryApp.auth().signOut();
-
-        await addItem("lojas", {
-          nome: nome,
-          cnpj: cnpj,
-          user: rawUser,
-          authEmail: authEmail,
-          firstAccess: true
+        btnLogout.addEventListener("click", () => {
+            signOut(auth);
         });
 
-        e.target.reset();
-        alert(`Loja "${nome}" cadastrada com sucesso!\nUsuário de login: ${rawUser}`);
-      } catch (error) {
-        console.error(error);
-        if (error.code === "auth/email-already-in-use") {
-          alert("Esse usuário de login já existe. Escolha outro nome de usuário.");
-        } else {
-          alert("Erro ao criar acesso da loja: " + error.message);
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginView.classList.add("hidden");
+                appView.classList.remove("hidden");
+                
+                const email = user.email || "";
+                if (email === ADMIN_EMAIL || email.includes("admin")) {
+                    userBadge.textContent = "Administrador";
+                    carregarChamados(null);
+                } else {
+                    const storeName = email.split("@")[0];
+                    userBadge.textContent = `Loja: ${storeName}`;
+                    carregarChamados(storeName);
+                }
+            } else {
+                loginView.classList.remove("hidden");
+                appView.classList.add("hidden");
+            }
+        });
+
+        function carregarChamados(storeFilter) {
+            let q = collection(db, "chamados");
+            if (storeFilter) {
+                q = query(collection(db, "chamados"), where("loja", "==", storeFilter));
+            }
+
+            onSnapshot(q, (snapshot) => {
+                chamadosContainer.innerHTML = "";
+                if (snapshot.empty) {
+                    chamadosContainer.innerHTML = `<p class="text-gray-500 col-span-full text-center py-8">Nenhum chamado encontrado para esta loja.</p>`;
+                    return;
+                }
+
+                snapshot.forEach((docSnap) => {
+                    const c = docSnap.data();
+                    const card = document.createElement("div");
+                    card.className = "bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between";
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-semibold text-gray-900">${c.equipamento || 'Equipamento'}</span>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800 font-medium">${c.status || 'aberto'}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-4">${c.descricao || 'Sem descrição'}</p>
+                        </div>
+                        <div class="text-xs text-gray-400 border-t pt-3 flex justify-between">
+                            <span>Loja: ${c.loja || 'N/A'}</span>
+                            <span>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ''}</span>
+                        </div>
+                    `;
+                    chamadosContainer.appendChild(card);
+                });
+            }, (error) => {
+                console.error("Erro ao carregar chamados:", error);
+                chamadosContainer.innerHTML = `<p class="text-red-500 col-span-full text-center py-8">Erro ao carregar dados do banco.</p>`;
+            });
         }
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "+ Cadastrar Loja e Gerar Acesso";
-      }
-    });
-
-    document.getElementById("form-equipamento").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      await addItem("equipamentos", {
-        loja: document.getElementById("eq-loja").value,
-        nome: document.getElementById("eq-nome").value.trim(),
-        modelo: document.getElementById("eq-modelo").value.trim()
-      });
-      e.target.reset();
-      alert("Equipamento cadastrado!");
-    });
-
-    document.getElementById("form-chamado").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById("btn-save-chamado");
-      btn.disabled = true;
-      btn.textContent = "Salvando...";
-
-      await addItem("chamados", {
-        loja: document.getElementById("ch-loja").value,
-        prioridade: document.getElementById("ch-prioridade").value,
-        equipamento: document.getElementById("ch-equipamento").value,
-        titulo: document.getElementById("ch-titulo").value.trim(),
-        descricao: document.getElementById("ch-descricao").value.trim(),
-        autor: document.getElementById("ch-autor").value.trim(),
-        foto: compressedPhotoBase64 || "",
-        status: "abertos"
-      });
-
-      clearPhoto("ticket");
-      e.target.reset();
-      btn.disabled = false;
-      btn.textContent = "+ Salvar Chamado";
-      navigate("dashboard");
-    });
-
-    async function refreshAll() {
-      if (!currentUser) return;
-
-      const lojas = await fetchCollection("lojas");
-      cachedLojas = lojas;
-      const equipamentos = await fetchCollection("equipamentos");
-      cachedEquipamentos = equipamentos;
-      let chamados = await fetchCollection("chamados");
-      let notas = await fetchCollection("notas_servico");
-
-      chamados.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      notas.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-      if (currentUser.role !== "admin") {
-        const myLojaNorm = normalizeText(currentUser.loja);
-        chamados = chamados.filter(c => normalizeText(c.loja) === myLojaNorm);
-        notas = notas.filter(n => normalizeText(n.loja) === myLojaNorm);
-      }
-
-      cachedChamados = chamados;
-      cachedNotas = notas;
-
-      const abertosList = chamados.filter(c => c.status === "abertos");
-      const visualizadoList = chamados.filter(c => c.status === "visualizado");
-      const andamentoList = chamados.filter(c => c.status === "andamento");
-      const finalizadosList = chamados.filter(c => c.status === "finalizados");
-      const naoAtendidosList = chamados.filter(c => c.status === "nao_atendidos");
-
-      const bellDot = document.getElementById("bell-dot");
-      bellDot.style.display = abertosList.length > 0 ? "block" : "none";
-
-      if (lastKnownOpenCount !== null && abertosList.length > lastKnownOpenCount && currentUser.role === "admin") {
-        const newest = abertosList[0];
-        if ("Notification" in window && Notification.permission === "granted" && newest) {
-          new Notification(`Novo Chamado (${newest.prioridade}) - ${newest.loja}`, {
-            body: newest.titulo,
-            icon: "logo.png"
-          });
-        }
-      }
-      lastKnownOpenCount = abertosList.length;
-
-      document.getElementById("count-abertos").textContent = abertosList.length;
-      document.getElementById("count-visualizado").textContent = visualizadoList.length;
-      document.getElementById("count-andamento").textContent = andamentoList.length;
-      document.getElementById("count-finalizados").textContent = finalizadosList.length;
-      document.getElementById("count-nao-atendidos").textContent = naoAtendidosList.length;
-      document.getElementById("count-notas").textContent = notas.length;
-
-      const urgentesAtivos = chamados.filter(c =>
-        c.prioridade === "Urgente" && c.status !== "finalizados" && c.status !== "nao_atendidos"
-      );
-      const urgentBanner = document.getElementById("urgent-banner-dedicated");
-      if (urgentesAtivos.length > 0) {
-        urgentBanner.style.display = "block";
-        document.getElementById("urgent-count-pill").textContent =
-          urgentesAtivos.length === 1 ? "1 CHAMADO" : `${urgentesAtivos.length} CHAMADOS`;
-        const firstUrg = urgentesAtivos[0];
-        document.getElementById("urgent-banner-meta").textContent = `Loja: ${firstUrg.loja} | Status: ${firstUrg.status.toUpperCase()}`;
-        document.getElementById("urgent-banner-desc").textContent = `🚨 ${firstUrg.titulo}`;
-      } else {
-        urgentBanner.style.display = "none";
-      }
-
-      const statusLabels = {
-        abertos: "Em aberto",
-        visualizado: "Visualizado",
-        andamento: "Em andamento",
-        finalizados: "Finalizado",
-        nao_atendidos: "Não atendido"
-      };
-
-      const recentContainer = document.getElementById("recent-chamados-container");
-      const recents = chamados.slice(0, 5);
-      recentContainer.innerHTML = recents.length ? recents.map(c => `
-        <div class="recent-row" onclick="viewTicket('${c.id}')">
-          <div>
-            <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;">
-              ${c.loja} ${c.prioridade === "Urgente" ? "• 🚨 URGENTE" : ""}
-            </div>
-            <div style="font-size:15px;font-weight:800;color:var(--text);">${c.titulo}</div>
-            <div style="font-size:12px;color:var(--muted);">${timeAgo(c.timestamp)}</div>
-          </div>
-          <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
-        </div>
-      `).join("") : `<p style="color:var(--muted);font-size:13px;padding:8px 0;">Nenhum chamado registrado ainda.</p>`;
-
-      const chLoja = document.getElementById("ch-loja");
-      const eqLoja = document.getElementById("eq-loja");
-      const previousLoja = chLoja.value;
-
-      if (currentUser.role === "admin") {
-        const opts = lojas.length
-          ? lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("")
-          : `<option value="">Cadastre uma loja primeiro</option>`;
-        chLoja.innerHTML = opts;
-        eqLoja.innerHTML = opts;
-        if (previousLoja && lojas.some(l => l.nome === previousLoja)) {
-          chLoja.value = previousLoja;
-        }
-      } else {
-        chLoja.innerHTML = `<option value="${currentUser.loja}">${currentUser.loja}</option>`;
-      }
-
-      updateEquipamentosDropdown();
-
-      // ================= POPULAR FILTROS DE LOJA (CHAMADOS E NOTAS) =================
-      const filterChamadosWrap = document.getElementById("lista-loja-filter-wrap");
-      const filterChamadosSelect = document.getElementById("filter-chamados-loja");
-      const filterNotasWrap = document.getElementById("notas-loja-filter-wrap");
-      const filterNotasSelect = document.getElementById("filter-notas-loja");
-
-      if (currentUser.role === "admin") {
-        filterChamadosWrap.classList.remove("hidden");
-        filterNotasWrap.classList.remove("hidden");
-
-        const prevChFilter = filterChamadosSelect.value;
-        const prevNtFilter = filterNotasSelect.value;
-
-        const filterOptionsHtml = `<option value="TODAS">Todas as Lojas</option>` +
-          lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("");
-
-        filterChamadosSelect.innerHTML = filterOptionsHtml;
-        filterNotasSelect.innerHTML = filterOptionsHtml;
-
-        if (prevChFilter && (prevChFilter === "TODAS" || lojas.some(l => l.nome === prevChFilter))) {
-          filterChamadosSelect.value = prevChFilter;
-        }
-        if (prevNtFilter && (prevNtFilter === "TODAS" || lojas.some(l => l.nome === prevNtFilter))) {
-          filterNotasSelect.value = prevNtFilter;
-        }
-      } else {
-        filterChamadosWrap.classList.add("hidden");
-        filterNotasWrap.classList.add("hidden");
-      }
-
-      let filtrados = chamados;
-      if (currentFilter === "urgentes") {
-        filtrados = urgentesAtivos;
-      } else if (currentFilter !== "todos") {
-        filtrados = chamados.filter(c => c.status === currentFilter);
-      }
-
-      if (currentUser.role === "admin" && filterChamadosSelect.value && filterChamadosSelect.value !== "TODAS") {
-        filtrados = filtrados.filter(c => c.loja === filterChamadosSelect.value);
-      }
-
-      const chContainer = document.getElementById("chamados-container");
-      chContainer.innerHTML = filtrados.length ? filtrados.map(c => {
-        const isFinalizado = c.status === "finalizados";
-        const isSelected = selectedTicketIds.has(c.id);
-        const showCheckbox = isFinalizado && currentUser.role === "admin";
-
-        return `
-        <div class="item-card ${c.prioridade === 'Urgente' && !isFinalizado ? 'urgent-card' : ''} ${isSelected ? 'selected-ticket' : ''}">
-          <div class="item-header">
-            <div class="badge-group">
-              ${showCheckbox ? `
-                <input type="checkbox" class="ticket-select-checkbox" ${isSelected ? "checked" : ""} onchange="toggleTicketSelection('${c.id}')" title="Selecionar para Nota de Serviço" />
-              ` : ""}
-              <span class="badge ${getPriorityBadgeClass(c.prioridade)}">${c.prioridade}</span>
-              <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
-              ${isFinalizado && c.valorTotal > 0 ? `<span class="badge badge-price">${formatBRL(c.valorTotal)}</span>` : ""}
-              ${c.notaNumero ? `<span class="badge badge-nota-ok">🧾 ${c.notaNumero}</span>` : ""}
-            </div>
-            <span class="badge badge-status">${c.loja}</span>
-          </div>
-          <div class="item-title" style="cursor:pointer;" onclick="viewTicket('${c.id}')">${c.titulo}</div>
-          <div class="item-meta">
-            Equipamento: ${c.equipamento} • Aberto por: ${c.autor} (${c.createdAt || ''})
-          </div>
-          <p style="font-size:14px;color:var(--text);">${c.descricao}</p>
-          ${isFinalizado && (c.servicoRealizado || c.pecasTrocadas) ? `
-            <div class="tech-report-box">
-              ${c.servicoRealizado ? `<div><strong>✅ Feito:</strong> ${c.servicoRealizado}</div>` : ""}
-              ${c.pecasTrocadas ? `<div style="margin-top:2px;"><strong>🔧 Trocado:</strong> ${c.pecasTrocadas}</div>` : ""}
-            </div>
-          ` : ""}
-          ${isFinalizado && c.durationMs !== undefined ? `
-            <div class="duration-pill">⏱️ Duração: <strong>${formatDuration(c.durationMs)}</strong></div>
-          ` : ""}
-          ${c.foto ? `<img src="${c.foto}" class="ticket-photo" alt="Foto do chamado" onclick="viewTicket('${c.id}')" />` : ""}
-          <div class="item-actions">
-            <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir</button>
-            ${currentUser.role === "admin" ? `
-              <button class="btn-sm btn-status" onclick="openEditTicketModal('${c.id}')">✏️ Editar</button>
-              ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
-              ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${c.id}')">✅ Finalizar</button>` : ""}
-              ${isFinalizado ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 ${c.valorTotal > 0 ? 'Editar Valor' : 'Definir Valor'}</button>` : ""}
-              <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">🗑️ Excluir</button>
-            ` : ""}
-          </div>
-        </div>
-      `;
-      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhum chamado encontrado para este filtro.</p>`;
-
-      updateSelectionBar();
-
-      let notasFiltradas = notas;
-      if (currentUser.role === "admin" && filterNotasSelect.value && filterNotasSelect.value !== "TODAS") {
-        notasFiltradas = notasFiltradas.filter(n => n.loja === filterNotasSelect.value);
-      }
-
-      const notasContainer = document.getElementById("notas-container");
-      notasContainer.innerHTML = notasFiltradas.length ? notasFiltradas.map(n => {
-        const isPago = n.statusPagamento === "pago";
-        return `
-          <div class="item-card" style="border-left: 5px solid var(--yellow);">
-            <div class="item-header">
-              <div class="badge-group">
-                <span class="badge badge-price">${n.numero}</span>
-                <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}">${isPago ? '✅ PAGO' : '⏳ EM ABERTO'}</span>
-                ${n.notaFiscalFoto ? `<span class="badge" style="background:rgba(59,130,246,0.15);color:var(--info);">📎 Com NF</span>` : ""}
-              </div>
-              <span class="badge badge-status">${n.loja}</span>
-            </div>
-            <div class="item-title">${formatBRL(n.valorTotal)} <span style="font-size:13px;font-weight:600;color:var(--muted);">(${(n.itens || []).length} serviço(s))</span></div>
-            <div class="item-meta">
-              Emitida em: ${n.createdAt || "-"}
-              ${n.lojaCnpj ? `<br/>CNPJ: ${n.lojaCnpj}` : ""}
-              ${n.paidAt ? ` • Pago em: ${n.paidAt}` : ""}
-            </div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:10px;">
-              ${(n.itens || []).map(i => `• ${i.titulo} (${formatBRL(i.valorTotal)})`).join("<br/>")}
-            </div>
-            <div class="item-actions">
-              <button class="btn-sm btn-status" onclick="viewNotaReceipt('${n.id}')">📄 Ver Notinha / PDF</button>
-              ${currentUser.role === "admin" && !isPago ? `
-                <button class="btn-sm btn-done" onclick="toggleNotaStatus('${n.id}', 'pago')">✅ Dar Baixa (Pago)</button>
-              ` : ""}
-            </div>
-          </div>
-        `;
-      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma nota de serviço encontrada para este filtro.</p>`;
-
-      document.getElementById("lista-lojas").innerHTML = lojas.length ? lojas.map(l => `
-        <div class="item-card">
-          <div class="item-title">${l.nome}</div>
-          <div class="item-meta">CNPJ: <strong>${l.cnpj || 'Não informado'}</strong> | Login: <strong>${l.user}</strong></div>
-          <button class="btn-sm btn-del" onclick="deleteItem('lojas', '${l.id}')">Excluir Loja</button>
-        </div>
-      `).join("") : `<p style="color:var(--muted);font-size:13px;">Nenhuma loja cadastrada.</p>`;
-
-      document.getElementById("lista-equipamentos").innerHTML = equipamentos.length ? equipamentos.map(eq => `
-        <div class="item-card">
-          <div class="item-title">${eq.nome}</div>
-          <div class="item-meta">Loja: ${eq.loja} • ${eq.modelo || 'Sem observação'}</div>
-          <button class="btn-sm btn-del" onclick="deleteItem('equipamentos', '${eq.id}')">Excluir</button>
-        </div>
-      `).join("") : `<p style="color:var(--muted);font-size:13px;">Nenhum equipamento cadastrado.</p>`;
-    }
+    </script>
+</body>
+</html>
