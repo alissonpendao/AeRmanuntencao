@@ -8,8 +8,9 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="logo.png" />
 
-  <!-- Firebase SDK (Compat) -->
+  <!-- Firebase SDK (Compat) + Authentication -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <style>
@@ -258,6 +259,11 @@
 
     .btn-primary:active {
       transform: scale(0.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .btn-secondary {
@@ -1069,15 +1075,15 @@
 
       <form id="login-form">
         <div class="form-group">
-          <label for="login-user">Usuário / Unidade (Vazio para Técnico)</label>
-          <input type="text" id="login-user" class="form-control" />
+          <label for="login-user">E-mail ou Usuário da Loja</label>
+          <input type="text" id="login-user" class="form-control" placeholder="Ex: aermanutencao@superdito.com.br ou castro" required />
         </div>
         <div class="form-group">
           <label for="login-pass">Senha de Acesso</label>
           <input type="password" id="login-pass" class="form-control" placeholder="Digite sua senha..." required />
         </div>
-        <button type="submit" class="btn-primary">Entrar no Sistema</button>
-        <div id="login-error" class="error-msg">Usuário ou senha inválidos.</div>
+        <button type="submit" id="btn-login-submit" class="btn-primary">Entrar no Sistema</button>
+        <div id="login-error" class="error-msg">E-mail/usuário ou senha inválidos.</div>
       </form>
     </div>
   </div>
@@ -1089,19 +1095,19 @@
         <img src="logo.png" alt="Logo A&R" onerror="this.style.display='none'" />
       </div>
       <div class="login-title">Primeiro Acesso</div>
-      <div class="login-subtitle">Por segurança, defina uma nova senha pessoal para sua unidade.</div>
+      <div class="login-subtitle">Por segurança, defina uma nova senha pessoal (mínimo 6 caracteres) para sua unidade.</div>
 
       <form id="change-pass-form">
         <div class="form-group">
           <label for="new-pass">Nova Senha</label>
-          <input type="password" id="new-pass" class="form-control" placeholder="Mínimo 4 caracteres" required minlength="4" />
+          <input type="password" id="new-pass" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6" />
         </div>
         <div class="form-group">
           <label for="confirm-pass">Confirmar Nova Senha</label>
-          <input type="password" id="confirm-pass" class="form-control" placeholder="Repita a nova senha" required minlength="4" />
+          <input type="password" id="confirm-pass" class="form-control" placeholder="Repita a nova senha" required minlength="6" />
         </div>
-        <button type="submit" class="btn-primary">Salvar Nova Senha e Entrar</button>
-        <div id="pass-error" class="error-msg">As senhas não coincidem.</div>
+        <button type="submit" id="btn-save-first-pass" class="btn-primary">Salvar Nova Senha e Entrar</button>
+        <div id="pass-error" class="error-msg">As senhas não coincidem ou têm menos de 6 caracteres.</div>
       </form>
     </div>
   </div>
@@ -1113,7 +1119,7 @@
         <button class="menu-btn" onclick="toggleDrawer()">☰</button>
         <div>
           <div class="topbar-title">Sistema de Manutenção</div>
-          <div id="sync-status" class="sync-badge">● Nuvem Sincronizada</div>
+          <div id="sync-status" class="sync-badge">● Nuvem Protegida</div>
         </div>
       </div>
       <div class="topbar-actions">
@@ -1303,7 +1309,7 @@
         <div class="section-card">
           <div class="section-title" id="lista-titulo">Chamados</div>
 
-          <!-- FILTRO DE LOJA NOS CHAMADOS (ESPECIALMENTE ÚTIL EM FINALIZADOS) -->
+          <!-- FILTRO DE LOJA NOS CHAMADOS -->
           <div id="lista-loja-filter-wrap" class="store-filter-box hidden">
             <label for="filter-chamados-loja">🏪 Filtrar por Loja / Cliente</label>
             <select id="filter-chamados-loja" class="form-control" onchange="onChangeChamadosLojaFilter()"></select>
@@ -1378,14 +1384,14 @@
               <input type="text" id="lj-cnpj" class="form-control" placeholder="Ex: 00.000.000/0001-00" required />
             </div>
             <div class="form-group">
-              <label>Usuário de Acesso (Login)</label>
+              <label>Usuário de Acesso (Login sem espaços)</label>
               <input type="text" id="lj-user" class="form-control" placeholder="Ex: castro" required />
             </div>
             <div class="form-group">
-              <label>Senha Provisória (Trocará no 1º acesso)</label>
-              <input type="text" id="lj-pass" class="form-control" placeholder="Ex: 1234" required />
+              <label>Senha Provisória (Mínimo 6 caracteres)</label>
+              <input type="text" id="lj-pass" class="form-control" placeholder="Ex: 123456" required minlength="6" />
             </div>
-            <button type="submit" class="btn-primary">+ Cadastrar Loja e Gerar Acesso</button>
+            <button type="submit" id="btn-save-loja" class="btn-primary">+ Cadastrar Loja e Gerar Acesso</button>
           </form>
         </div>
         <div class="section-card">
@@ -1487,12 +1493,12 @@
         </div>
         <form id="form-client-password">
           <div class="form-group">
-            <label>Nova Senha</label>
-            <input type="password" id="client-new-pass" class="form-control" placeholder="Mínimo 4 caracteres" required minlength="4" />
+            <label>Nova Senha (mínimo 6 caracteres)</label>
+            <input type="password" id="client-new-pass" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6" />
           </div>
           <div class="form-group">
             <label>Confirmar Nova Senha</label>
-            <input type="password" id="client-confirm-pass" class="form-control" placeholder="Repita a nova senha" required minlength="4" />
+            <input type="password" id="client-confirm-pass" class="form-control" placeholder="Repita a nova senha" required minlength="6" />
           </div>
           <button type="submit" class="btn-primary">Salvar Nova Senha</button>
           <div id="client-pass-error" class="error-msg">As senhas não coincidem.</div>
@@ -1600,7 +1606,11 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
+
+    // E-mail oficial do Administrador cadastrado no Firebase Authentication
+    const ADMIN_EMAIL = "aermanutencao@superdito.com.br";
 
     // ================= GERENCIAMENTO DE INSTALAÇÃO PWA =================
     let deferredPrompt = null;
@@ -1632,28 +1642,6 @@
       localStorage.setItem("ar_dark", isDark ? "1" : "0");
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      if (localStorage.getItem("ar_dark") === "1") {
-        document.body.classList.add("dark-mode");
-      }
-      
-      // Controlar exibição da tela de carregamento (Splash com barra amarela)
-      setTimeout(() => {
-        const splash = document.getElementById("splash-screen");
-        if (splash) {
-          splash.style.opacity = "0";
-          setTimeout(() => { splash.style.display = "none"; }, 400);
-        }
-        checkSession();
-      }, 1000);
-    });
-
-    async function hashPassword(str) {
-      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-    }
-
-    const TECH_PASS = "2191";
     let currentUser = null;
     let pendingUnitLogin = null;
     let currentFilter = "abertos";
@@ -1665,6 +1653,56 @@
     let cachedEquipamentos = [];
     let selectedTicketIds = new Set();
     let lastKnownOpenCount = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("ar_dark") === "1") {
+        document.body.classList.add("dark-mode");
+      }
+
+      // Observador oficial de sessão do Firebase Auth
+      auth.onAuthStateChanged(async (firebaseUser) => {
+        const splash = document.getElementById("splash-screen");
+        if (splash && splash.style.display !== "none") {
+          splash.style.opacity = "0";
+          setTimeout(() => { splash.style.display = "none"; }, 350);
+        }
+
+        if (firebaseUser) {
+          const email = (firebaseUser.email || "").toLowerCase();
+          if (email === ADMIN_EMAIL) {
+            currentUser = { role: "admin", name: "Técnico Manutenção", loja: "Todas", email: email };
+            openApp();
+          } else {
+            // Busca os dados da loja vinculada a esse e-mail
+            const lojas = await fetchCollection("lojas");
+            const userPrefix = email.split("@")[0];
+            const found = lojas.find(l =>
+              (l.authEmail && l.authEmail.toLowerCase() === email) ||
+              (l.user && l.user.toLowerCase() === userPrefix)
+            );
+
+            if (found) {
+              if (found.firstAccess) {
+                pendingUnitLogin = found;
+                document.getElementById("login-view").style.display = "none";
+                document.getElementById("first-access-view").style.display = "flex";
+                return;
+              }
+              currentUser = { role: "loja", name: found.nome, loja: found.nome, email: email };
+              openApp();
+            } else {
+              currentUser = { role: "loja", name: userPrefix, loja: userPrefix, email: email };
+              openApp();
+            }
+          }
+        } else {
+          currentUser = null;
+          document.getElementById("app-view").style.display = "none";
+          document.getElementById("first-access-view").style.display = "none";
+          document.getElementById("login-view").style.display = "flex";
+        }
+      });
+    });
 
     function formatBRL(val) {
       const num = parseFloat(val) || 0;
@@ -1678,77 +1716,84 @@
       localStorage.setItem("ar_" + key, JSON.stringify(data));
     }
 
-    function checkSession() {
-      const saved = localStorage.getItem("ar_session");
-      if (saved) {
-        currentUser = JSON.parse(saved);
-        openApp();
-      } else {
-        document.getElementById("login-view").style.display = "flex";
+    // Converte o usuário da loja (ex: "castro") em e-mail padrão do sistema se não tiver @
+    function resolveAuthEmail(input) {
+      const clean = input.trim().toLowerCase();
+      if (clean === "" || clean === "tecnico" || clean === "admin") {
+        return ADMIN_EMAIL;
       }
+      if (clean.includes("@")) {
+        return clean;
+      }
+      return `${clean}@aermanutencao.local`;
     }
 
+    // ================= LOGIN VIA FIREBASE AUTHENTICATION =================
     document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const user = document.getElementById("login-user").value.trim().toLowerCase();
+      const userInput = document.getElementById("login-user").value.trim();
       const pass = document.getElementById("login-pass").value.trim();
       const err = document.getElementById("login-error");
+      const btn = document.getElementById("btn-login-submit");
+
       err.style.display = "none";
+      btn.disabled = true;
+      btn.textContent = "Verificando...";
 
-      if ((user === "" || user === "tecnico") && pass === TECH_PASS) {
-        currentUser = { role: "admin", name: "Técnico Manutenção", loja: "Todas" };
-        localStorage.setItem("ar_session", JSON.stringify(currentUser));
-        openApp();
-        return;
-      }
+      const authEmail = resolveAuthEmail(userInput);
 
-      const lojas = await fetchCollection("lojas");
-      const hashedInput = await hashPassword(pass);
-      const found = lojas.find(l =>
-        l.user.toLowerCase() === user && (l.pass === pass || l.passHash === hashedInput)
-      );
-
-      if (found) {
-        if (found.firstAccess) {
-          pendingUnitLogin = found;
-          document.getElementById("login-view").style.display = "none";
-          document.getElementById("first-access-view").style.display = "flex";
-          return;
-        }
-        currentUser = { role: "loja", name: found.nome, loja: found.nome };
-        localStorage.setItem("ar_session", JSON.stringify(currentUser));
-        openApp();
-      } else {
+      try {
+        await auth.signInWithEmailAndPassword(authEmail, pass);
+        // O onAuthStateChanged cuidará de abrir o painel automaticamente
+      } catch (error) {
+        console.error("Erro no login:", error.code, error.message);
+        err.textContent = "E-mail/usuário ou senha incorretos.";
         err.style.display = "block";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Entrar no Sistema";
       }
     });
 
+    // ================= TROCA DE SENHA NO 1º ACESSO (FIREBASE AUTH) =================
     document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const p1 = document.getElementById("new-pass").value.trim();
       const p2 = document.getElementById("confirm-pass").value.trim();
       const err = document.getElementById("pass-error");
+      const btn = document.getElementById("btn-save-first-pass");
       err.style.display = "none";
 
-      if (p1 !== p2) {
+      if (p1 !== p2 || p1.length < 6) {
         err.style.display = "block";
         return;
       }
 
-      const passHash = await hashPassword(p1);
-      await updateDocItem("lojas", pendingUnitLogin.id, {
-        pass: "****",
-        passHash: passHash,
-        firstAccess: false
-      });
+      btn.disabled = true;
+      btn.textContent = "Atualizando senha...";
 
-      currentUser = { role: "loja", name: pendingUnitLogin.nome, loja: pendingUnitLogin.nome };
-      localStorage.setItem("ar_session", JSON.stringify(currentUser));
-      document.getElementById("first-access-view").style.display = "none";
-      openApp();
+      try {
+        const fbUser = auth.currentUser;
+        if (fbUser) {
+          await fbUser.updatePassword(p1);
+        }
+        await updateDocItem("lojas", pendingUnitLogin.id, {
+          firstAccess: false
+        });
+
+        currentUser = { role: "loja", name: pendingUnitLogin.nome, loja: pendingUnitLogin.nome };
+        document.getElementById("first-access-view").style.display = "none";
+        openApp();
+      } catch (error) {
+        alert("Erro ao atualizar senha: " + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Salvar Nova Senha e Entrar";
+      }
     });
 
-    function logout() {
+    async function logout() {
+      await auth.signOut();
       localStorage.removeItem("ar_session");
       location.reload();
     }
@@ -1801,27 +1846,26 @@
       const err = document.getElementById("client-pass-error");
       err.style.display = "none";
 
-      if (p1 !== p2) {
+      if (p1 !== p2 || p1.length < 6) {
+        err.textContent = "As senhas devem coincidir e ter no mínimo 6 caracteres.";
         err.style.display = "block";
         return;
       }
 
-      const lojas = await fetchCollection("lojas");
-      const currentLoja = lojas.find(l => l.nome === currentUser.loja);
-      if (!currentLoja) {
-        alert("Erro ao identificar sua unidade.");
-        return;
+      try {
+        const fbUser = auth.currentUser;
+        if (fbUser) {
+          await fbUser.updatePassword(p1);
+          closeModalById("client-password-modal");
+          alert("Senha alterada com sucesso no servidor!");
+        }
+      } catch (error) {
+        if (error.code === "auth/requires-recent-login") {
+          alert("Por segurança, saia do aplicativo e entre novamente antes de trocar a senha.");
+        } else {
+          alert("Erro ao trocar senha: " + error.message);
+        }
       }
-
-      const passHash = await hashPassword(p1);
-      await updateDocItem("lojas", currentLoja.id, {
-        pass: "****",
-        passHash: passHash,
-        firstAccess: false
-      });
-
-      closeModalById("client-password-modal");
-      alert("Senha alterada com sucesso!");
     });
 
     function onChangeChamadosLojaFilter() {
@@ -1967,7 +2011,7 @@
         const snap = await db.collection(col).get();
         const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         setLocal(col, data);
-        document.getElementById("sync-status").textContent = "● Nuvem Sincronizada";
+        document.getElementById("sync-status").textContent = "● Nuvem Protegida";
         return data;
       } catch (e) {
         console.warn("Modo offline/local ativo:", e);
@@ -2481,20 +2525,46 @@
       return "badge-baixa";
     }
 
+    // ================= CADASTRO DE LOJA COM CONTA REAL NO FIREBASE AUTH =================
     document.getElementById("form-loja").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const btn = document.getElementById("btn-save-loja");
+      const nome = document.getElementById("lj-nome").value.trim();
+      const cnpj = document.getElementById("lj-cnpj").value.trim();
+      const rawUser = document.getElementById("lj-user").value.trim().toLowerCase().replace(/\s+/g, "");
       const rawPass = document.getElementById("lj-pass").value.trim();
-      const passHash = await hashPassword(rawPass);
-      await addItem("lojas", {
-        nome: document.getElementById("lj-nome").value.trim(),
-        cnpj: document.getElementById("lj-cnpj").value.trim(),
-        user: document.getElementById("lj-user").value.trim(),
-        pass: rawPass,
-        passHash: passHash,
-        firstAccess: true
-      });
-      e.target.reset();
-      alert("Loja cadastrada com sucesso!");
+      const authEmail = resolveAuthEmail(rawUser);
+
+      btn.disabled = true;
+      btn.textContent = "Criando conta segura...";
+
+      try {
+        // Usa uma instância secundária do Firebase para não deslogar o técnico atual
+        const secondaryApp = firebase.apps.find(a => a.name === "Secondary") || firebase.initializeApp(firebaseConfig, "Secondary");
+        await secondaryApp.auth().createUserWithEmailAndPassword(authEmail, rawPass);
+        await secondaryApp.auth().signOut();
+
+        await addItem("lojas", {
+          nome: nome,
+          cnpj: cnpj,
+          user: rawUser,
+          authEmail: authEmail,
+          firstAccess: true
+        });
+
+        e.target.reset();
+        alert(`Loja "${nome}" cadastrada com sucesso!\nUsuário de login: ${rawUser}`);
+      } catch (error) {
+        console.error(error);
+        if (error.code === "auth/email-already-in-use") {
+          alert("Esse usuário de login já existe. Escolha outro nome de usuário.");
+        } else {
+          alert("Erro ao criar acesso da loja: " + error.message);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "+ Cadastrar Loja e Gerar Acesso";
+      }
     });
 
     document.getElementById("form-equipamento").addEventListener("submit", async (e) => {
