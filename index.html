@@ -5,122 +5,143 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A&R Manutenção</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0F294A">
+    <meta name="theme-color" content="#0F2537">
     <link rel="apple-touch-icon" href="logo.png">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #0F294A; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #0F2537; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #0F294A; display: flex; flex-direction: column;
+            background-color: #0F2537; display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.5s ease; padding: 20px;
+            transition: opacity 0.5s ease;
         }
-        .splash-logo {
-            width: 100%; max-width: 280px; height: auto;
-            object-fit: contain; margin-bottom: 20px;
+
+        .logo-container {
+            width: 180px; height: 180px;
+            background-color: #0F2537;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
         }
-        
-        .login-card {
-            background: white; width: 90%; max-width: 400px; padding: 25px;
-            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            text-align: center; margin: 20px; max-height: 90vh; overflow-y: auto;
+
+        .logo-container img {
+            width: 100%; height: 100%;
+            object-fit: contain; /* Mantém a proporção sem cortar */
+            background-color: #0F2537; /* Fundo escuro para cobrir áreas transparentes da imagem */
         }
-        .login-logo {
-            width: 100%; max-width: 160px; height: auto;
-            object-fit: contain; margin: 0 auto 15px auto; display: block;
+
+        .app-title {
+            color: #FFFFFF; font-size: 24px; font-weight: bold; text-align: center;
         }
-        h1 { font-size: 1.5rem; color: #0F294A; margin-bottom: 5px; font-weight: 800; }
-        .slogan {
-            display: inline-flex; align-items: center; background: #FFF3CD;
-            color: #856403; padding: 4px 12px; border-radius: 50px;
-            font-size: 0.85rem; font-weight: bold; margin-bottom: 20px;
+
+        .app-slogan {
+            background-color: #FFD700; color: #0F2537; padding: 4px 12px;
+            border-radius: 15px; font-size: 14px; font-weight: bold; margin-top: 10px;
         }
-        .slogan lightning { color: #FFC107; margin-right: 4px; }
-        
-        .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; color: #495057; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; }
-        input {
-            width: 100%; padding: 12px; border: 2px solid #CED4DA; border-radius: 12px;
-            font-size: 1rem; outline: none; transition: border-color 0.3s;
-            background-color: #F8F9FA;
+
+        #login-card {
+            background: white; width: 90%; max-width: 400px;
+            padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center; display: none; margin: 20px auto;
         }
-        input:focus { border-color: #FFC107; background-color: white; }
-        
-        button {
-            width: 100%; padding: 14px; background-color: #FFC107; color: #0F294A;
-            border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 10px rgba(255,193,7,0.3);
-            margin-top: 10px; display: flex; justify-content: center; align-items: center;
+
+        #login-card .logo-container {
+            width: 120px; height: 120px; margin: 0 auto 20px auto;
+            background-color: #0F2537; /* Garante o fundo escuro também no card */
         }
-        button:active { transform: scale(0.98); }
-        
-        .install-banner {
-            margin-top: 20px; padding-top: 15px; border-top: 1px solid #E9ECEF;
+
+        #login-card .logo-container img {
+            background-color: #0F2537;
         }
-        .install-btn {
-            background: transparent; border: 1px dashed #CED4DA; color: #6C757D;
-            font-size: 0.9rem; padding: 10px; border-radius: 10px; box-shadow: none;
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; color: #333; font-size: 14px; }
+        .input-group input {
+            width: 100%; padding: 12px; border: 2px solid #ddd;
+            border-radius: 10px; font-size: 16px; outline: none; transition: border-color 0.3s;
+        }
+        .input-group input:focus { border-color: #FFD700; }
+
+        .btn-submit {
+            background-color: #FFD700; color: #0F2537; border: none;
+            width: 100%; padding: 15px; font-size: 18px; font-weight: bold;
+            border-radius: 10px; cursor: pointer; transition: background 0.3s;
+        }
+        .btn-submit:hover { background-color: #e6c200; }
+
+        #install-container {
+            margin-top: 20px; display: none;
+        }
+        .btn-install {
+            background-color: transparent; border: 2px solid #FFD700; color: #FFD700;
+            padding: 10px 20px; font-size: 14px; border-radius: 20px; cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <img src="logo.png" alt="A&R Logo" class="splash-logo">
+        <div class="logo-container">
+            <img src="logo.png" alt="A&R Logo">
+        </div>
+        <div class="app-title">A&R MANUTENÇÃO</div>
+        <div class="app-slogan">⚡ SOLUÇÕES RÁPAS E PRECISAS</div>
     </div>
 
-    <div class="login-card">
-        <img src="logo.png" alt="A&R Logo" class="login-logo">
-        <h1>A&R MANUTENÇÃO</h1>
-        <div class="slogan">
-            <span>⚡ SOLUÇÕES RÁPIDAS E PRECISAS</span>
+    <div id="login-card">
+        <div class="logo-container">
+            <img src="logo.png" alt="A&R Logo">
         </div>
+        <div class="app-title" style="color: #0F2537;">A&R MANUTENÇÃO</div>
+        <div class="app-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
         
-        <form id="loginForm">
+        <form id="loginForm" style="margin-top: 30px;">
             <div class="input-group">
-                <label for="unity">Login da Unidade (ou deixe em branco para técnico)</label>
-                <input type="text" id="unity" placeholder="Ex: saogeraldo, loja01...">
+                <label for="unitLogin">LOGIN DA UNIDADE (OU DEIXE EM BRANCO PARA TÉCNICO)</label>
+                <input type="text" id="unitLogin" placeholder="Ex: saogeraldo, loja01...">
             </div>
-            
             <div class="input-group">
-                <label for="password">Senha de Acesso</label>
-                <input type="password" id="password" placeholder="Digite sua senha...">
+                <label for="password">SENHA DE ACESSO</label>
+                <input type="password" id="password" placeholder="Digite sua senha..." required>
             </div>
-            
-            <button type="submit">Entrar no Sistema</button>
+            <button type="submit" class="btn-submit">Entrar no Sistema</button>
         </form>
 
-        <div class="install-banner" id="installBanner" style="display: none;">
-            <button id="installBtn" class="install-btn">Instalar App na Tela Inicial</button>
+        <div id="install-container">
+            <button id="installBtn" class="btn-install">Instalar App na Tela Inicial</button>
         </div>
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(() => console.log('Service Worker registrado com sucesso.'))
-            .catch(err => console.log('Erro ao registrar Service Worker:', err));
-        }
-
-        window.onload = () => {
+        window.addEventListener('load', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 splash.style.opacity = '0';
-                setTimeout(() => splash.remove(), 500);
-            }, 1000);
-        };
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    document.getElementById('login-card').style.display = 'block';
+                }, 500);
+            }, 2000);
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker registrado com sucesso.'))
+                .catch(err => console.log('Erro ao registrar Service Worker:', err));
+            }
+        });
 
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('installBanner').style.display = 'block';
+            document.getElementById('install-container').style.display = 'block';
         });
 
         document.getElementById('installBtn').addEventListener('click', (e) => {
-            document.getElementById('installBanner').style.display = 'none';
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
@@ -130,11 +151,6 @@
                     deferredPrompt = null;
                 });
             }
-        });
-
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Função de login conectada ao Firebase.');
         });
     </script>
 </body>
