@@ -1,0 +1,25 @@
+{
+  "name": "A&R Manutenção e Instalação LTDA",
+  "short_name": "A&R Manutenção",
+  "description": "Sistema de Gestão de Chamados e Manutenção - Soluções Rápidas e Precisas",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F294A",
+  "theme_color": "#0F294A",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
