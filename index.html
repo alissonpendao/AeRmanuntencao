@@ -479,7 +479,7 @@
       line-height: 1.4;
     }
 
-    /* Banner Dedicado de Chamado Urgente (Logo abaixo do botão Abrir novo chamado) */
+    /* Banner Dedicado de Chamado Urgente */
     .urgent-banner-dedicated {
       background: #FFF5F5;
       border: 2px solid #FCA5A5;
@@ -775,7 +775,6 @@
       animation: slideUpFade 0.25s ease forwards;
     }
 
-    /* Recent list on dashboard */
     .recent-row {
       display: flex;
       justify-content: space-between;
@@ -787,7 +786,7 @@
     }
     .recent-row:last-child { border-bottom: none; }
 
-    /* Modal Detalhes / Precificação / Recibo PDF */
+    /* Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -810,7 +809,7 @@
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
     }
 
-    /* ================= LAYOUT DA NOTINHA / RECIBO A&R (AZUL E BRANCO) ================= */
+    /* ================= LAYOUT DA NOTINHA / RECIBO A&R ================= */
     .receipt-sheet {
       background: var(--navy);
       border: 3px solid var(--navy);
@@ -873,7 +872,6 @@
       margin-top: 4px;
     }
 
-    /* Centro Branco da Notinha */
     .receipt-body-white {
       background: #FFFFFF;
       color: #1E293B;
@@ -983,7 +981,6 @@
 
     .hidden { display: none !important; }
 
-    /* Estilos de Impressão / PDF Limpo */
     @media print {
       body * {
         visibility: hidden;
@@ -1132,7 +1129,7 @@
           <button class="btn-primary" onclick="navigate('novo-chamado')">+ Abrir novo chamado</button>
         </div>
 
-        <!-- BANNER DEDICADO DE CHAMADO URGENTE (LOGO ABAIXO DO BOTÃO) -->
+        <!-- BANNER DEDICADO DE CHAMADO URGENTE -->
         <div id="urgent-banner-dedicated" class="urgent-banner-dedicated" onclick="openUrgentList()">
           <div class="urgent-banner-header">
             <div class="urgent-banner-title">🚨 CHAMADO URGENTE</div>
@@ -1231,10 +1228,10 @@
             </div>
             <div class="form-group">
               <label>Foto do Problema (Opcional - Compressão Automática)</label>
-              <input type="file" id="ch-foto" accept="image/*" capture="environment" class="form-control" onchange="handlePhotoCompress(event)" />
+              <input type="file" id="ch-foto" accept="image/*" capture="environment" class="form-control" onchange="handlePhotoCompress(event, 'ticket')" />
               <div id="photo-preview-box" class="photo-preview-box">
                 <img id="photo-preview-img" src="" alt="Prévia da foto" />
-                <button type="button" class="btn-sm btn-del" style="margin-top:6px;" onclick="clearPhoto()">Remover Foto</button>
+                <button type="button" class="btn-sm btn-del" style="margin-top:6px;" onclick="clearPhoto('ticket')">Remover Foto</button>
               </div>
             </div>
             <div class="form-group">
@@ -1328,7 +1325,7 @@
       </section>
     </main>
 
-    <!-- BARRA FLUTUANTE PARA GERAR NOTA DE SERVIÇO COM VÁRIOS CHAMADOS -->
+    <!-- BARRA FLUTUANTE PARA GERAR NOTA DE SERVIÇO -->
     <div id="selection-floating-bar" class="selection-floating-bar">
       <div>
         <div id="sel-bar-count" style="font-size:13px;font-weight:800;color:var(--yellow);">0 serviços selecionados</div>
@@ -1351,7 +1348,7 @@
       </div>
     </div>
 
-    <!-- MODAL DEFINIR VALOR DO SERVIÇO FINALIZADO -->
+    <!-- MODAL DEFINIR VALOR DO SERVIÇO -->
     <div id="price-modal" class="modal-overlay" onclick="closeModalById('price-modal', event)">
       <div class="modal-box" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1378,7 +1375,7 @@
       </div>
     </div>
 
-    <!-- MODAL CONFERÊNCIA PARA CRIAR NOTA DE SERVIÇO CONSOLIDADA -->
+    <!-- MODAL CONFERÊNCIA PARA CRIAR NOTA DE SERVIÇO (COM ANEXO DE NOTA FISCAL) -->
     <div id="create-nota-modal" class="modal-overlay" onclick="closeModalById('create-nota-modal', event)">
       <div class="modal-box" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1387,6 +1384,14 @@
         </div>
         <form id="form-create-nota">
           <div id="nota-preview-summary" style="margin-bottom:14px;"></div>
+          <div class="form-group">
+            <label>📁 Anexar Nota Fiscal / Comprovante (Opcional)</label>
+            <input type="file" id="nota-nf-file" accept="image/*" capture="environment" class="form-control" onchange="handlePhotoCompress(event, 'nota')" />
+            <div id="nota-photo-preview-box" class="photo-preview-box">
+              <img id="nota-photo-preview-img" src="" alt="Prévia da Nota Fiscal" />
+              <button type="button" class="btn-sm btn-del" style="margin-top:6px;" onclick="clearPhoto('nota')">Remover Nota Fiscal</button>
+            </div>
+          </div>
           <div class="form-group">
             <label>Chave PIX / Forma de Pagamento (aparece no rodapé)</label>
             <input type="text" id="nota-pix" class="form-control" placeholder="Ex: CNPJ 62.659.358/0001-88 (A&R Manutenção)" value="CNPJ 62.659.358/0001-88" />
@@ -1400,7 +1405,7 @@
       </div>
     </div>
 
-    <!-- MODAL VISUALIZAÇÃO / PDF DA NOTINHA (FOLHA AZUL E CENTRO BRANCO) -->
+    <!-- MODAL VISUALIZAÇÃO / PDF DA NOTINHA -->
     <div id="receipt-pdf-modal" class="modal-overlay" onclick="closeModalById('receipt-pdf-modal', event)">
       <div class="modal-box" style="max-width:540px;padding:14px;" onclick="event.stopPropagation()">
         <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
@@ -1431,7 +1436,7 @@
   </div>
 
   <script>
-    // ================= CONFIGURAÇÃO DO FIREBASE (A&R MANUTENÇÃO) =================
+    // ================= CONFIGURAÇÃO DO FIREBASE =================
     const firebaseConfig = {
       apiKey: "AIzaSyCCBkKbHelBdh5dr3yrAEbPXp4RQbvhZ5E",
       authDomain: "aermanuntencao.firebaseapp.com",
@@ -1457,18 +1462,17 @@
       }, 2200);
     });
 
-    // ================= CRIPTOGRAFIA SIMPLES DE SENHA (SHA-256) =================
     async function hashPassword(str) {
       const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
     }
 
-    // ================= DADOS E AUTENTICAÇÃO =================
     const TECH_PASS = "2191";
     let currentUser = null;
     let pendingUnitLogin = null;
     let currentFilter = "abertos";
     let compressedPhotoBase64 = "";
+    let compressedNotaPhotoBase64 = "";
     let cachedChamados = [];
     let cachedNotas = [];
     let selectedTicketIds = new Set();
@@ -1644,7 +1648,6 @@
       }
     }
 
-    // ================= CÁLCULO DE TEMPO DE ATENDIMENTO =================
     function formatDuration(ms) {
       if (!ms || ms < 0) return "menos de 1 min";
       const totalMins = Math.floor(ms / 60000);
@@ -1672,7 +1675,7 @@
     }
 
     // ================= COMPRESSÃO NATIVA DE FOTOS =================
-    function handlePhotoCompress(event) {
+    function handlePhotoCompress(event, type) {
       const file = event.target.files[0];
       if (!file) return;
 
@@ -1695,22 +1698,36 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.65);
-          document.getElementById("photo-preview-img").src = compressedPhotoBase64;
-          document.getElementById("photo-preview-box").style.display = "block";
+          const base64 = canvas.toDataURL("image/jpeg", 0.65);
+
+          if (type === "ticket") {
+            compressedPhotoBase64 = base64;
+            document.getElementById("photo-preview-img").src = base64;
+            document.getElementById("photo-preview-box").style.display = "block";
+          } else if (type === "nota") {
+            compressedNotaPhotoBase64 = base64;
+            document.getElementById("nota-photo-preview-img").src = base64;
+            document.getElementById("nota-photo-preview-box").style.display = "block";
+          }
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    function clearPhoto() {
-      compressedPhotoBase64 = "";
-      document.getElementById("ch-foto").value = "";
-      document.getElementById("photo-preview-box").style.display = "none";
+    function clearPhoto(type) {
+      if (type === "ticket") {
+        compressedPhotoBase64 = "";
+        document.getElementById("ch-foto").value = "";
+        document.getElementById("photo-preview-box").style.display = "none";
+      } else if (type === "nota") {
+        compressedNotaPhotoBase64 = "";
+        document.getElementById("nota-nf-file").value = "";
+        document.getElementById("nota-photo-preview-box").style.display = "none";
+      }
     }
 
-    // ================= CAMADA DE DADOS (CLOUD FIRESTORE + FALLBACK LOCAL) =================
+    // ================= CAMADA DE DADOS (FIRESTORE) =================
     async function fetchCollection(col) {
       try {
         const snap = await db.collection(col).get();
@@ -1791,7 +1808,6 @@
       refreshAll();
     }
 
-    // ================= PRECIFICAÇÃO E SELEÇÃO DE CHAMADOS FINALIZADOS =================
     function openPriceModal(id) {
       const ticket = cachedChamados.find(c => c.id === id);
       if (!ticket) return;
@@ -1862,7 +1878,7 @@
 
       const lojasUnicas = [...new Set(selectedList.map(c => c.loja))];
       if (lojasUnicas.length > 1) {
-        alert("Selecione apenas serviços da MESMA loja para gerar uma nota de serviço única. Lojas marcadas: " + lojasUnicas.join(", "));
+        alert("Selecione apenas serviços da MESMA loja para gerar uma nota de serviço única.");
         return;
       }
 
@@ -1878,7 +1894,6 @@
           <div style="font-size:12px;color:var(--muted);margin-top:2px;">
             ${c.obsTecnica || c.descricao}
           </div>
-          ${!c.valorTotal ? `<div style="font-size:11px;color:var(--danger);font-weight:700;margin-top:4px;">⚠️ Sem valor definido (será R$ 0,00 se não preencher antes)</div>` : ""}
         </div>
       `).join("");
 
@@ -1891,6 +1906,9 @@
         ${itemsHtml}
       `;
 
+      compressedNotaPhotoBase64 = "";
+      document.getElementById("nota-nf-file").value = "";
+      document.getElementById("nota-photo-preview-box").style.display = "none";
       document.getElementById("create-nota-modal").style.display = "flex";
     }
 
@@ -1923,6 +1941,7 @@
         valorTotal: totalGeral,
         pix: document.getElementById("nota-pix").value.trim(),
         observacao: document.getElementById("nota-obs").value.trim(),
+        notaFiscalFoto: compressedNotaPhotoBase64 || "",
         statusPagamento: "em_aberto"
       });
 
@@ -1974,7 +1993,7 @@
           </div>
           <div class="receipt-service-desc">
             <strong>Equipamento:</strong> ${it.equipamento} • <strong>Concluído:</strong> ${it.dataFinalizacao || "-"} (${it.duracao})<br/>
-            <strong>Motivo / Serviço executado:</strong> ${it.servicoRealizado}
+            <strong>Serviço executado:</strong> ${it.servicoRealizado}
             ${(it.valorPecas > 0) ? `<br/><em>(Mão de obra: ${formatBRL(it.valorMaoDeObra)} + Peças: ${formatBRL(it.valorPecas)})</em>` : ""}
           </div>
         </div>
@@ -2028,6 +2047,13 @@
               <span style="font-size:14px;font-weight:900;color:var(--navy);">VALOR TOTAL DOS SERVIÇOS</span>
               <span style="font-size:20px;font-weight:900;color:var(--navy);">${formatBRL(nota.valorTotal)}</span>
             </div>
+
+            ${nota.notaFiscalFoto ? `
+              <div style="margin-top:16px;border-top:1.5px dashed #CBD5E1;padding-top:12px;">
+                <div style="font-size:12px;font-weight:900;color:var(--navy);margin-bottom:6px;">📎 NOTA FISCAL / COMPROVANTE ANEXADO:</div>
+                <img src="${nota.notaFiscalFoto}" style="width:100%;max-height:280px;object-fit:contain;border-radius:8px;border:1px solid var(--border);" alt="Nota Fiscal Anexada" onclick="window.open(this.src)" />
+              </div>
+            ` : ""}
           </div>
 
           <div class="receipt-footer">
@@ -2053,7 +2079,6 @@
       refreshAll();
     }
 
-    // ================= VISUALIZAR CHAMADO (ABERTOS -> VISUALIZADO -> ANDAMENTO -> FINALIZADO) =================
     async function viewTicket(id) {
       let ticket = cachedChamados.find(c => c.id === id);
       if (!ticket) return;
@@ -2076,7 +2101,6 @@
       const durationHtml = ticket.status === "finalizados" ? `
         <div class="duration-pill">
           ⏱️ Tempo gasto no atendimento: <strong>${formatDuration(ticket.durationMs)}</strong>
-          ${ticket.totalDurationMs ? `<br/>🕒 Tempo total desde a abertura: <strong>${formatDuration(ticket.totalDurationMs)}</strong>` : ""}
         </div>
       ` : "";
 
@@ -2089,21 +2113,11 @@
 
       const actionsHtml = currentUser.role === "admin" ? `
         <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
-          ${(ticket.status === "visualizado") ? `
-            <button class="btn-sm btn-status" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar Chamado</button>
-          ` : ""}
-          ${ticket.status === "andamento" ? `
-            <button class="btn-sm btn-done" onclick="updateStatus('${ticket.id}', 'finalizados')">✅ Finalizar Chamado</button>
-          ` : ""}
-          ${ticket.status === "finalizados" ? `
-            <button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Definir / Editar Valor</button>
-          ` : ""}
-          ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `
-            <button class="btn-sm btn-unattended" onclick="updateStatus('${ticket.id}', 'nao_atendidos')">🚫 Não Atendido</button>
-          ` : ""}
-          ${(ticket.status === "abertos" || ticket.status === "visualizado" || ticket.status === "nao_atendidos") ? `
-            <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
-          ` : ""}
+          ${(ticket.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar Chamado</button>` : ""}
+          ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${ticket.id}', 'finalizados')">✅ Finalizar Chamado</button>` : ""}
+          ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Definir / Editar Valor</button>` : ""}
+          ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `<button class="btn-sm btn-unattended" onclick="updateStatus('${ticket.id}', 'nao_atendidos')">🚫 Não Atendido</button>` : ""}
+          ${(ticket.status === "abertos" || ticket.status === "visualizado" || ticket.status === "nao_atendidos") ? `<button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>` : ""}
         </div>
       ` : "";
 
@@ -2118,10 +2132,7 @@
         <div class="item-title" style="font-size:19px;margin-top:6px;">${ticket.titulo}</div>
         <div class="item-meta">
           <strong>Equipamento:</strong> ${ticket.equipamento}<br/>
-          <strong>Aberto por:</strong> ${ticket.autor} em ${ticket.createdAt || "-"}<br/>
-          ${ticket.viewedAt ? `<strong>Visualizado em:</strong> ${ticket.viewedAt}<br/>` : ""}
-          ${ticket.startedAt ? `<strong>Iniciado em:</strong> ${ticket.startedAt}<br/>` : ""}
-          ${ticket.finishedAt ? `<strong>Finalizado em:</strong> ${ticket.finishedAt}` : ""}
+          <strong>Aberto por:</strong> ${ticket.autor} em ${ticket.createdAt || "-"}
         </div>
         <p style="font-size:14px;color:var(--text);background:#F8FAFC;padding:12px;border-radius:12px;border:1px solid var(--border);">${ticket.descricao}</p>
         ${durationHtml}
@@ -2146,7 +2157,6 @@
       return "badge-baixa";
     }
 
-    // ================= FORMULÁRIOS =================
     document.getElementById("form-loja").addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawPass = document.getElementById("lj-pass").value.trim();
@@ -2190,14 +2200,13 @@
         status: "abertos"
       });
 
-      clearPhoto();
+      clearPhoto("ticket");
       e.target.reset();
       btn.disabled = false;
       btn.textContent = "+ Salvar Chamado";
       navigate("dashboard");
     });
 
-    // ================= RENDERIZAÇÃO =================
     async function refreshAll() {
       const lojas = await fetchCollection("lojas");
       const equipamentos = await fetchCollection("equipamentos");
@@ -2221,7 +2230,6 @@
       const finalizadosList = chamados.filter(c => c.status === "finalizados");
       const naoAtendidosList = chamados.filter(c => c.status === "nao_atendidos");
 
-      // Notificação visual e sonora/sistema para novos chamados em aberto
       const bellDot = document.getElementById("bell-dot");
       bellDot.style.display = abertosList.length > 0 ? "block" : "none";
 
@@ -2236,7 +2244,6 @@
       }
       lastKnownOpenCount = abertosList.length;
 
-      // Contadores Dashboard
       document.getElementById("count-abertos").textContent = abertosList.length;
       document.getElementById("count-visualizado").textContent = visualizadoList.length;
       document.getElementById("count-andamento").textContent = andamentoList.length;
@@ -2244,7 +2251,6 @@
       document.getElementById("count-nao-atendidos").textContent = naoAtendidosList.length;
       document.getElementById("count-notas").textContent = notas.length;
 
-      // Banner Dedicado de Chamado Urgente (Abaixo do botão Novo Chamado)
       const urgentesAtivos = chamados.filter(c =>
         c.prioridade === "Urgente" && c.status !== "finalizados" && c.status !== "nao_atendidos"
       );
@@ -2260,7 +2266,6 @@
         urgentBanner.style.display = "none";
       }
 
-      // Últimos chamados no Dashboard
       const statusLabels = {
         abertos: "Em aberto",
         visualizado: "Visualizado",
@@ -2268,6 +2273,7 @@
         finalizados: "Finalizado",
         nao_atendidos: "Não atendido"
       };
+
       const recentContainer = document.getElementById("recent-chamados-container");
       const recents = chamados.slice(0, 5);
       recentContainer.innerHTML = recents.length ? recents.map(c => `
@@ -2283,7 +2289,6 @@
         </div>
       `).join("") : `<p style="color:var(--muted);font-size:13px;padding:8px 0;">Nenhum chamado registrado ainda.</p>`;
 
-      // Selects de Lojas
       const chLoja = document.getElementById("ch-loja");
       const eqLoja = document.getElementById("eq-loja");
       if (currentUser.role === "admin") {
@@ -2296,7 +2301,6 @@
         chLoja.innerHTML = `<option value="${currentUser.loja}">${currentUser.loja}</option>`;
       }
 
-      // Select de Equipamentos
       const chEq = document.getElementById("ch-equipamento");
       const eqFiltrados = currentUser.role === "admin"
         ? equipamentos
@@ -2305,7 +2309,6 @@
       chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
         eqFiltrados.map(eq => `<option value="${eq.nome} (${eq.loja})">${eq.nome} - ${eq.loja}</option>`).join("");
 
-      // Lista de Chamados na seção selecionada
       let filtrados = chamados;
       if (currentFilter === "urgentes") {
         filtrados = urgentesAtivos;
@@ -2336,7 +2339,6 @@
           <div class="item-title" style="cursor:pointer;" onclick="viewTicket('${c.id}')">${c.titulo}</div>
           <div class="item-meta">
             Equipamento: ${c.equipamento} • Aberto por: ${c.autor} (${c.createdAt || ''})
-            ${c.finishedAt ? `<br/>Finalizado em: ${c.finishedAt}` : ""}
           </div>
           <p style="font-size:14px;color:var(--text);">${c.descricao}</p>
           ${isFinalizado && c.durationMs !== undefined ? `
@@ -2346,7 +2348,7 @@
           <div class="item-actions">
             <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir / Detalhes</button>
             ${currentUser.role === "admin" ? `
-              ${(c.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar Chamado</button>` : ""}
+              ${(c.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
               ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${c.id}', 'finalizados')">✅ Finalizar</button>` : ""}
               ${isFinalizado ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 ${c.valorTotal > 0 ? 'Editar Valor' : 'Definir Valor'}</button>` : ""}
               ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-unattended" onclick="updateStatus('${c.id}', 'nao_atendidos')">🚫 Não Atendido</button>` : ""}
@@ -2359,7 +2361,6 @@
 
       updateSelectionBar();
 
-      // Lista de Notas de Serviço
       const notasContainer = document.getElementById("notas-container");
       notasContainer.innerHTML = notas.length ? notas.map(n => {
         const isPago = n.statusPagamento === "pago";
@@ -2369,6 +2370,7 @@
               <div class="badge-group">
                 <span class="badge badge-price">${n.numero}</span>
                 <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}">${isPago ? '✅ PAGO' : '⏳ EM ABERTO'}</span>
+                ${n.notaFiscalFoto ? `<span class="badge" style="background:#EFF6FF;color:#1E3A8A;">📎 Com NF</span>` : ""}
               </div>
               <span class="badge badge-status">${n.loja}</span>
             </div>
@@ -2390,16 +2392,14 @@
         `;
       }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma nota de serviço gerada ainda.</p>`;
 
-      // Lista de Lojas
       document.getElementById("lista-lojas").innerHTML = lojas.length ? lojas.map(l => `
         <div class="item-card">
           <div class="item-title">${l.nome}</div>
-          <div class="item-meta">Login: <strong>${l.user}</strong> | Status Senha: <strong>${l.firstAccess ? 'Provisória (' + l.pass + ')' : 'Alterada pelo usuário (Criptografada)'}</strong></div>
+          <div class="item-meta">Login: <strong>${l.user}</strong></div>
           <button class="btn-sm btn-del" onclick="deleteItem('lojas', '${l.id}')">Excluir Loja</button>
         </div>
       `).join("") : `<p style="color:var(--muted);font-size:13px;">Nenhuma loja cadastrada.</p>`;
 
-      // Lista de Equipamentos
       document.getElementById("lista-equipamentos").innerHTML = equipamentos.length ? equipamentos.map(eq => `
         <div class="item-card">
           <div class="item-title">${eq.nome}</div>
