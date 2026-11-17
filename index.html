@@ -74,6 +74,11 @@
         }
         .btn-submit:hover { background-color: #e6c200; }
 
+        #error-msg {
+            color: #D32F2F; font-size: 14px; font-weight: bold;
+            margin-bottom: 15px; display: none;
+        }
+
         #install-container {
             margin-top: 20px; display: none;
         }
@@ -103,12 +108,13 @@
         <form id="loginForm" style="margin-top: 30px;">
             <div class="input-group">
                 <label for="unitLogin">LOGIN DA UNIDADE (OU DEIXE EM BRANCO PARA TÉCNICO)</label>
-                <input type="text" id="unitLogin" placeholder="Usuário">
+                <input type="text" id="unitLogin" placeholder="Usuário" autocomplete="username">
             </div>
             <div class="input-group">
                 <label for="password">SENHA DE ACESSO</label>
-                <input type="password" id="password" placeholder="Digite sua senha..." required>
+                <input type="password" id="password" placeholder="Digite sua senha..." autocomplete="current-password" required>
             </div>
+            <div id="error-msg">Senha incorreta. Tente novamente.</div>
             <button type="submit" class="btn-submit">Entrar no Sistema</button>
         </form>
 
@@ -142,7 +148,7 @@
             document.getElementById('install-container').style.display = 'block';
         });
 
-        document.getElementById('installBtn').addEventListener('click', (e) => {
+        document.getElementById('installBtn').addEventListener('click', () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
@@ -151,6 +157,30 @@
                     }
                     deferredPrompt = null;
                 });
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const unitInput = document.getElementById('unitLogin').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+
+            if (!passwordInput) {
+                errorMsg.textContent = 'Por favor, digite a senha de acesso.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (passwordInput === '2191') {
+                errorMsg.style.display = 'none';
+                const role = unitInput === '' ? 'Técnico' : `Unidade: ${unitInput}`;
+                localStorage.setItem('ar_user_role', role);
+                localStorage.setItem('ar_authenticated', 'true');
+                alert(`Acesso autorizado (${role}).`);
+            } else {
+                errorMsg.textContent = 'Senha incorreta. Verifique e tente novamente.';
+                errorMsg.style.display = 'block';
             }
         });
     </script>
