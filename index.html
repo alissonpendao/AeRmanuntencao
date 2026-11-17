@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>A&R Manutenção e Instalação • Chamados</title>
 <link id="pwaManifest" rel="manifest" href="">
-<link id="pwaIcon" rel="icon" type="image/png" href="">
-<link id="appleTouchIcon" rel="apple-touch-icon" href="">
+<link id="pwaIcon" rel="icon" type="image/png" href="logo.png">
+<link id="appleTouchIcon" rel="apple-touch-icon" href="logo.png">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -124,31 +124,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
 </head>
 <body>
 
-<!-- TELA DE LOGIN COM LOGO E SLOGAN A&R MANUTENÇÃO -->
+<!-- TELA DE LOGIN COM A LOGO OFICIAL A&R MANUTENÇÃO -->
 <div id="loginScreen" class="login-wrap">
   <div class="login-card">
     <div class="brand-banner">
-      <!-- Emblema Oficial A&R Manutenção e Instalação -->
-      <svg width="96" height="96" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 10px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))">
-        <defs>
-          <linearGradient id="goldGrad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#fde047"/>
-            <stop offset="50%" stop-color="#f59e0b"/>
-            <stop offset="100%" stop-color="#b45309"/>
-          </linearGradient>
-          <linearGradient id="shieldBg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#1e3a8a"/>
-            <stop offset="100%" stop-color="#09192f"/>
-          </linearGradient>
-        </defs>
-        <rect x="6" y="6" width="108" height="108" rx="28" fill="url(#shieldBg)" stroke="url(#goldGrad)" stroke-width="4"/>
-        <!-- Engrenagem sutil ao fundo -->
-        <circle cx="60" cy="56" r="34" stroke="rgba(255,255,255,0.12)" stroke-width="6" stroke-dasharray="8 6"/>
-        <!-- Monograma A&R -->
-        <text x="60" y="64" text-anchor="middle" fill="url(#goldGrad)" font-family="system-ui,Segoe UI,sans-serif" font-weight="900" font-size="38" letter-spacing="-1">A&amp;R</text>
-        <!-- Raio + Chave técnica -->
-        <path d="M56 76 L64 76 L61 84 L68 84 L57 98 L60 88 L53 88 Z" fill="#38bdf8"/>
-      </svg>
+      <!-- Imagem Oficial da Logo (logo.png na mesma pasta) -->
+      <img src="logo.png" alt="A&R Manutenção e Instalação" style="width:124px;height:124px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 12px;border:3px solid #f59e0b;box-shadow:0 8px 20px rgba(0,0,0,0.45);background:#09192f">
 
       <div style="font-size:21px;font-weight:900;letter-spacing:.3px;line-height:1.2">A&amp;R MANUTENÇÃO</div>
       <div style="font-size:12px;font-weight:700;color:#cbd5e1;letter-spacing:1.4px;margin-top:2px">E INSTALAÇÃO LTDA</div>
@@ -174,9 +155,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
 <div id="appShell" class="hidden">
   <header>
     <div class="header-brand">
-      <div style="width:38px;height:38px;border-radius:11px;background:#09192f;border:1.5px solid #f59e0b;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#fbbf24;flex-shrink:0">A&amp;R</div>
+      <img src="logo.png" alt="A&R" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid #f59e0b;flex-shrink:0;background:#09192f">
       <div>
-        <h1 id="topTitle">A&amp;R Manutenção</h1>
+        <h1 id="topTitle">A&R Manutenção</h1>
         <p id="topSubtitle">Soluções Rápidas e Precisas</p>
       </div>
     </div>
@@ -429,49 +410,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
 
 <script>
 // =========================================================================
-// 1. PWA DINÂMICO (ÍCONE A&R MANUTENÇÃO PARA INSTALAR NA TELA INICIAL)
+// 1. PWA DINÂMICO USANDO A LOGO OFICIAL (logo.png)
 // =========================================================================
 (function setupPWA(){
-  const c = document.createElement('canvas');
-  c.width = 512; c.height = 512;
-  const ctx = c.getContext('2d');
-
-  // Fundo azul marinho profundo
-  const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
-  bgGrad.addColorStop(0, '#1e3a8a');
-  bgGrad.addColorStop(1, '#09192f');
-  ctx.fillStyle = bgGrad;
-  ctx.beginPath();
-  ctx.roundRect(0, 0, 512, 512, 112);
-  ctx.fill();
-
-  // Borda dourada
-  ctx.strokeStyle = '#f59e0b';
-  ctx.lineWidth = 16;
-  ctx.beginPath();
-  ctx.roundRect(14, 14, 484, 484, 100);
-  ctx.stroke();
-
-  // Monograma A&R
-  ctx.fillStyle = '#fbbf24';
-  ctx.font = '900 185px system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('A&R', 256, 215);
-
-  // Texto inferior
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '800 46px system-ui, sans-serif';
-  ctx.fillText('MANUTENÇÃO', 256, 355);
-
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = '700 26px system-ui, sans-serif';
-  ctx.fillText('E INSTALAÇÃO', 256, 405);
-
-  const iconUrl = c.toDataURL('image/png');
-  document.getElementById('pwaIcon').href = iconUrl;
-  document.getElementById('appleTouchIcon').href = iconUrl;
-
+  const absoluteLogoUrl = new URL('logo.png', location.href).href;
   const manifest = {
     name: "A&R Manutenção e Instalação",
     short_name: "A&R Manut.",
@@ -480,7 +422,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
     display: "standalone",
     background_color: "#09192f",
     theme_color: "#0b1f3a",
-    icons: [{ src: iconUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
+    icons: [{ src: absoluteLogoUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
   };
   const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
   document.getElementById('pwaManifest').href = URL.createObjectURL(blob);
@@ -526,7 +468,7 @@ let tickets = [];
 let session = null;
 let currentNav = 'dashboard';
 let activeTicketId = null;
-let draftNewPhotos = []; // Fotos anexadas durante a abertura do chamado
+let draftNewPhotos = [];
 
 db.collection("manutencao_config").doc("unidades").onSnapshot(doc => {
   if(doc.exists && Array.isArray(doc.data().list) && doc.data().list.length){
