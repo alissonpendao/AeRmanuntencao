@@ -56,7 +56,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* ================= TELA DE ABERTURA / CARREGAMENTO (MANTIDA) ================= */
+    /* ================= TELA DE ABERTURA / CARREGAMENTO ================= */
     #splash-screen {
       position: fixed;
       inset: 0;
@@ -85,7 +85,7 @@
     .splash-logo-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: conten;
+      object-fit: contain;
     }
 
     .splash-title {
@@ -699,6 +699,17 @@
       line-height: 1.4;
     }
 
+    .tech-report-box {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid #10B981;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
     .duration-pill {
       display: inline-block;
       margin-top: 8px;
@@ -1026,7 +1037,6 @@
 
   <!-- 1. TELA DE LOGIN -->
   <div id="login-view" class="auth-wrapper">
-    <!-- BOTÃO INSTALAR PWA NA TELA DE LOGIN -->
     <button id="btn-install-pwa-login" class="login-install-btn hidden" onclick="installPWA()">
       📥 Instalar App
     </button>
@@ -1089,7 +1099,6 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <!-- BOTÃO INSTALAR PWA NO PAINEL PRINCIPAL -->
         <button id="btn-install-pwa" class="icon-top-btn hidden" onclick="installPWA()" title="Instalar Aplicativo">
           📥
         </button>
@@ -1127,7 +1136,6 @@
           <div class="nav-section">Faturamento</div>
           <div class="nav-item" onclick="navigate('notas')">🧾 Notas de Serviço</div>
 
-          <!-- MENU EXCLUSIVO PARA CLIENTES/LOJAS ALTERAREM SENHA -->
           <div id="client-menu" class="hidden">
             <div class="nav-section">Segurança</div>
             <div class="nav-item" onclick="openClientPasswordModal()">🔑 Alterar Minha Senha</div>
@@ -1378,6 +1386,35 @@
       </div>
     </div>
 
+    <!-- MODAL FINALIZAR CHAMADO (RELATÓRIO TÉCNICO & PEÇAS TROCADAS) -->
+    <div id="finish-ticket-modal" class="modal-overlay" onclick="closeModalById('finish-ticket-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;">✅ Finalizar Chamado (Relatório Técnico)</strong>
+          <button onclick="closeModalById('finish-ticket-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-finish-ticket">
+          <input type="hidden" id="finish-ticket-id" />
+          <div id="finish-ticket-header" style="font-size:14px;font-weight:800;margin-bottom:12px;background:var(--bg-light);padding:10px;border-radius:10px;border:1px solid var(--border);"></div>
+          
+          <div class="form-group">
+            <label for="finish-servico">O que foi feito? (Serviço Realizado) *</label>
+            <textarea id="finish-servico" class="form-control" rows="3" placeholder="Ex: Limpeza do condensador, recalibragem do controlador Carel e teste de rendimento..." required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="finish-pecas">O que foi trocado? (Peças / Materiais)</label>
+            <textarea id="finish-pecas" class="form-control" rows="2" placeholder="Ex: 1x Sensor NTC 10k, 200g gás R-22 (ou deixe em branco se não houve troca)"></textarea>
+          </div>
+          
+          <div style="display:flex;gap:10px;">
+            <button type="button" class="btn-secondary" onclick="closeModalById('finish-ticket-modal')">Cancelar</button>
+            <button type="submit" class="btn-primary">✅ Concluir Atendimento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- MODAL EDITAR CHAMADO -->
     <div id="edit-ticket-modal" class="modal-overlay" onclick="closeModalById('edit-ticket-modal', event)">
       <div class="modal-box" onclick="event.stopPropagation()">
@@ -1451,7 +1488,7 @@
           </div>
           <div class="form-group">
             <label>Observação Técnica / Peças Trocadas (sai na nota)</label>
-            <textarea id="price-notes" class="form-control" rows="2" placeholder="Ex: Troca de sensor NTC e regulagem de temperatura..."></textarea>
+            <textarea id="price-notes" class="form-control" rows="3" placeholder="Ex: Troca de sensor NTC e regulagem de temperatura..."></textarea>
           </div>
           <button type="submit" class="btn-primary">Salvar Valor no Chamado</button>
         </form>
@@ -1926,11 +1963,11 @@
       refreshAll();
     }
 
-    async function updateStatus(id, newStatus) {
+    async function updateStatus(id, newStatus, extraFields = {}) {
       const ticket = cachedChamados.find(c => c.id === id);
       const now = Date.now();
       const nowStr = new Date(now).toLocaleString("pt-BR");
-      const updates = { status: newStatus };
+      const updates = { status: newStatus, ...extraFields };
 
       if (newStatus === "visualizado") {
         updates.viewedAt = nowStr;
@@ -1953,6 +1990,36 @@
         viewTicket(id);
       }
     }
+
+    // ================= MODAL DE FINALIZAÇÃO COM RELATÓRIO TÉCNICO =================
+    function openFinishTicketModal(id) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+      document.getElementById("finish-ticket-id").value = ticket.id;
+      document.getElementById("finish-ticket-header").textContent = `${ticket.loja} • ${ticket.titulo}`;
+      document.getElementById("finish-servico").value = ticket.servicoRealizado || "";
+      document.getElementById("finish-pecas").value = ticket.pecasTrocadas || "";
+      document.getElementById("finish-ticket-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-finish-ticket").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("finish-ticket-id").value;
+      const servico = document.getElementById("finish-servico").value.trim();
+      const pecas = document.getElementById("finish-pecas").value.trim() || "Nenhuma peça trocada";
+
+      const resumoNota = pecas !== "Nenhuma peça trocada"
+        ? `Serviço: ${servico} | Peças: ${pecas}`
+        : `Serviço: ${servico}`;
+
+      await updateStatus(id, "finalizados", {
+        servicoRealizado: servico,
+        pecasTrocadas: pecas,
+        obsTecnica: resumoNota
+      });
+
+      closeModalById("finish-ticket-modal");
+    });
 
     async function deleteItem(col, id) {
       if (!confirm("Deseja excluir este registro permanentemente?")) return;
@@ -2001,7 +2068,13 @@
       document.getElementById("price-ticket-title").textContent = `${ticket.loja} • ${ticket.titulo}`;
       document.getElementById("price-labor").value = ticket.valorMaoDeObra || "";
       document.getElementById("price-parts").value = ticket.valorPecas || 0;
-      document.getElementById("price-notes").value = ticket.obsTecnica || "";
+
+      const defaultNotes = ticket.obsTecnica || (
+        ticket.servicoRealizado
+          ? `Serviço: ${ticket.servicoRealizado}${ticket.pecasTrocadas ? " | Peças: " + ticket.pecasTrocadas : ""}`
+          : ""
+      );
+      document.getElementById("price-notes").value = defaultNotes;
       document.getElementById("price-modal").style.display = "flex";
     }
 
@@ -2078,7 +2151,7 @@
             <span>${formatBRL(c.valorTotal || 0)}</span>
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:2px;">
-            ${c.obsTecnica || c.descricao}
+            ${c.obsTecnica || c.servicoRealizado || c.descricao}
           </div>
         </div>
       `).join("");
@@ -2117,7 +2190,7 @@
         titulo: c.titulo,
         equipamento: c.equipamento,
         motivo: c.descricao,
-        servicoRealizado: c.obsTecnica || c.descricao,
+        servicoRealizado: c.obsTecnica || (c.servicoRealizado ? `${c.servicoRealizado}${c.pecasTrocadas ? " | Peças: " + c.pecasTrocadas : ""}` : c.descricao),
         dataFinalizacao: c.finishedAt || c.createdAt,
         duracao: c.durationMs ? formatDuration(c.durationMs) : "-",
         valorMaoDeObra: parseFloat(c.valorMaoDeObra) || 0,
@@ -2291,6 +2364,14 @@
 
       const prioClass = getPriorityBadgeClass(ticket.prioridade);
 
+      const techReportHtml = (ticket.status === "finalizados" && (ticket.servicoRealizado || ticket.pecasTrocadas)) ? `
+        <div class="tech-report-box">
+          <div style="font-weight:800;color:var(--success);margin-bottom:4px;">📋 Relatório de Encerramento Técnico</div>
+          ${ticket.servicoRealizado ? `<div><strong>Serviço realizado:</strong> ${ticket.servicoRealizado}</div>` : ""}
+          ${ticket.pecasTrocadas ? `<div style="margin-top:4px;"><strong>Peças / Materiais trocados:</strong> ${ticket.pecasTrocadas}</div>` : ""}
+        </div>
+      ` : "";
+
       const durationHtml = ticket.status === "finalizados" ? `
         <div class="duration-pill">
           ⏱️ Tempo gasto no atendimento: <strong>${formatDuration(ticket.durationMs)}</strong>
@@ -2308,7 +2389,7 @@
         <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
           <button class="btn-sm btn-status" onclick="openEditTicketModal('${ticket.id}')">✏️ Editar</button>
           ${(ticket.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar</button>` : ""}
-          ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${ticket.id}', 'finalizados')">✅ Finalizar</button>` : ""}
+          ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${ticket.id}')">✅ Finalizar</button>` : ""}
           ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Valor</button>` : ""}
           <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
         </div>
@@ -2328,6 +2409,7 @@
           <strong>Aberto por:</strong> ${ticket.autor} em ${ticket.createdAt || "-"}
         </div>
         <p style="font-size:14px;background:var(--bg-light);padding:12px;border-radius:12px;border:1px solid var(--border);">${ticket.descricao}</p>
+        ${techReportHtml}
         ${durationHtml}
         ${financialHtml}
         ${ticket.foto ? `<img src="${ticket.foto}" class="ticket-photo" alt="Foto do chamado" onclick="window.open(this.src)" />` : ""}
@@ -2536,6 +2618,12 @@
             Equipamento: ${c.equipamento} • Aberto por: ${c.autor} (${c.createdAt || ''})
           </div>
           <p style="font-size:14px;color:var(--text);">${c.descricao}</p>
+          ${isFinalizado && (c.servicoRealizado || c.pecasTrocadas) ? `
+            <div class="tech-report-box">
+              ${c.servicoRealizado ? `<div><strong>✅ Feito:</strong> ${c.servicoRealizado}</div>` : ""}
+              ${c.pecasTrocadas ? `<div style="margin-top:2px;"><strong>🔧 Trocado:</strong> ${c.pecasTrocadas}</div>` : ""}
+            </div>
+          ` : ""}
           ${isFinalizado && c.durationMs !== undefined ? `
             <div class="duration-pill">⏱️ Duração: <strong>${formatDuration(c.durationMs)}</strong></div>
           ` : ""}
@@ -2545,7 +2633,7 @@
             ${currentUser.role === "admin" ? `
               <button class="btn-sm btn-status" onclick="openEditTicketModal('${c.id}')">✏️ Editar</button>
               ${(c.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
-              ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${c.id}', 'finalizados')">✅ Finalizar</button>` : ""}
+              ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${c.id}')">✅ Finalizar</button>` : ""}
               ${isFinalizado ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 ${c.valorTotal > 0 ? 'Editar Valor' : 'Definir Valor'}</button>` : ""}
               <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">🗑️ Excluir</button>
             ` : ""}
