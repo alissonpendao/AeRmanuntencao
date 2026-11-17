@@ -486,6 +486,24 @@
       line-height: 1.4;
     }
 
+    /* Caixa de Filtro de Loja */
+    .store-filter-box {
+      background: var(--bg-light);
+      border: 1.5px solid var(--yellow);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .store-filter-box label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
     /* Banner Dedicado de Chamado Urgente */
     .urgent-banner-dedicated {
       background: #FFF5F5;
@@ -1284,8 +1302,15 @@
       <section id="sec-lista" class="hidden">
         <div class="section-card">
           <div class="section-title" id="lista-titulo">Chamados</div>
+
+          <!-- FILTRO DE LOJA NOS CHAMADOS (ESPECIALMENTE ÚTIL EM FINALIZADOS) -->
+          <div id="lista-loja-filter-wrap" class="store-filter-box hidden">
+            <label for="filter-chamados-loja">🏪 Filtrar por Loja / Cliente</label>
+            <select id="filter-chamados-loja" class="form-control" onchange="onChangeChamadosLojaFilter()"></select>
+          </div>
+
           <div id="finalizados-hint" class="hidden" style="background:rgba(59,130,246,0.1);border:1px solid #3B82F6;color:var(--info);padding:12px;border-radius:12px;font-size:13px;margin-bottom:14px;">
-            💡 <strong>Agrupar em Nota de Serviço:</strong> Defina os valores em cada serviço finalizado e marque as caixinhas dos chamados da mesma loja para gerar uma única notinha consolidada.
+            💡 <strong>Emitir Notinha:</strong> Selecione a loja acima, defina os valores e marque as caixinhas dos serviços que deseja juntar no recibo.
           </div>
           <button class="btn-primary" style="margin-bottom:14px;" onclick="navigate('novo-chamado')">+ Novo chamado</button>
           <div id="chamados-container"></div>
@@ -1297,8 +1322,15 @@
         <div class="section-card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
             <div class="section-title" style="margin-bottom:0;">🧾 Notas de Serviço</div>
-            <button id="btn-new-nota-shortcut" class="btn-sm btn-gold" onclick="navigate('finalizados')">+ Selecionar Serviços Finalizados</button>
+            <button id="btn-new-nota-shortcut" class="btn-sm btn-gold" onclick="navigate('finalizados')">+ Montar Nova Notinha</button>
           </div>
+
+          <!-- FILTRO DE LOJA NAS NOTAS EMITIDAS -->
+          <div id="notas-loja-filter-wrap" class="store-filter-box hidden">
+            <label for="filter-notas-loja">🏪 Filtrar Recibos por Loja</label>
+            <select id="filter-notas-loja" class="form-control" onchange="refreshAll()"></select>
+          </div>
+
           <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">
             Notas consolidadas de prestação de serviço da <strong>A&R Manutenção e Instalação LTDA</strong>.
           </p>
@@ -1791,6 +1823,12 @@
       closeModalById("client-password-modal");
       alert("Senha alterada com sucesso!");
     });
+
+    function onChangeChamadosLojaFilter() {
+      selectedTicketIds.clear();
+      updateSelectionBar();
+      refreshAll();
+    }
 
     function navigate(page) {
       document.getElementById("drawer").classList.remove("open");
@@ -2597,11 +2635,45 @@
 
       updateEquipamentosDropdown();
 
+      // ================= POPULAR FILTROS DE LOJA (CHAMADOS E NOTAS) =================
+      const filterChamadosWrap = document.getElementById("lista-loja-filter-wrap");
+      const filterChamadosSelect = document.getElementById("filter-chamados-loja");
+      const filterNotasWrap = document.getElementById("notas-loja-filter-wrap");
+      const filterNotasSelect = document.getElementById("filter-notas-loja");
+
+      if (currentUser.role === "admin") {
+        filterChamadosWrap.classList.remove("hidden");
+        filterNotasWrap.classList.remove("hidden");
+
+        const prevChFilter = filterChamadosSelect.value;
+        const prevNtFilter = filterNotasSelect.value;
+
+        const filterOptionsHtml = `<option value="TODAS">Todas as Lojas</option>` +
+          lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("");
+
+        filterChamadosSelect.innerHTML = filterOptionsHtml;
+        filterNotasSelect.innerHTML = filterOptionsHtml;
+
+        if (prevChFilter && (prevChFilter === "TODAS" || lojas.some(l => l.nome === prevChFilter))) {
+          filterChamadosSelect.value = prevChFilter;
+        }
+        if (prevNtFilter && (prevNtFilter === "TODAS" || lojas.some(l => l.nome === prevNtFilter))) {
+          filterNotasSelect.value = prevNtFilter;
+        }
+      } else {
+        filterChamadosWrap.classList.add("hidden");
+        filterNotasWrap.classList.add("hidden");
+      }
+
       let filtrados = chamados;
       if (currentFilter === "urgentes") {
         filtrados = urgentesAtivos;
       } else if (currentFilter !== "todos") {
         filtrados = chamados.filter(c => c.status === currentFilter);
+      }
+
+      if (currentUser.role === "admin" && filterChamadosSelect.value && filterChamadosSelect.value !== "TODAS") {
+        filtrados = filtrados.filter(c => c.loja === filterChamadosSelect.value);
       }
 
       const chContainer = document.getElementById("chamados-container");
@@ -2651,12 +2723,17 @@
           </div>
         </div>
       `;
-      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhum chamado nesta categoria.</p>`;
+      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhum chamado encontrado para este filtro.</p>`;
 
       updateSelectionBar();
 
+      let notasFiltradas = notas;
+      if (currentUser.role === "admin" && filterNotasSelect.value && filterNotasSelect.value !== "TODAS") {
+        notasFiltradas = notasFiltradas.filter(n => n.loja === filterNotasSelect.value);
+      }
+
       const notasContainer = document.getElementById("notas-container");
-      notasContainer.innerHTML = notas.length ? notas.map(n => {
+      notasContainer.innerHTML = notasFiltradas.length ? notasFiltradas.map(n => {
         const isPago = n.statusPagamento === "pago";
         return `
           <div class="item-card" style="border-left: 5px solid var(--yellow);">
@@ -2685,7 +2762,7 @@
             </div>
           </div>
         `;
-      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma nota de serviço gerada ainda.</p>`;
+      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma nota de serviço encontrada para este filtro.</p>`;
 
       document.getElementById("lista-lojas").innerHTML = lojas.length ? lojas.map(l => `
         <div class="item-card">
