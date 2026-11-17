@@ -163,6 +163,24 @@
       justify-content: center;
       padding: 20px;
       background: radial-gradient(circle at top, var(--navy-light) 0%, var(--navy) 100%);
+      position: relative;
+    }
+
+    .login-install-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .login-card {
@@ -1034,6 +1052,11 @@
 
   <!-- 2. TELA DE LOGIN -->
   <div id="login-view" class="auth-wrapper">
+    <!-- BOTÃO INSTALAR PWA NA TELA DE LOGIN -->
+    <button id="btn-install-pwa-login" class="login-install-btn hidden" onclick="installPWA()">
+      📥 Instalar App
+    </button>
+
     <div class="login-card">
       <div class="login-logo">
         <img src="logo.png" alt="Logo A&R" onerror="this.style.display='none'" />
@@ -1092,7 +1115,7 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <!-- BOTÃO INSTALAR PWA (APARECE QUANDO DISPONÍVEL) -->
+        <!-- BOTÃO INSTALAR PWA NO PAINEL PRINCIPAL -->
         <button id="btn-install-pwa" class="icon-top-btn hidden" onclick="installPWA()" title="Instalar Aplicativo">
           📥
         </button>
@@ -1541,8 +1564,10 @@
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      const btn = document.getElementById("btn-install-pwa");
-      if (btn) btn.classList.remove("hidden");
+      const btnLogin = document.getElementById("btn-install-pwa-login");
+      const btnApp = document.getElementById("btn-install-pwa");
+      if (btnLogin) btnLogin.classList.remove("hidden");
+      if (btnApp) btnApp.classList.remove("hidden");
     });
 
     function installPWA() {
@@ -1550,6 +1575,7 @@
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === "accepted") {
+            document.getElementById("btn-install-pwa-login").classList.add("hidden");
             document.getElementById("btn-install-pwa").classList.add("hidden");
           }
           deferredPrompt = null;
