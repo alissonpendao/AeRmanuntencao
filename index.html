@@ -27,6 +27,7 @@
       --success: #10B981;
       --warning: #F59E0B;
       --info: #3B82F6;
+      --purple: #8B5CF6;
     }
 
     * {
@@ -211,7 +212,7 @@
 
     .form-group label {
       display: block;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 800;
       color: var(--navy);
       margin-bottom: 6px;
@@ -221,10 +222,10 @@
 
     .form-control {
       width: 100%;
-      padding: 13px 14px;
+      padding: 14px 16px;
       border: 1.5px solid var(--border);
       border-radius: 14px;
-      font-size: 15px;
+      font-size: 16px;
       background: #F8FAFC;
       color: var(--text);
       outline: none;
@@ -238,7 +239,7 @@
 
     .btn-primary {
       width: 100%;
-      padding: 14px;
+      padding: 15px;
       background: var(--yellow);
       color: var(--navy);
       border: none;
@@ -256,7 +257,7 @@
 
     .btn-secondary {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       background: #E2E8F0;
       color: var(--navy);
       border: none;
@@ -305,21 +306,21 @@
       background: rgba(255, 255, 255, 0.12);
       border: none;
       color: #FFFFFF;
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 12px;
       font-size: 20px;
       cursor: pointer;
     }
 
     .topbar-title {
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 800;
       line-height: 1.2;
     }
 
     .sync-badge {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 10px;
@@ -329,13 +330,45 @@
       margin-top: 2px;
     }
 
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bell-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bell-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 9px;
+      height: 9px;
+      background: var(--danger);
+      border-radius: 50%;
+      display: none;
+    }
+
     .btn-logout {
       background: rgba(255, 255, 255, 0.12);
       color: #FFFFFF;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 7px 12px;
+      padding: 8px 13px;
       border-radius: 10px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -405,7 +438,7 @@
       padding: 12px 14px;
       border-radius: 12px;
       color: var(--text);
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       margin-bottom: 4px;
@@ -426,22 +459,84 @@
 
     .hero-card {
       background: #FFFFFF;
-      border-radius: 20px;
-      padding: 20px;
+      border-radius: 22px;
+      padding: 22px 20px;
       box-shadow: 0 4px 16px rgba(15, 41, 74, 0.06);
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .hero-card h2 {
-      font-size: 20px;
+      font-size: 23px;
+      font-weight: 800;
       color: var(--navy);
       margin-bottom: 6px;
     }
 
     .hero-card p {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--muted);
-      margin-bottom: 16px;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    /* Banner Dedicado de Chamado Urgente (Logo abaixo do botão Abrir novo chamado) */
+    .urgent-banner-dedicated {
+      background: #FFF5F5;
+      border: 2px solid #FCA5A5;
+      border-left: 8px solid var(--danger);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      display: none;
+      animation: pulseAlert 1.4s infinite alternate;
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.25);
+    }
+
+    @keyframes pulseAlert {
+      0% { border-color: #FCA5A5; transform: scale(1); }
+      100% { border-color: #EF4444; transform: scale(1.018); }
+    }
+
+    .urgent-banner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .urgent-badge-pill {
+      background: var(--danger);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .urgent-banner-title {
+      color: #991B1B;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .urgent-banner-meta {
+      color: #B91C1C;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .urgent-banner-desc {
+      color: #7F1D1D;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+      background: rgba(254, 226, 226, 0.65);
+      padding: 10px 12px;
+      border-radius: 12px;
     }
 
     .stats-grid {
@@ -453,28 +548,43 @@
 
     .stat-card {
       background: #FFFFFF;
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 18px 16px;
       box-shadow: 0 4px 12px rgba(15, 41, 74, 0.05);
       cursor: pointer;
       border: 1px solid var(--border);
+      transition: transform 0.12s;
+    }
+
+    .stat-card:active {
+      transform: scale(0.98);
+    }
+
+    .stat-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
     }
 
     .stat-label {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--muted);
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     .stat-value {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 800;
       margin: 4px 0;
     }
 
     .stat-link {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--navy);
     }
@@ -488,7 +598,7 @@
     }
 
     .section-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: var(--navy);
       margin-bottom: 14px;
@@ -499,15 +609,29 @@
       background: #F8FAFC;
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 14px;
+      padding: 16px;
       margin-bottom: 12px;
+    }
+
+    .item-card.urgent-card {
+      border-left: 5px solid var(--danger);
+      background: #FFFBFB;
     }
 
     .item-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .badge-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     .badge {
@@ -517,22 +641,41 @@
       font-weight: 800;
     }
 
+    .badge-urgente { background: #DC2626; color: #FFFFFF; }
     .badge-alta { background: #FEE2E2; color: #DC2626; }
     .badge-media { background: #FEF3C7; color: #D97706; }
     .badge-baixa { background: #DBEAFE; color: #2563EB; }
     .badge-status { background: #E2E8F0; color: var(--navy); }
+    .badge-st-abertos { background: #FEF3C7; color: #B45309; }
+    .badge-st-visualizado { background: #DBEAFE; color: #1D4ED8; }
+    .badge-st-andamento { background: #EDE9FE; color: #6D28D9; }
+    .badge-st-finalizados { background: #D1FAE5; color: #047857; }
+    .badge-st-nao_atendidos { background: #FEE2E2; color: #B91C1C; }
 
     .item-title {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 800;
       color: var(--navy);
       margin-bottom: 4px;
     }
 
     .item-meta {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
       margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .duration-pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+      font-size: 13px;
+      font-weight: 700;
     }
 
     .ticket-photo {
@@ -567,17 +710,54 @@
     }
 
     .btn-sm {
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: 10px;
       border: none;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
 
+    .btn-view { background: var(--info); color: #FFFFFF; }
     .btn-status { background: var(--navy); color: #FFFFFF; }
     .btn-done { background: var(--success); color: #FFFFFF; }
+    .btn-unattended { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
     .btn-del { background: #FEE2E2; color: #DC2626; }
+
+    /* Recent list on dashboard */
+    .recent-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      gap: 10px;
+    }
+    .recent-row:last-child { border-bottom: none; }
+
+    /* Modal Detalhes do Chamado */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 41, 74, 0.65);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+    }
 
     /* Barra Inferior */
     .bottom-nav {
@@ -601,7 +781,7 @@
       font-weight: 700;
       color: var(--muted);
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 4px 6px;
     }
 
     .bottom-item.active {
@@ -609,7 +789,7 @@
     }
 
     .bottom-icon {
-      font-size: 18px;
+      font-size: 19px;
       margin-bottom: 2px;
     }
 
@@ -686,10 +866,16 @@
         <button class="menu-btn" onclick="toggleDrawer()">☰</button>
         <div>
           <div class="topbar-title">Sistema de Manutenção</div>
-          <div id="sync-status" class="sync-badge">● Nuvem Ativa</div>
+          <div id="sync-status" class="sync-badge">● Nuvem Sincronizada</div>
         </div>
       </div>
-      <button class="btn-logout" onclick="logout()">↪ Sair</button>
+      <div class="topbar-actions">
+        <button class="bell-btn" onclick="navigate('abertos')" title="Novos chamados em aberto">
+          🔔
+          <span id="bell-dot" class="bell-dot"></span>
+        </button>
+        <button class="btn-logout" onclick="logout()">↪ Sair</button>
+      </div>
     </header>
 
     <!-- Menu Lateral -->
@@ -707,8 +893,10 @@
 
           <div class="nav-section">Chamados</div>
           <div class="nav-item" onclick="navigate('abertos')">🎫 Em aberto</div>
+          <div class="nav-item" onclick="navigate('visualizado')">👁️ Visualizado</div>
           <div class="nav-item" onclick="navigate('andamento')">⏳ Em andamento</div>
           <div class="nav-item" onclick="navigate('finalizados')">✅ Finalizados</div>
+          <div class="nav-item" onclick="navigate('nao_atendidos')">🚫 Não atendidos</div>
 
           <div id="admin-menu">
             <div class="nav-section">Manutenção & Gestão</div>
@@ -732,31 +920,68 @@
           <button class="btn-primary" onclick="navigate('novo-chamado')">+ Abrir novo chamado</button>
         </div>
 
+        <!-- BANNER DEDICADO DE CHAMADO URGENTE (LOGO ABAIXO DO BOTÃO) -->
+        <div id="urgent-banner-dedicated" class="urgent-banner-dedicated" onclick="openUrgentList()">
+          <div class="urgent-banner-header">
+            <div class="urgent-banner-title">🚨 CHAMADO URGENTE</div>
+            <span id="urgent-count-pill" class="urgent-badge-pill">1 CHAMADO</span>
+          </div>
+          <div id="urgent-banner-meta" class="urgent-banner-meta">Loja: Carregando...</div>
+          <div id="urgent-banner-desc" class="urgent-banner-desc">Toque aqui para visualizar e iniciar o atendimento imediatamente.</div>
+        </div>
+
+        <!-- CARTÕES DE CONTADORES -->
         <div class="stats-grid">
           <div class="stat-card" onclick="navigate('abertos')">
-            <div>📋</div>
+            <div class="stat-icon-box" style="background:#FEF3C7;">📋</div>
             <div class="stat-label">Abertos</div>
             <div class="stat-value" id="count-abertos" style="color:var(--warning);">0</div>
             <div class="stat-link">Ver detalhes →</div>
           </div>
-          <div class="stat-card" onclick="navigate('abertos')">
-            <div>🛠️</div>
-            <div class="stat-label">Urgentes</div>
-            <div class="stat-value" id="count-urgentes" style="color:var(--danger);">0</div>
+
+          <div class="stat-card" onclick="navigate('visualizado')">
+            <div class="stat-icon-box" style="background:#DBEAFE;">👁️</div>
+            <div class="stat-label">Visualizado</div>
+            <div class="stat-value" id="count-visualizado" style="color:var(--info);">0</div>
             <div class="stat-link">Ver detalhes →</div>
           </div>
+
           <div class="stat-card" onclick="navigate('andamento')">
-            <div>⏳</div>
+            <div class="stat-icon-box" style="background:#EDE9FE;">⏳</div>
             <div class="stat-label">Em andamento</div>
-            <div class="stat-value" id="count-andamento" style="color:var(--info);">0</div>
+            <div class="stat-value" id="count-andamento" style="color:var(--purple);">0</div>
             <div class="stat-link">Ver detalhes →</div>
           </div>
+
           <div class="stat-card" onclick="navigate('finalizados')">
-            <div>✅</div>
+            <div class="stat-icon-box" style="background:#D1FAE5;">✅</div>
             <div class="stat-label">Finalizados</div>
             <div class="stat-value" id="count-finalizados" style="color:var(--success);">0</div>
             <div class="stat-link">Ver detalhes →</div>
           </div>
+
+          <div class="stat-card" onclick="navigate('nao_atendidos')" style="grid-column: span 2;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div class="stat-icon-box" style="background:#FEE2E2;">🚫</div>
+                <div class="stat-label">Não atendidos</div>
+                <div class="stat-value" id="count-nao-atendidos" style="color:var(--danger);">0</div>
+                <div class="stat-link">Ver detalhes →</div>
+              </div>
+              <div style="font-size:12px;color:var(--muted);max-width:175px;text-align:right;">
+                Chamados encerrados sem atendimento ou cancelados
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ÚLTIMOS CHAMADOS NO DASHBOARD -->
+        <div class="section-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="section-title" style="margin-bottom:0;">Últimos chamados</div>
+            <span style="font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;" onclick="navigate('todos')">Ver todos</span>
+          </div>
+          <div id="recent-chamados-container"></div>
         </div>
       </section>
 
@@ -772,9 +997,10 @@
             <div class="form-group">
               <label>Prioridade</label>
               <select id="ch-prioridade" class="form-control">
-                <option value="Baixa">Baixa</option>
+                <option value="Urgente">🚨 Urgente</option>
+                <option value="Alta">Alta</option>
                 <option value="Média" selected>Média</option>
-                <option value="Alta">Alta / Urgente</option>
+                <option value="Baixa">Baixa</option>
               </select>
             </div>
             <div class="form-group">
@@ -811,7 +1037,7 @@
         </div>
       </section>
 
-      <!-- LISTAS DE CHAMADOS (ABERTOS / ANDAMENTO / FINALIZADOS) -->
+      <!-- LISTAS DE CHAMADOS -->
       <section id="sec-lista" class="hidden">
         <div class="section-card">
           <div class="section-title" id="lista-titulo">Chamados</div>
@@ -873,6 +1099,17 @@
       </section>
     </main>
 
+    <!-- MODAL DE VISUALIZAÇÃO DO CHAMADO -->
+    <div id="ticket-modal" class="modal-overlay" onclick="closeTicketModal(event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;color:var(--navy);">Detalhes do Chamado</strong>
+          <button onclick="closeTicketModal()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <div id="ticket-modal-content"></div>
+      </div>
+    </div>
+
     <!-- Barra Inferior -->
     <nav class="bottom-nav">
       <div class="bottom-item active" onclick="navigate('dashboard')">
@@ -929,6 +1166,8 @@
     let pendingUnitLogin = null;
     let currentFilter = "abertos";
     let compressedPhotoBase64 = "";
+    let cachedChamados = [];
+    let lastKnownOpenCount = null;
 
     function getLocal(key) {
       return JSON.parse(localStorage.getItem("ar_" + key) || "[]");
@@ -954,7 +1193,6 @@
       const err = document.getElementById("login-error");
       err.style.display = "none";
 
-      // Login do Técnico (campo usuário vazio ou 'tecnico' + senha 2191)
       if ((user === "" || user === "tecnico") && pass === TECH_PASS) {
         currentUser = { role: "admin", name: "Técnico Manutenção", loja: "Todas" };
         localStorage.setItem("ar_session", JSON.stringify(currentUser));
@@ -962,7 +1200,6 @@
         return;
       }
 
-      // Login de Unidade / Loja
       const lojas = await fetchCollection("lojas");
       const hashedInput = await hashPassword(pass);
       const found = lojas.find(l =>
@@ -984,7 +1221,6 @@
       }
     });
 
-    // Troca de senha obrigatória no 1º acesso
     document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const p1 = document.getElementById("new-pass").value.trim();
@@ -1027,6 +1263,11 @@
       if (currentUser.role !== "admin") {
         document.getElementById("admin-menu").classList.add("hidden");
       }
+
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+
       refreshAll();
     }
 
@@ -1050,12 +1291,16 @@
         document.getElementById("sec-dashboard").classList.remove("hidden");
       } else if (page === "novo-chamado") {
         document.getElementById("sec-novo-chamado").classList.remove("hidden");
-      } else if (["abertos", "andamento", "finalizados"].includes(page)) {
+      } else if (["abertos", "visualizado", "andamento", "finalizados", "nao_atendidos", "urgentes", "todos"].includes(page)) {
         currentFilter = page;
         const titles = {
           abertos: "Chamados em Aberto",
+          visualizado: "Chamados Visualizados",
           andamento: "Chamados em Andamento",
-          finalizados: "Chamados Finalizados"
+          finalizados: "Chamados Finalizados",
+          nao_atendidos: "Chamados Não Atendidos",
+          urgentes: "🚨 Chamados Urgentes Ativos",
+          todos: "Todos os Chamados"
         };
         document.getElementById("lista-titulo").textContent = titles[page];
         document.getElementById("sec-lista").classList.remove("hidden");
@@ -1067,7 +1312,43 @@
       refreshAll();
     }
 
-    // ================= COMPRESSÃO NATIVA DE FOTOS (SEM STORAGE PAGO) =================
+    function openUrgentList() {
+      const urgents = cachedChamados.filter(c => c.prioridade === "Urgente" && c.status !== "finalizados" && c.status !== "nao_atendidos");
+      if (urgents.length === 1) {
+        viewTicket(urgents[0].id);
+      } else {
+        navigate("urgentes");
+      }
+    }
+
+    // ================= CÁLCULO DE TEMPO DE ATENDIMENTO =================
+    function formatDuration(ms) {
+      if (!ms || ms < 0) return "menos de 1 min";
+      const totalMins = Math.floor(ms / 60000);
+      const days = Math.floor(totalMins / 1440);
+      const hours = Math.floor((totalMins % 1440) / 60);
+      const mins = totalMins % 60;
+
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0) parts.push(`${hours}h`);
+      parts.push(`${mins}min`);
+      return parts.join(" ");
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return "";
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return "agora mesmo";
+      if (mins < 60) return `há ${mins} min`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `há ${hrs}h`;
+      const days = Math.floor(hrs / 24);
+      return `há ${days} dia(s)`;
+    }
+
+    // ================= COMPRESSÃO NATIVA DE FOTOS =================
     function handlePhotoCompress(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1091,7 +1372,6 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Comprime para JPEG 65% (~60-110 KB) para caber com folga no Firestore
           compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.65);
           document.getElementById("photo-preview-img").src = compressedPhotoBase64;
           document.getElementById("photo-preview-box").style.display = "block";
@@ -1107,7 +1387,7 @@
       document.getElementById("photo-preview-box").style.display = "none";
     }
 
-    // ================= CAMADA DE DADOS (CLOUD FIRESTORE + CACHE LOCAL) =================
+    // ================= CAMADA DE DADOS (CLOUD FIRESTORE + FALLBACK LOCAL) =================
     async function fetchCollection(col) {
       try {
         const snap = await db.collection(col).get();
@@ -1146,19 +1426,127 @@
       refreshAll();
     }
 
-    async function updateStatus(id, status) {
-      await updateDocItem("chamados", id, { status });
+    async function updateStatus(id, newStatus) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      const now = Date.now();
+      const nowStr = new Date(now).toLocaleString("pt-BR");
+      const updates = { status: newStatus };
+
+      if (newStatus === "visualizado") {
+        updates.viewedAt = nowStr;
+        updates.viewedTimestamp = now;
+      } else if (newStatus === "andamento") {
+        updates.startedAt = nowStr;
+        updates.startedTimestamp = now;
+      } else if (newStatus === "finalizados") {
+        updates.finishedAt = nowStr;
+        updates.finishedTimestamp = now;
+        const startRef = (ticket && ticket.startedTimestamp) ? ticket.startedTimestamp : (ticket && ticket.timestamp ? ticket.timestamp : now);
+        updates.durationMs = now - startRef;
+        updates.totalDurationMs = ticket && ticket.timestamp ? (now - ticket.timestamp) : (now - startRef);
+      } else if (newStatus === "nao_atendidos") {
+        updates.closedAt = nowStr;
+      }
+
+      await updateDocItem("chamados", id, updates);
+      if (document.getElementById("ticket-modal").style.display === "flex") {
+        viewTicket(id);
+      }
     }
 
     async function deleteItem(col, id) {
-      if (!confirm("Deseja excluir este registro?")) return;
+      if (!confirm("Deseja excluir este registro permanentemente?")) return;
       try {
         await db.collection(col).doc(id).delete();
       } catch (e) {
         const list = getLocal(col).filter(i => i.id !== id);
         setLocal(col, list);
       }
+      closeTicketModal();
       refreshAll();
+    }
+
+    // ================= VISUALIZAR CHAMADO (ABERTOS -> VISUALIZADO -> ANDAMENTO -> FINALIZADO) =================
+    async function viewTicket(id) {
+      let ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+
+      // Ao clicar para abrir um chamado em aberto, técnico move automaticamente para 'visualizado'
+      if (currentUser.role === "admin" && ticket.status === "abertos") {
+        await updateStatus(id, "visualizado");
+        ticket = cachedChamados.find(c => c.id === id) || { ...ticket, status: "visualizado" };
+      }
+
+      const statusLabels = {
+        abertos: "Em aberto",
+        visualizado: "Visualizado",
+        andamento: "Em andamento",
+        finalizados: "Finalizado",
+        nao_atendidos: "Não atendido"
+      };
+
+      const prioClass = getPriorityBadgeClass(ticket.prioridade);
+
+      const durationHtml = ticket.status === "finalizados" ? `
+        <div class="duration-pill">
+          ⏱️ Tempo gasto no atendimento: <strong>${formatDuration(ticket.durationMs)}</strong>
+          ${ticket.totalDurationMs ? `<br/>🕒 Tempo total desde a abertura: <strong>${formatDuration(ticket.totalDurationMs)}</strong>` : ""}
+        </div>
+      ` : "";
+
+      const actionsHtml = currentUser.role === "admin" ? `
+        <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
+          ${(ticket.status === "visualizado") ? `
+            <button class="btn-sm btn-status" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar Chamado</button>
+          ` : ""}
+          ${ticket.status === "andamento" ? `
+            <button class="btn-sm btn-done" onclick="updateStatus('${ticket.id}', 'finalizados')">✅ Finalizar Chamado</button>
+          ` : ""}
+          ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `
+            <button class="btn-sm btn-unattended" onclick="updateStatus('${ticket.id}', 'nao_atendidos')">🚫 Não Atendido</button>
+          ` : ""}
+          ${(ticket.status === "abertos" || ticket.status === "visualizado" || ticket.status === "nao_atendidos") ? `
+            <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
+          ` : ""}
+        </div>
+      ` : "";
+
+      document.getElementById("ticket-modal-content").innerHTML = `
+        <div class="item-header">
+          <div class="badge-group">
+            <span class="badge ${prioClass}">${ticket.prioridade}</span>
+            <span class="badge badge-st-${ticket.status}">${statusLabels[ticket.status] || ticket.status}</span>
+          </div>
+          <span class="badge badge-status">${ticket.loja}</span>
+        </div>
+        <div class="item-title" style="font-size:19px;margin-top:6px;">${ticket.titulo}</div>
+        <div class="item-meta">
+          <strong>Equipamento:</strong> ${ticket.equipamento}<br/>
+          <strong>Aberto por:</strong> ${ticket.autor} em ${ticket.createdAt || "-"}<br/>
+          ${ticket.viewedAt ? `<strong>Visualizado em:</strong> ${ticket.viewedAt}<br/>` : ""}
+          ${ticket.startedAt ? `<strong>Iniciado em:</strong> ${ticket.startedAt}<br/>` : ""}
+          ${ticket.finishedAt ? `<strong>Finalizado em:</strong> ${ticket.finishedAt}` : ""}
+        </div>
+        <p style="font-size:14px;color:var(--text);background:#F8FAFC;padding:12px;border-radius:12px;border:1px solid var(--border);">${ticket.descricao}</p>
+        ${durationHtml}
+        ${ticket.foto ? `<img src="${ticket.foto}" class="ticket-photo" alt="Foto do chamado" onclick="window.open(this.src)" />` : ""}
+        ${actionsHtml}
+      `;
+
+      document.getElementById("ticket-modal").style.display = "flex";
+    }
+
+    function closeTicketModal(e) {
+      if (!e || e.target.id === "ticket-modal") {
+        document.getElementById("ticket-modal").style.display = "none";
+      }
+    }
+
+    function getPriorityBadgeClass(p) {
+      if (p === "Urgente") return "badge-urgente";
+      if (p === "Alta") return "badge-alta";
+      if (p === "Média") return "badge-media";
+      return "badge-baixa";
     }
 
     // ================= FORMULÁRIOS =================
@@ -1209,7 +1597,7 @@
       e.target.reset();
       btn.disabled = false;
       btn.textContent = "+ Salvar Chamado";
-      navigate("abertos");
+      navigate("dashboard");
     });
 
     // ================= RENDERIZAÇÃO =================
@@ -1224,11 +1612,74 @@
         chamados = chamados.filter(c => c.loja === currentUser.loja);
       }
 
+      cachedChamados = chamados;
+
+      const abertosList = chamados.filter(c => c.status === "abertos");
+      const visualizadoList = chamados.filter(c => c.status === "visualizado");
+      const andamentoList = chamados.filter(c => c.status === "andamento");
+      const finalizadosList = chamados.filter(c => c.status === "finalizados");
+      const naoAtendidosList = chamados.filter(c => c.status === "nao_atendidos");
+
+      // Notificação visual e sonora/sistema para novos chamados em aberto
+      const bellDot = document.getElementById("bell-dot");
+      bellDot.style.display = abertosList.length > 0 ? "block" : "none";
+
+      if (lastKnownOpenCount !== null && abertosList.length > lastKnownOpenCount && currentUser.role === "admin") {
+        const newest = abertosList[0];
+        if ("Notification" in window && Notification.permission === "granted" && newest) {
+          new Notification(`Novo Chamado (${newest.prioridade}) - ${newest.loja}`, {
+            body: newest.titulo,
+            icon: "logo.png"
+          });
+        }
+      }
+      lastKnownOpenCount = abertosList.length;
+
       // Contadores Dashboard
-      document.getElementById("count-abertos").textContent = chamados.filter(c => c.status === "abertos").length;
-      document.getElementById("count-urgentes").textContent = chamados.filter(c => c.status !== "finalizados" && c.prioridade === "Alta").length;
-      document.getElementById("count-andamento").textContent = chamados.filter(c => c.status === "andamento").length;
-      document.getElementById("count-finalizados").textContent = chamados.filter(c => c.status === "finalizados").length;
+      document.getElementById("count-abertos").textContent = abertosList.length;
+      document.getElementById("count-visualizado").textContent = visualizadoList.length;
+      document.getElementById("count-andamento").textContent = andamentoList.length;
+      document.getElementById("count-finalizados").textContent = finalizadosList.length;
+      document.getElementById("count-nao-atendidos").textContent = naoAtendidosList.length;
+
+      // Banner Dedicado de Chamado Urgente (Abaixo do botão Novo Chamado)
+      const urgentesAtivos = chamados.filter(c =>
+        c.prioridade === "Urgente" && c.status !== "finalizados" && c.status !== "nao_atendidos"
+      );
+      const urgentBanner = document.getElementById("urgent-banner-dedicated");
+      if (urgentesAtivos.length > 0) {
+        urgentBanner.style.display = "block";
+        document.getElementById("urgent-count-pill").textContent =
+          urgentesAtivos.length === 1 ? "1 CHAMADO" : `${urgentesAtivos.length} CHAMADOS`;
+        const firstUrg = urgentesAtivos[0];
+        document.getElementById("urgent-banner-meta").textContent = `Loja: ${firstUrg.loja} | Status: ${firstUrg.status.toUpperCase()}`;
+        document.getElementById("urgent-banner-desc").textContent = `🚨 ${firstUrg.titulo}`;
+      } else {
+        urgentBanner.style.display = "none";
+      }
+
+      // Últimos chamados no Dashboard
+      const statusLabels = {
+        abertos: "Em aberto",
+        visualizado: "Visualizado",
+        andamento: "Em andamento",
+        finalizados: "Finalizado",
+        nao_atendidos: "Não atendido"
+      };
+      const recentContainer = document.getElementById("recent-chamados-container");
+      const recents = chamados.slice(0, 5);
+      recentContainer.innerHTML = recents.length ? recents.map(c => `
+        <div class="recent-row" onclick="viewTicket('${c.id}')">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;">
+              ${c.loja} ${c.prioridade === "Urgente" ? "• 🚨 URGENTE" : ""}
+            </div>
+            <div style="font-size:15px;font-weight:800;color:var(--navy);">${c.titulo}</div>
+            <div style="font-size:12px;color:var(--muted);">${timeAgo(c.timestamp)}</div>
+          </div>
+          <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
+        </div>
+      `).join("") : `<p style="color:var(--muted);font-size:13px;padding:8px 0;">Nenhum chamado registrado ainda.</p>`;
 
       // Selects de Lojas
       const chLoja = document.getElementById("ch-loja");
@@ -1252,26 +1703,43 @@
       chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
         eqFiltrados.map(eq => `<option value="${eq.nome} (${eq.loja})">${eq.nome} - ${eq.loja}</option>`).join("");
 
-      // Lista de Chamados
-      const filtrados = chamados.filter(c => c.status === currentFilter);
+      // Lista de Chamados na seção selecionada
+      let filtrados = chamados;
+      if (currentFilter === "urgentes") {
+        filtrados = urgentesAtivos;
+      } else if (currentFilter !== "todos") {
+        filtrados = chamados.filter(c => c.status === currentFilter);
+      }
+
       const chContainer = document.getElementById("chamados-container");
       chContainer.innerHTML = filtrados.length ? filtrados.map(c => `
-        <div class="item-card">
+        <div class="item-card ${c.prioridade === 'Urgente' && c.status !== 'finalizados' ? 'urgent-card' : ''}">
           <div class="item-header">
-            <span class="badge badge-${c.prioridade === 'Alta' ? 'alta' : c.prioridade === 'Média' ? 'media' : 'baixa'}">${c.prioridade}</span>
+            <div class="badge-group">
+              <span class="badge ${getPriorityBadgeClass(c.prioridade)}">${c.prioridade}</span>
+              <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
+            </div>
             <span class="badge badge-status">${c.loja}</span>
           </div>
-          <div class="item-title">${c.titulo}</div>
-          <div class="item-meta">Equipamento: ${c.equipamento} • Aberto por: ${c.autor} (${c.createdAt || ''})</div>
-          <p style="font-size:13px;color:var(--text);">${c.descricao}</p>
-          ${c.foto ? `<img src="${c.foto}" class="ticket-photo" alt="Foto do chamado" onclick="window.open(this.src)" />` : ""}
-          ${currentUser.role === "admin" ? `
-            <div class="item-actions">
-              ${c.status === "abertos" ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">Iniciar Atendimento</button>` : ""}
-              ${c.status !== "finalizados" ? `<button class="btn-sm btn-done" onclick="updateStatus('${c.id}', 'finalizados')">Finalizar</button>` : ""}
-              <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">Excluir</button>
-            </div>
+          <div class="item-title" style="cursor:pointer;" onclick="viewTicket('${c.id}')">${c.titulo}</div>
+          <div class="item-meta">
+            Equipamento: ${c.equipamento} • Aberto por: ${c.autor} (${c.createdAt || ''})
+            ${c.finishedAt ? `<br/>Finalizado em: ${c.finishedAt}` : ""}
+          </div>
+          <p style="font-size:14px;color:var(--text);">${c.descricao}</p>
+          ${c.status === "finalizados" && c.durationMs !== undefined ? `
+            <div class="duration-pill">⏱️ Duração: <strong>${formatDuration(c.durationMs)}</strong></div>
           ` : ""}
+          ${c.foto ? `<img src="${c.foto}" class="ticket-photo" alt="Foto do chamado" onclick="viewTicket('${c.id}')" />` : ""}
+          <div class="item-actions">
+            <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir / Detalhes</button>
+            ${currentUser.role === "admin" ? `
+              ${(c.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar Chamado</button>` : ""}
+              ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${c.id}', 'finalizados')">✅ Finalizar</button>` : ""}
+              ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-unattended" onclick="updateStatus('${c.id}', 'nao_atendidos')">🚫 Não Atendido</button>` : ""}
+              ${(c.status === "abertos" || c.status === "visualizado" || c.status === "nao_atendidos") ? `<button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">Excluir</button>` : ""}
+            ` : ""}
+          </div>
         </div>
       `).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhum chamado nesta categoria.</p>`;
 
