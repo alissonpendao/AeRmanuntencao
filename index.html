@@ -1235,7 +1235,7 @@
           <form id="form-chamado">
             <div class="form-group">
               <label>Loja / Unidade</label>
-              <select id="ch-loja" class="form-control" required></select>
+              <select id="ch-loja" class="form-control" onchange="updateEquipamentosDropdown()" required></select>
             </div>
             <div class="form-group">
               <label>Prioridade</label>
@@ -1630,6 +1630,7 @@
     let cachedChamados = [];
     let cachedNotas = [];
     let cachedLojas = [];
+    let cachedEquipamentos = [];
     let selectedTicketIds = new Set();
     let lastKnownOpenCount = null;
 
@@ -1989,6 +1990,16 @@
       if (document.getElementById("ticket-modal").style.display === "flex") {
         viewTicket(id);
       }
+    }
+
+    // ================= FILTRO DINÂMICO DE EQUIPAMENTOS POR LOJA =================
+    function updateEquipamentosDropdown() {
+      const lojaSelecionada = document.getElementById("ch-loja").value;
+      const chEq = document.getElementById("ch-equipamento");
+      const eqDaLoja = cachedEquipamentos.filter(eq => eq.loja === lojaSelecionada);
+
+      chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
+        eqDaLoja.map(eq => `<option value="${eq.nome}${eq.modelo ? ' (' + eq.modelo + ')' : ''}">${eq.nome}${eq.modelo ? ' - ' + eq.modelo : ''}</option>`).join("");
     }
 
     // ================= MODAL DE FINALIZAÇÃO COM RELATÓRIO TÉCNICO =================
@@ -2387,10 +2398,10 @@
 
       const actionsHtml = currentUser.role === "admin" ? `
         <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
-          <button class="btn-sm btn-status" onclick="openEditTicketModal('${ticket.id}')">✏️ Editar</button>
-          ${(ticket.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar</button>` : ""}
+          ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar</button>` : ""}
           ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${ticket.id}')">✅ Finalizar</button>` : ""}
           ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Valor</button>` : ""}
+          <button class="btn-sm btn-status" onclick="openEditTicketModal('${ticket.id}')">✏️ Editar</button>
           <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
         </div>
       ` : "";
@@ -2487,6 +2498,7 @@
       const lojas = await fetchCollection("lojas");
       cachedLojas = lojas;
       const equipamentos = await fetchCollection("equipamentos");
+      cachedEquipamentos = equipamentos;
       let chamados = await fetchCollection("chamados");
       let notas = await fetchCollection("notas_servico");
 
@@ -2568,23 +2580,22 @@
 
       const chLoja = document.getElementById("ch-loja");
       const eqLoja = document.getElementById("eq-loja");
+      const previousLoja = chLoja.value;
+
       if (currentUser.role === "admin") {
         const opts = lojas.length
           ? lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("")
           : `<option value="">Cadastre uma loja primeiro</option>`;
         chLoja.innerHTML = opts;
         eqLoja.innerHTML = opts;
+        if (previousLoja && lojas.some(l => l.nome === previousLoja)) {
+          chLoja.value = previousLoja;
+        }
       } else {
         chLoja.innerHTML = `<option value="${currentUser.loja}">${currentUser.loja}</option>`;
       }
 
-      const chEq = document.getElementById("ch-equipamento");
-      const eqFiltrados = currentUser.role === "admin"
-        ? equipamentos
-        : equipamentos.filter(eq => eq.loja === currentUser.loja);
-
-      chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
-        eqFiltrados.map(eq => `<option value="${eq.nome} (${eq.loja})">${eq.nome} - ${eq.loja}</option>`).join("");
+      updateEquipamentosDropdown();
 
       let filtrados = chamados;
       if (currentFilter === "urgentes") {
@@ -2632,7 +2643,7 @@
             <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir</button>
             ${currentUser.role === "admin" ? `
               <button class="btn-sm btn-status" onclick="openEditTicketModal('${c.id}')">✏️ Editar</button>
-              ${(c.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
+              ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
               ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${c.id}')">✅ Finalizar</button>` : ""}
               ${isFinalizado ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 ${c.valorTotal > 0 ? 'Editar Valor' : 'Definir Valor'}</button>` : ""}
               <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">🗑️ Excluir</button>
