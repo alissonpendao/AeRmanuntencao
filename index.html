@@ -1,204 +1,2866 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A&R Manutenção - Sistema de Gestão</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0F294A" />
+  <title>A&R Manutenção - Sistema de Gestão</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="logo.png" />
+
+  <!-- Firebase SDK (Compat) + Authentication -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --navy: #0F294A;
+      --navy-light: #18364F;
+      --yellow: #FFD700;
+      --yellow-hover: #E6C200;
+      --bg-light: #F4F7FA;
+      --card-bg: #FFFFFF;
+      --text: #1E293B;
+      --muted: #64748B;
+      --border: #E2E8F0;
+      --danger: #EF4444;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --info: #3B82F6;
+      --purple: #8B5CF6;
+    }
+
+    /* TEMA ESCURO (DARK MODE) */
+    body.dark-mode {
+      --navy: #0B192C;
+      --navy-light: #1E3E62;
+      --bg-light: #07101B;
+      --card-bg: #122238;
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+      --border: #23395B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--navy);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ================= TELA DE ABERTURA / CARREGAMENTO ================= */
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--navy);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      transition: opacity 0.4s ease;
+    }
+
+    .splash-logo-wrap {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 3px solid var(--yellow);
+      margin-bottom: 20px;
+      overflow: hidden;
+      background: var(--navy-light);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .splash-logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .splash-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+
+    .splash-slogan {
+      display: inline-block;
+      background: var(--yellow);
+      color: #0F294A;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      letter-spacing: 0.5px;
+    }
+
+    .splash-loader-bar {
+      width: 180px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .splash-loader-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--yellow);
+      animation: loadingBar 1.2s infinite linear;
+    }
+
+    @keyframes loadingBar {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* ================= TELA DE LOGIN & PRIMEIRO ACESSO ================= */
+    .auth-wrapper {
+      min-height: 100vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(circle at top, var(--navy-light) 0%, var(--navy) 100%);
+      position: relative;
+    }
+
+    .login-install-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 410px;
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 98px;
+      height: 98px;
+      border-radius: 50%;
+      border: 3px solid var(--yellow);
+      margin: 0 auto 14px;
+      overflow: hidden;
+      background: var(--navy);
+      box-shadow: 0 8px 20px rgba(15, 41, 74, 0.25);
+    }
+
+    .login-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .login-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+
+    .login-slogan-badge {
+      display: inline-block;
+      background: var(--yellow);
+      color: #0F294A;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 22px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-size: 16px;
+      background: var(--card-bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--yellow);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: var(--yellow);
+      color: #0F294A;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(255, 215, 0, 0.35);
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: var(--border);
+      color: var(--text);
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ================= PAINEL PRINCIPAL ================= */
+    #app-view {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg-light);
+      padding-bottom: 95px;
+    }
+
+    .topbar {
+      background: var(--navy);
+      color: #FFFFFF;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      color: #FFFFFF;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .topbar-title {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .sync-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #6EE7B7;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-top-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bell-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 9px;
+      height: 9px;
+      background: var(--danger);
+      border-radius: 50%;
+      display: none;
+    }
+
+    .btn-logout {
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 13px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Drawer Lateral */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 200;
+      display: none;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: -285px;
+      width: 275px;
+      height: 100%;
+      background: var(--card-bg);
+      color: var(--text);
+      z-index: 201;
+      transition: left 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .drawer.open {
+      left: 0;
+    }
+
+    .drawer-header {
+      background: var(--navy);
+      color: #FFFFFF;
+      padding: 24px 18px;
+      text-align: center;
+    }
+
+    .drawer-header img {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 2px solid var(--yellow);
+      margin-bottom: 8px;
+    }
+
+    .drawer-nav {
+      padding: 14px 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 14px 10px 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+
+    .nav-item.active {
+      background: var(--yellow);
+      color: #0F294A;
+      font-weight: 800;
+    }
+
+    /* Conteúdo */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 18px 16px;
+    }
+
+    .hero-card {
+      background: var(--card-bg);
+      border-radius: 22px;
+      padding: 22px 20px;
+      box-shadow: 0 4px 16px rgba(15, 41, 74, 0.06);
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .hero-card h2 {
+      font-size: 23px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .hero-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    /* Caixa de Filtro de Loja */
+    .store-filter-box {
+      background: var(--bg-light);
+      border: 1.5px solid var(--yellow);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .store-filter-box label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* Banner Dedicado de Chamado Urgente */
+    .urgent-banner-dedicated {
+      background: #FFF5F5;
+      border: 2px solid #FCA5A5;
+      border-left: 8px solid var(--danger);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      display: none;
+      animation: pulseAlert 1.4s infinite alternate;
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.25);
+    }
+
+    body.dark-mode .urgent-banner-dedicated {
+      background: #2D1515;
+      border-color: #7F1D1D;
+    }
+
+    @keyframes pulseAlert {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.018); }
+    }
+
+    .urgent-banner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .urgent-badge-pill {
+      background: var(--danger);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .urgent-banner-title {
+      color: #991B1B;
+      font-size: 18px;
+      font-weight: 800;
+    }
+    body.dark-mode .urgent-banner-title { color: #FCA5A5; }
+
+    .urgent-banner-meta {
+      color: #B91C1C;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    body.dark-mode .urgent-banner-meta { color: #F87171; }
+
+    .urgent-banner-desc {
+      color: #7F1D1D;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+      background: rgba(254, 226, 226, 0.65);
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+    body.dark-mode .urgent-banner-desc { background: #3F1D1D; color: #FCA5A5; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 18px 16px;
+      box-shadow: 0 4px 12px rgba(15, 41, 74, 0.05);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform 0.12s;
+    }
+
+    .stat-card:active {
+      transform: scale(0.98);
+    }
+
+    .stat-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 4px 0;
+      color: var(--text);
+    }
+
+    .stat-link {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--yellow);
+    }
+    body.dark-mode .stat-link { color: var(--yellow); }
+
+    .section-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(15, 41, 74, 0.06);
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    /* Cards de Chamados e Itens */
+    .item-card {
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .item-card.selected-ticket {
+      border: 2px solid var(--yellow);
+      background: rgba(255, 215, 0, 0.08);
+    }
+
+    .item-card.urgent-card {
+      border-left: 5px solid var(--danger);
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .badge-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .badge-urgente { background: #DC2626; color: #FFFFFF; }
+    .badge-alta { background: #FEE2E2; color: #DC2626; }
+    .badge-media { background: #FEF3C7; color: #D97706; }
+    .badge-baixa { background: #DBEAFE; color: #2563EB; }
+    .badge-status { background: var(--border); color: var(--text); }
+    .badge-st-abertos { background: #FEF3C7; color: #B45309; }
+    .badge-st-visualizado { background: #DBEAFE; color: #1D4ED8; }
+    .badge-st-andamento { background: #EDE9FE; color: #6D28D9; }
+    .badge-st-finalizados { background: #D1FAE5; color: #047857; }
+    .badge-st-nao_atendidos { background: #FEE2E2; color: #B91C1C; }
+    .badge-price { background: var(--navy); color: var(--yellow); }
+    .badge-nota-ok { background: #DCFCE7; color: #166534; }
+    .badge-nota-open { background: #FEF9C3; color: #854D0E; }
+
+    .ticket-select-checkbox {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--yellow);
+      cursor: pointer;
+    }
+
+    .item-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .item-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .tech-report-box {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid #10B981;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .duration-pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid #10B981;
+      color: var(--success);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .price-pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid #3B82F6;
+      color: var(--info);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .ticket-photo {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .photo-preview-box {
+      margin-top: 10px;
+      position: relative;
+      display: none;
+    }
+
+    .photo-preview-box img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid var(--yellow);
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn-sm {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-view { background: var(--info); color: #FFFFFF; }
+    .btn-status { background: var(--navy-light); color: #FFFFFF; }
+    .btn-done { background: var(--success); color: #FFFFFF; }
+    .btn-gold { background: var(--yellow); color: #0F294A; font-weight: 800; }
+    .btn-unattended { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+    .btn-del { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    /* Barra Flutuante de Agrupamento em Nota de Serviço */
+    .selection-floating-bar {
+      position: fixed;
+      bottom: 66px;
+      left: 12px;
+      right: 12px;
+      max-width: 700px;
+      margin: 0 auto;
+      background: var(--navy);
+      color: #FFFFFF;
+      border: 2px solid var(--yellow);
+      border-radius: 18px;
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 95;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+    }
+
+    .recent-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      gap: 10px;
+    }
+    .recent-row:last-child { border-bottom: none; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      color: var(--text);
+      width: 100%;
+      max-width: 560px;
+      max-height: 92vh;
+      overflow-y: auto;
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+    }
+
+    /* ================= LAYOUT DA NOTINHA / RECIBO A&R ================= */
+    .receipt-sheet {
+      background: #0F294A;
+      border: 3px solid #0F294A;
+      border-radius: 18px;
+      overflow: hidden;
+      color: #FFFFFF;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .receipt-header {
+      background: #0F294A;
+      padding: 18px 16px;
+      text-align: center;
+      border-bottom: 3px solid #FFD700;
+    }
+
+    .receipt-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .receipt-logo {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      border: 2px solid #FFD700;
+      object-fit: cover;
+      background: #0F294A;
+    }
+
+    .receipt-company {
+      text-align: left;
+    }
+
+    .receipt-company-name {
+      font-size: 16px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 0.3px;
+    }
+
+    .receipt-company-cnpj {
+      font-size: 11px;
+      color: #CBD5E1;
+      margin-top: 2px;
+    }
+
+    .receipt-slogan {
+      display: inline-block;
+      background: #FFD700;
+      color: #0F294A;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.6px;
+      margin-top: 4px;
+    }
+
+    .receipt-body-white {
+      background: #FFFFFF;
+      color: #1E293B;
+      padding: 18px 16px;
+      margin: 0 8px;
+      border-radius: 12px;
+    }
+
+    .receipt-meta-grid {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1.5px dashed #CBD5E1;
+      font-size: 12px;
+    }
+
+    .receipt-service-item {
+      border-bottom: 1px solid #E2E8F0;
+      padding: 10px 0;
+    }
+
+    .receipt-service-item:last-child { border-bottom: none; }
+
+    .receipt-service-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      font-weight: 800;
+      color: #0F294A;
+      font-size: 13px;
+    }
+
+    .receipt-service-desc {
+      font-size: 12px;
+      color: #475569;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .receipt-total-box {
+      background: #F1F5F9;
+      border: 1.5px solid #0F294A;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .receipt-footer {
+      background: #0F294A;
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 11px;
+      color: #E2E8F0;
+    }
+
+    .signature-line {
+      border-top: 1px solid rgba(255, 255, 255, 0.45);
+      width: 75%;
+      margin: 22px auto 4px;
+      padding-top: 4px;
+      font-size: 11px;
+      color: #CBD5E1;
+    }
+
+    /* Barra Inferior */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 4px;
+      z-index: 90;
+    }
+
+    .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+
+    .bottom-item.active {
+      color: var(--yellow);
+    }
+
+    .bottom-icon {
+      font-size: 19px;
+      margin-bottom: 2px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printable-receipt-area, #printable-receipt-area * { visibility: visible; }
+      #printable-receipt-area {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col">
+<body>
 
-    <!-- TELA DE LOGIN -->
-    <div id="login-view" class="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full mb-4 text-2xl font-bold">
-                    A&R
-                </div>
-                <h1 class="text-2xl font-bold text-gray-900">A&R Manutenção</h1>
-                <p class="text-sm text-gray-500 mt-1">Sistema de Gestão e Chamados</p>
-            </div>
+  <!-- TELA DE ABERTURA / CARREGAMENTO COM BARRA AMARELA -->
+  <div id="splash-screen">
+    <div class="splash-logo-wrap">
+      <img src="logo.png" alt="A&R" onerror="this.style.display='none'" />
+    </div>
+    <div class="splash-title">A&R Manutenção</div>
+    <div class="splash-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
+    <div class="splash-loader-bar"></div>
+  </div>
 
-            <form id="login-form" class="space-y-5">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">E-mail ou Usuário da Loja</label>
-                    <input type="text" id="login-email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Ex: castro ou saogeraldo">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-                    <input type="password" id="login-pass" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="••••••••">
-                </div>
-                <div id="login-err" class="text-red-500 text-sm hidden">E-mail ou senha incorretos.</div>
-                <button type="submit" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-md">
-                    Entrar no Sistema
-                </button>
-            </form>
+  <!-- 1. TELA DE LOGIN -->
+  <div id="login-view" class="auth-wrapper">
+    <button id="btn-install-pwa-login" class="login-install-btn hidden" onclick="installPWA()">
+      📥 Instalar App
+    </button>
+
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="logo.png" alt="Logo A&R" onerror="this.style.display='none'" />
+      </div>
+      <div class="login-title">A&R Manutenção</div>
+      <div class="login-subtitle">Manutenção e Instalação Comercial</div>
+      <div class="login-slogan-badge">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-user">E-mail ou Usuário da Loja</label>
+          <input type="text" id="login-user" class="form-control" placeholder="Ex: saogeraldo, castro ou e-mail..." required />
         </div>
+        <div class="form-group">
+          <label for="login-pass">Senha de Acesso</label>
+          <input type="password" id="login-pass" class="form-control" placeholder="Digite sua senha..." required />
+        </div>
+        <button type="submit" id="btn-login-submit" class="btn-primary">Entrar no Sistema</button>
+        <div id="login-error" class="error-msg">E-mail/usuário ou senha inválidos.</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. TROCA OBRIGATÓRIA DE SENHA NO 1º ACESSO -->
+  <div id="first-access-view" class="auth-wrapper">
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="logo.png" alt="Logo A&R" onerror="this.style.display='none'" />
+      </div>
+      <div class="login-title">Primeiro Acesso</div>
+      <div class="login-subtitle">Por segurança, defina uma nova senha pessoal (mínimo 6 caracteres) para sua unidade.</div>
+
+      <form id="change-pass-form">
+        <div class="form-group">
+          <label for="new-pass">Nova Senha</label>
+          <input type="password" id="new-pass" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6" />
+        </div>
+        <div class="form-group">
+          <label for="confirm-pass">Confirmar Nova Senha</label>
+          <input type="password" id="confirm-pass" class="form-control" placeholder="Repita a nova senha" required minlength="6" />
+        </div>
+        <button type="submit" id="btn-save-first-pass" class="btn-primary">Salvar Nova Senha e Entrar</button>
+        <div id="pass-error" class="error-msg">As senhas não coincidem ou têm menos de 6 caracteres.</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. PAINEL DO SISTEMA -->
+  <div id="app-view">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleDrawer()">☰</button>
+        <div>
+          <div class="topbar-title">Sistema de Manutenção</div>
+          <div id="sync-status" class="sync-badge">● Nuvem Protegida</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="btn-install-pwa" class="icon-top-btn hidden" onclick="installPWA()" title="Instalar Aplicativo">
+          📥
+        </button>
+        <button class="icon-top-btn" onclick="toggleDarkMode()" title="Alternar Tema Escuro">
+          🌙
+        </button>
+        <button class="icon-top-btn" onclick="navigate('abertos')" title="Novos chamados">
+          🔔
+          <span id="bell-dot" class="bell-dot"></span>
+        </button>
+        <button class="btn-logout" onclick="logout()">↪ Sair</button>
+      </div>
+    </header>
+
+    <!-- Menu Lateral -->
+    <div id="drawer-overlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
+    <aside id="drawer" class="drawer">
+      <div>
+        <div class="drawer-header">
+          <img src="logo.png" alt="A&R" onerror="this.style.display='none'" />
+          <div style="font-weight:800;font-size:16px;">A&R Manutenção</div>
+          <div style="font-size:11px;opacity:0.8;">Gestão Técnica & Financeira</div>
+        </div>
+        <nav class="drawer-nav">
+          <div class="nav-section">Principal</div>
+          <div class="nav-item active" onclick="navigate('dashboard')">🏠 Dashboard</div>
+
+          <div class="nav-section">Chamados</div>
+          <div class="nav-item" onclick="navigate('abertos')">🎫 Em aberto</div>
+          <div class="nav-item" onclick="navigate('visualizado')">👁️ Visualizado</div>
+          <div class="nav-item" onclick="navigate('andamento')">⏳ Em andamento</div>
+          <div class="nav-item" onclick="navigate('finalizados')">✅ Finalizados</div>
+          <div class="nav-item" onclick="navigate('nao_atendidos')">🚫 Não atendidos</div>
+
+          <div class="nav-section">Faturamento</div>
+          <div class="nav-item" onclick="navigate('notas')">🧾 Notas de Serviço</div>
+
+          <div id="client-menu" class="hidden">
+            <div class="nav-section">Segurança</div>
+            <div class="nav-item" onclick="openClientPasswordModal()">🔑 Alterar Minha Senha</div>
+          </div>
+
+          <div id="admin-menu">
+            <div class="nav-section">Manutenção & Gestão</div>
+            <div class="nav-item" onclick="navigate('equipamentos')">⚙️ Equipamentos</div>
+            <div class="nav-item" onclick="navigate('lojas')">🏪 Lojas & Acessos</div>
+          </div>
+        </nav>
+      </div>
+      <div style="padding:14px;border-top:1px solid var(--border);font-size:12px;">
+        <strong id="user-display-name">Técnico Manutenção</strong><br/>
+        <span id="user-display-role" style="color:var(--muted);">ADMINISTRADOR / TÉCNICO</span>
+      </div>
+    </aside>
+
+    <main class="container">
+      <!-- DASHBOARD -->
+      <section id="sec-dashboard">
+        <div class="hero-card">
+          <h2 id="welcome-title">Olá, Técnico Manutenção</h2>
+          <p>Bem-vindo ao sistema de manutenção da A&R Manutenção e Instalação.</p>
+          <button class="btn-primary" onclick="navigate('novo-chamado')">+ Abrir novo chamado</button>
+        </div>
+
+        <!-- BANNER DEDICADO DE CHAMADO URGENTE -->
+        <div id="urgent-banner-dedicated" class="urgent-banner-dedicated" onclick="openUrgentList()">
+          <div class="urgent-banner-header">
+            <div class="urgent-banner-title">🚨 CHAMADO URGENTE</div>
+            <span id="urgent-count-pill" class="urgent-badge-pill">1 CHAMADO</span>
+          </div>
+          <div id="urgent-banner-meta" class="urgent-banner-meta">Loja: Carregando...</div>
+          <div id="urgent-banner-desc" class="urgent-banner-desc">Toque aqui para visualizar e iniciar o atendimento imediatamente.</div>
+        </div>
+
+        <!-- CARTÕES DE CONTADORES -->
+        <div class="stats-grid">
+          <div class="stat-card" onclick="navigate('abertos')">
+            <div class="stat-icon-box" style="background:#FEF3C7;">📋</div>
+            <div class="stat-label">Abertos</div>
+            <div class="stat-value" id="count-abertos" style="color:var(--warning);">0</div>
+            <div class="stat-link">Ver detalhes →</div>
+          </div>
+
+          <div class="stat-card" onclick="navigate('visualizado')">
+            <div class="stat-icon-box" style="background:#DBEAFE;">👁️</div>
+            <div class="stat-label">Visualizado</div>
+            <div class="stat-value" id="count-visualizado" style="color:var(--info);">0</div>
+            <div class="stat-link">Ver detalhes →</div>
+          </div>
+
+          <div class="stat-card" onclick="navigate('andamento')">
+            <div class="stat-icon-box" style="background:#EDE9FE;">⏳</div>
+            <div class="stat-label">Em andamento</div>
+            <div class="stat-value" id="count-andamento" style="color:var(--purple);">0</div>
+            <div class="stat-link">Ver detalhes →</div>
+          </div>
+
+          <div class="stat-card" onclick="navigate('finalizados')">
+            <div class="stat-icon-box" style="background:#D1FAE5;">✅</div>
+            <div class="stat-label">Finalizados</div>
+            <div class="stat-value" id="count-finalizados" style="color:var(--success);">0</div>
+            <div class="stat-link">Ver detalhes →</div>
+          </div>
+
+          <div class="stat-card" onclick="navigate('nao_atendidos')">
+            <div class="stat-icon-box" style="background:#FEE2E2;">🚫</div>
+            <div class="stat-label">Não atendidos</div>
+            <div class="stat-value" id="count-nao-atendidos" style="color:var(--danger);">0</div>
+            <div class="stat-link">Ver detalhes →</div>
+          </div>
+
+          <div class="stat-card" onclick="navigate('notas')" style="border: 1.5px solid var(--yellow);">
+            <div class="stat-icon-box" style="background:var(--yellow); color:#0F294A;">🧾</div>
+            <div class="stat-label">Notas de Serviço</div>
+            <div class="stat-value" id="count-notas">0</div>
+            <div class="stat-link">Recibos e Valores →</div>
+          </div>
+        </div>
+
+        <!-- ÚLTIMOS CHAMADOS NO DASHBOARD -->
+        <div class="section-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="section-title" style="margin-bottom:0;">Últimos chamados</div>
+            <span style="font-size:13px;font-weight:700;color:var(--yellow);cursor:pointer;" onclick="navigate('todos')">Ver todos</span>
+          </div>
+          <div id="recent-chamados-container"></div>
+        </div>
+      </section>
+
+      <!-- NOVO CHAMADO -->
+      <section id="sec-novo-chamado" class="hidden">
+        <div class="section-card">
+          <div class="section-title">Novo Chamado</div>
+          <form id="form-chamado">
+            <div class="form-group">
+              <label>Loja / Unidade</label>
+              <select id="ch-loja" class="form-control" onchange="updateEquipamentosDropdown()" required></select>
+            </div>
+            <div class="form-group">
+              <label>Prioridade</label>
+              <select id="ch-prioridade" class="form-control">
+                <option value="Urgente">🚨 Urgente</option>
+                <option value="Alta">Alta</option>
+                <option value="Média" selected>Média</option>
+                <option value="Baixa">Baixa</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Equipamento (opcional)</label>
+              <select id="ch-equipamento" class="form-control">
+                <option value="Nenhum / não se aplica">Nenhum / não se aplica</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Título</label>
+              <input type="text" id="ch-titulo" class="form-control" placeholder="Ex: Câmara de congelados não baixa temp." required />
+            </div>
+            <div class="form-group">
+              <label>Descrição</label>
+              <textarea id="ch-descricao" class="form-control" rows="3" placeholder="Descreva o problema, local e detalhes..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Foto do Problema (Opcional - Compressão Automática)</label>
+              <input type="file" id="ch-foto" accept="image/*" capture="environment" class="form-control" onchange="handlePhotoCompress(event, 'ticket')" />
+              <div id="photo-preview-box" class="photo-preview-box">
+                <img id="photo-preview-img" src="" alt="Prévia da foto" />
+                <button type="button" class="btn-sm btn-del" style="margin-top:6px;" onclick="clearPhoto('ticket')">Remover Foto</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Seu Nome (Aberto por)</label>
+              <input type="text" id="ch-autor" class="form-control" placeholder="Ex: Wesley / Gerente" required />
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button type="button" class="btn-secondary" onclick="navigate('dashboard')">Cancelar</button>
+              <button type="submit" id="btn-save-chamado" class="btn-primary">+ Salvar Chamado</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- LISTAS DE CHAMADOS -->
+      <section id="sec-lista" class="hidden">
+        <div class="section-card">
+          <div class="section-title" id="lista-titulo">Chamados</div>
+
+          <!-- FILTRO DE LOJA NOS CHAMADOS -->
+          <div id="lista-loja-filter-wrap" class="store-filter-box hidden">
+            <label for="filter-chamados-loja">🏪 Filtrar por Loja / Cliente</label>
+            <select id="filter-chamados-loja" class="form-control" onchange="onChangeChamadosLojaFilter()"></select>
+          </div>
+
+          <div id="finalizados-hint" class="hidden" style="background:rgba(59,130,246,0.1);border:1px solid #3B82F6;color:var(--info);padding:12px;border-radius:12px;font-size:13px;margin-bottom:14px;">
+            💡 <strong>Emitir Notinha:</strong> Selecione a loja acima, defina os valores e marque as caixinhas dos serviços que deseja juntar no recibo.
+          </div>
+          <button class="btn-primary" style="margin-bottom:14px;" onclick="navigate('novo-chamado')">+ Novo chamado</button>
+          <div id="chamados-container"></div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO NOTAS DE SERVIÇO -->
+      <section id="sec-notas" class="hidden">
+        <div class="section-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <div class="section-title" style="margin-bottom:0;">🧾 Notas de Serviço</div>
+            <button id="btn-new-nota-shortcut" class="btn-sm btn-gold" onclick="navigate('finalizados')">+ Montar Nova Notinha</button>
+          </div>
+
+          <!-- FILTRO DE LOJA NAS NOTAS EMITIDAS -->
+          <div id="notas-loja-filter-wrap" class="store-filter-box hidden">
+            <label for="filter-notas-loja">🏪 Filtrar Recibos por Loja</label>
+            <select id="filter-notas-loja" class="form-control" onchange="refreshAll()"></select>
+          </div>
+
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">
+            Notas consolidadas de prestação de serviço da <strong>A&R Manutenção e Instalação LTDA</strong>.
+          </p>
+          <div id="notas-container"></div>
+        </div>
+      </section>
+
+      <!-- CADASTRO DE EQUIPAMENTOS -->
+      <section id="sec-equipamentos" class="hidden">
+        <div class="section-card">
+          <div class="section-title">⚙️ Cadastro de Equipamentos</div>
+          <form id="form-equipamento">
+            <div class="form-group">
+              <label>Loja / Unidade</label>
+              <select id="eq-loja" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label>Nome do Equipamento</label>
+              <input type="text" id="eq-nome" class="form-control" placeholder="Ex: Câmara de Congelados 01" required />
+            </div>
+            <div class="form-group">
+              <label>Modelo / Marca / Observação</label>
+              <input type="text" id="eq-modelo" class="form-control" placeholder="Ex: Controlador Carel / R-22" />
+            </div>
+            <button type="submit" class="btn-primary">+ Cadastrar Equipamento</button>
+          </form>
+        </div>
+        <div class="section-card">
+          <div class="section-title">Equipamentos Cadastrados</div>
+          <div id="lista-equipamentos"></div>
+        </div>
+      </section>
+
+      <!-- LOJAS & ACESSOS -->
+      <section id="sec-lojas" class="hidden">
+        <div class="section-card">
+          <div class="section-title">🏪 Cadastrar Nova Loja / Unidade</div>
+          <form id="form-loja">
+            <div class="form-group">
+              <label>Nome da Loja / Unidade</label>
+              <input type="text" id="lj-nome" class="form-control" placeholder="Ex: Castro Supermercado" required />
+            </div>
+            <div class="form-group">
+              <label>CNPJ da Loja</label>
+              <input type="text" id="lj-cnpj" class="form-control" placeholder="Ex: 00.000.000/0001-00" required />
+            </div>
+            <div class="form-group">
+              <label>Usuário de Acesso (Login sem espaços)</label>
+              <input type="text" id="lj-user" class="form-control" placeholder="Ex: castro" required />
+            </div>
+            <div class="form-group">
+              <label>Senha Provisória (Mínimo 6 caracteres)</label>
+              <input type="text" id="lj-pass" class="form-control" placeholder="Ex: 123456" required minlength="6" />
+            </div>
+            <button type="submit" id="btn-save-loja" class="btn-primary">+ Cadastrar Loja e Gerar Acesso</button>
+          </form>
+        </div>
+        <div class="section-card">
+          <div class="section-title">Lojas Cadastradas</div>
+          <div id="lista-lojas"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- BARRA FLUTUANTE PARA GERAR NOTA DE SERVIÇO -->
+    <div id="selection-floating-bar" class="selection-floating-bar">
+      <div>
+        <div id="sel-bar-count" style="font-size:13px;font-weight:800;color:var(--yellow);">0 serviços selecionados</div>
+        <div id="sel-bar-total" style="font-size:12px;color:#E2E8F0;">Total: R$ 0,00</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-sm" style="background:rgba(255,255,255,0.15);color:#FFF;" onclick="clearTicketSelection()">Limpar</button>
+        <button class="btn-sm btn-gold" onclick="openCreateNotaModal()">🧾 Gerar Nota</button>
+      </div>
     </div>
 
-    <!-- TELA DO APLICATIVO -->
-    <div id="app-view" class="hidden flex-1 flex flex-col">
-        <!-- HEADER -->
-        <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <span class="font-bold text-lg text-gray-900" id="app-title">A&R Manutenção e Instalação</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <span id="user-badge" class="text-xs bg-blue-100 text-blue-800 font-medium px-2.5 py-1 rounded-full"></span>
-                    <button id="btn-logout" class="text-gray-500 hover:text-red-600 p-2 rounded-lg transition" title="Sair">
-                        <i class="fa-solid fa-right-from-bracket text-lg"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- CONTEÚDO PRINCIPAL -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-            <div class="mb-6 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-900" id="page-heading">Lista de Chamados</h2>
-            </div>
-
-            <!-- CONTAINER DE CHAMADOS -->
-            <div id="chamados-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <p class="text-gray-500 col-span-full text-center py-8">Carregando chamados...</p>
-            </div>
-        </main>
+    <!-- MODAL DE VISUALIZAÇÃO DO CHAMADO -->
+    <div id="ticket-modal" class="modal-overlay" onclick="closeModalById('ticket-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;">Detalhes do Chamado</strong>
+          <button onclick="closeModalById('ticket-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <div id="ticket-modal-content"></div>
+      </div>
     </div>
 
-    <!-- SCRIPT FIREBASE E APLICAÇÃO -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- MODAL FINALIZAR CHAMADO (RELATÓRIO TÉCNICO & PEÇAS TROCADAS) -->
+    <div id="finish-ticket-modal" class="modal-overlay" onclick="closeModalById('finish-ticket-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;">✅ Finalizar Chamado (Relatório Técnico)</strong>
+          <button onclick="closeModalById('finish-ticket-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-finish-ticket">
+          <input type="hidden" id="finish-ticket-id" />
+          <div id="finish-ticket-header" style="font-size:14px;font-weight:800;margin-bottom:12px;background:var(--bg-light);padding:10px;border-radius:10px;border:1px solid var(--border);"></div>
+          
+          <div class="form-group">
+            <label for="finish-servico">O que foi feito? (Serviço Realizado) *</label>
+            <textarea id="finish-servico" class="form-control" rows="3" placeholder="Ex: Limpeza do condensador, recalibragem do controlador Carel e teste de rendimento..." required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="finish-pecas">O que foi trocado? (Peças / Materiais)</label>
+            <textarea id="finish-pecas" class="form-control" rows="2" placeholder="Ex: 1x Sensor NTC 10k, 200g gás R-22 (ou deixe em branco se não houve troca)"></textarea>
+          </div>
+          
+          <div style="display:flex;gap:10px;">
+            <button type="button" class="btn-secondary" onclick="closeModalById('finish-ticket-modal')">Cancelar</button>
+            <button type="submit" class="btn-primary">✅ Concluir Atendimento</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCCBKbHlbd5Hr3y3raEPx4QRbVh5z7",
-            authDomain: "aermanutencao.firebaseapp.com",
-            projectId: "aermanutencao",
-            storageBucket: "aermanutencao.appspot.com",
-            messagingSenderId: "786994474703",
-            appId: "1:786994474703:web:dbf7bf64afeef28cd14be5",
-            measurementId: "G-EKKRTEMJ85"
-        };
+    <!-- MODAL EDITAR CHAMADO -->
+    <div id="edit-ticket-modal" class="modal-overlay" onclick="closeModalById('edit-ticket-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;">✏️ Editar Chamado</strong>
+          <button onclick="closeModalById('edit-ticket-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-edit-chamado">
+          <input type="hidden" id="edit-ch-id" />
+          <div class="form-group">
+            <label>Prioridade</label>
+            <select id="edit-ch-prioridade" class="form-control">
+              <option value="Urgente">🚨 Urgente</option>
+              <option value="Alta">Alta</option>
+              <option value="Média">Média</option>
+              <option value="Baixa">Baixa</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Título</label>
+            <input type="text" id="edit-ch-titulo" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Descrição</label>
+            <textarea id="edit-ch-descricao" class="form-control" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    <!-- MODAL ALTERAR SENHA (PARA CLIENTES/LOJAS) -->
+    <div id="client-password-modal" class="modal-overlay" onclick="closeModalById('client-password-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;">🔑 Alterar Senha de Acesso</strong>
+          <button onclick="closeModalById('client-password-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-client-password">
+          <div class="form-group">
+            <label>Nova Senha (mínimo 6 caracteres)</label>
+            <input type="password" id="client-new-pass" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6" />
+          </div>
+          <div class="form-group">
+            <label>Confirmar Nova Senha</label>
+            <input type="password" id="client-confirm-pass" class="form-control" placeholder="Repita a nova senha" required minlength="6" />
+          </div>
+          <button type="submit" class="btn-primary">Salvar Nova Senha</button>
+          <div id="client-pass-error" class="error-msg">As senhas não coincidem.</div>
+        </form>
+      </div>
+    </div>
 
-        const ADMIN_EMAIL = "aermanutencao@superdito.com.br";
-        
-        const loginView = document.getElementById("login-view");
-        const appView = document.getElementById("app-view");
-        const loginForm = document.getElementById("login-form");
-        const loginEmail = document.getElementById("login-email");
-        const loginPass = document.getElementById("login-pass");
-        const loginErr = document.getElementById("login-err");
-        const btnLogout = document.getElementById("btn-logout");
-        const userBadge = document.getElementById("user-badge");
-        const chamadosContainer = document.getElementById("chamados-container");
+    <!-- MODAL DEFINIR VALOR DO SERVIÇO -->
+    <div id="price-modal" class="modal-overlay" onclick="closeModalById('price-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;">💰 Definir Valor do Serviço</strong>
+          <button onclick="closeModalById('price-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-ticket-price">
+          <input type="hidden" id="price-ticket-id" />
+          <div id="price-ticket-title" style="font-size:14px;font-weight:800;margin-bottom:12px;background:var(--bg-light);padding:10px;border-radius:10px;"></div>
+          <div class="form-group">
+            <label>Valor Mão de Obra (R$)</label>
+            <input type="number" step="0.01" min="0" id="price-labor" class="form-control" placeholder="Ex: 150.00" required />
+          </div>
+          <div class="form-group">
+            <label>Valor Peças / Materiais (R$)</label>
+            <input type="number" step="0.01" min="0" id="price-parts" class="form-control" placeholder="Ex: 45.00 (ou 0)" value="0" />
+          </div>
+          <div class="form-group">
+            <label>Observação Técnica / Peças Trocadas (sai na nota)</label>
+            <textarea id="price-notes" class="form-control" rows="3" placeholder="Ex: Troca de sensor NTC e regulagem de temperatura..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Salvar Valor no Chamado</button>
+        </form>
+      </div>
+    </div>
 
-        function normalizeText(str) {
-            return (str || "").toLowerCase().trim();
+    <!-- MODAL CONFERÊNCIA PARA CRIAR NOTA DE SERVIÇO -->
+    <div id="create-nota-modal" class="modal-overlay" onclick="closeModalById('create-nota-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;">🧾 Emitir Nota de Serviço Única</strong>
+          <button onclick="closeModalById('create-nota-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-create-nota">
+          <div id="nota-preview-summary" style="margin-bottom:14px;"></div>
+          <div class="form-group">
+            <label>📁 Anexar Nota Fiscal / Comprovante (Opcional)</label>
+            <input type="file" id="nota-nf-file" accept="image/*" capture="environment" class="form-control" onchange="handlePhotoCompress(event, 'nota')" />
+            <div id="nota-photo-preview-box" class="photo-preview-box">
+              <img id="nota-photo-preview-img" src="" alt="Prévia da Nota Fiscal" />
+              <button type="button" class="btn-sm btn-del" style="margin-top:6px;" onclick="clearPhoto('nota')">Remover Nota Fiscal</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Chave PIX / Forma de Pagamento (aparece no rodapé)</label>
+            <input type="text" id="nota-pix" class="form-control" placeholder="Ex: CNPJ 62.659.358/0001-88 (A&R Manutenção)" value="CNPJ 62.659.358/0001-88" />
+          </div>
+          <div class="form-group">
+            <label>Observação Geral da Nota (Opcional)</label>
+            <input type="text" id="nota-obs" class="form-control" placeholder="Ex: Fechamento semanal de manutenção preventiva/corretiva" />
+          </div>
+          <button type="submit" class="btn-primary">✅ Confirmar e Gerar Notinha</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL VISUALIZAÇÃO / PDF DA NOTINHA -->
+    <div id="receipt-pdf-modal" class="modal-overlay" onclick="closeModalById('receipt-pdf-modal', event)">
+      <div class="modal-box" style="max-width:540px;padding:14px;" onclick="event.stopPropagation()">
+        <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+          <button class="btn-sm btn-status" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+          <div id="receipt-admin-actions" style="display:flex;gap:6px;"></div>
+          <button onclick="closeModalById('receipt-pdf-modal')" style="background:var(--border);color:var(--text);border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+
+        <div id="printable-receipt-area"></div>
+      </div>
+    </div>
+
+    <!-- Barra Inferior -->
+    <nav class="bottom-nav">
+      <div class="bottom-item active" onclick="navigate('dashboard')">
+        <span class="bottom-icon">🕒</span>Dashboard
+      </div>
+      <div class="bottom-item" onclick="navigate('abertos')">
+        <span class="bottom-icon">🎫</span>Em aberto
+      </div>
+      <div class="bottom-item" onclick="navigate('finalizados')">
+        <span class="bottom-icon">✅</span>Finalizados
+      </div>
+      <div class="bottom-item" onclick="navigate('notas')">
+        <span class="bottom-icon">🧾</span>Notas
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // ================= CONFIGURAÇÃO DO FIREBASE =================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCBKbHelBdh5dr3yrAEbPXp4RQbvhZ5E",
+      authDomain: "aermanuntencao.firebaseapp.com",
+      projectId: "aermanuntencao",
+      storageBucket: "aermanuntencao.firebasestorage.app",
+      messagingSenderId: "786994474703",
+      appId: "1:786994474703:web:dbf7bf64afeeb28fc4d1ba",
+      measurementId: "G-EKRKTEMJ85"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // E-mail oficial do Administrador cadastrado no Firebase Authentication
+    const ADMIN_EMAIL = "aermanutencao@superdito.com.br";
+
+    // ================= GERENCIAMENTO DE INSTALAÇÃO PWA =================
+    let deferredPrompt = null;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btnLogin = document.getElementById("btn-install-pwa-login");
+      const btnApp = document.getElementById("btn-install-pwa");
+      if (btnLogin) btnLogin.classList.remove("hidden");
+      if (btnApp) btnApp.classList.remove("hidden");
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            document.getElementById("btn-install-pwa-login").classList.add("hidden");
+            document.getElementById("btn-install-pwa").classList.add("hidden");
+          }
+          deferredPrompt = null;
+        });
+      }
+    }
+
+    // ================= TEMA ESCURO (DARK MODE) =================
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle("dark-mode");
+      localStorage.setItem("ar_dark", isDark ? "1" : "0");
+    }
+
+    let currentUser = null;
+    let pendingUnitLogin = null;
+    let currentFilter = "abertos";
+    let compressedPhotoBase64 = "";
+    let compressedNotaPhotoBase64 = "";
+    let cachedChamados = [];
+    let cachedNotas = [];
+    let cachedLojas = [];
+    let cachedEquipamentos = [];
+    let selectedTicketIds = new Set();
+    let lastKnownOpenCount = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("ar_dark") === "1") {
+        document.body.classList.add("dark-mode");
+      }
+
+      // Observador oficial de sessão do Firebase Auth
+      auth.onAuthStateChanged(async (firebaseUser) => {
+        const splash = document.getElementById("splash-screen");
+        if (splash && splash.style.display !== "none") {
+          splash.style.opacity = "0";
+          setTimeout(() => { splash.style.display = "none"; }, 350);
         }
 
-        loginForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            loginErr.classList.add("hidden");
-            const inputVal = normalizeText(loginEmail.value);
-            
-            let candidateEmails = [inputVal];
-            if (!inputVal.includes("@")) {
-                candidateEmails = [
-                    `${inputVal}@aermanutencao.com.br`,
-                    `${inputVal}@aermanutencao.local`
-                ];
-            }
+        if (firebaseUser) {
+          const email = (firebaseUser.email || "").toLowerCase();
+          if (email === ADMIN_EMAIL) {
+            currentUser = { role: "admin", name: "Técnico Manutenção", loja: "Todas", email: email };
+            openApp();
+          } else {
+            // Busca os dados da loja vinculada a esse e-mail
+            const lojas = await fetchCollection("lojas");
+            const userPrefix = email.split("@")[0];
+            const found = lojas.find(l =>
+              (l.authEmail && l.authEmail.toLowerCase() === email) ||
+              (l.user && l.user.toLowerCase() === userPrefix)
+            );
 
-            let logged = false;
-            for (let email of candidateEmails) {
-                try {
-                    await signInWithEmailAndPassword(auth, email, loginPass.value);
-                    logged = true;
-                    break;
-                } catch (err) {
-                    console.warn("Tentativa falhou para:", email);
-                }
-            }
-
-            if (!logged) {
-                loginErr.classList.remove("hidden");
-            }
-        });
-
-        btnLogout.addEventListener("click", () => {
-            signOut(auth);
-        });
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loginView.classList.add("hidden");
-                appView.classList.remove("hidden");
-                
-                const email = user.email || "";
-                if (email === ADMIN_EMAIL || email.includes("admin")) {
-                    userBadge.textContent = "Administrador";
-                    carregarChamados(null);
-                } else {
-                    const storeName = email.split("@")[0];
-                    userBadge.textContent = `Loja: ${storeName}`;
-                    carregarChamados(storeName);
-                }
+            if (found) {
+              if (found.firstAccess) {
+                pendingUnitLogin = found;
+                document.getElementById("login-view").style.display = "none";
+                document.getElementById("first-access-view").style.display = "flex";
+                return;
+              }
+              currentUser = { role: "loja", name: found.nome, loja: found.nome, email: email };
+              openApp();
             } else {
-                loginView.classList.remove("hidden");
-                appView.classList.add("hidden");
+              currentUser = { role: "loja", name: userPrefix, loja: userPrefix, email: email };
+              openApp();
             }
+          }
+        } else {
+          currentUser = null;
+          document.getElementById("app-view").style.display = "none";
+          document.getElementById("first-access-view").style.display = "none";
+          document.getElementById("login-view").style.display = "flex";
+        }
+      });
+    });
+
+    function formatBRL(val) {
+      const num = parseFloat(val) || 0;
+      return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function getLocal(key) {
+      return JSON.parse(localStorage.getItem("ar_" + key) || "[]");
+    }
+    function setLocal(key, data) {
+      localStorage.setItem("ar_" + key, JSON.stringify(data));
+    }
+
+    // Converte o usuário da loja em e-mail e aceita tanto @aermanutencao.local quanto @manuntencao.com.br / @manuntencao.local
+    function resolveAuthEmail(input) {
+      const clean = input.trim().toLowerCase();
+      if (clean === "" || clean === "tecnico" || clean === "admin") {
+        return [ADMIN_EMAIL];
+      }
+      if (clean.includes("@")) {
+        return [clean];
+      }
+      return [
+        `${clean}@aermanutencao.local`,
+        `${clean}@manuntencao.com.br`,
+        `${clean}@manuntencao.local`
+      ];
+    }
+
+    // ================= LOGIN VIA FIREBASE AUTHENTICATION =================
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const userInput = document.getElementById("login-user").value.trim();
+      const pass = document.getElementById("login-pass").value.trim();
+      const err = document.getElementById("login-error");
+      const btn = document.getElementById("btn-login-submit");
+
+      err.style.display = "none";
+      btn.disabled = true;
+      btn.textContent = "Verificando...";
+
+      const candidateEmails = resolveAuthEmail(userInput);
+      let loggedIn = false;
+
+      for (const emailOption of candidateEmails) {
+        try {
+          await auth.signInWithEmailAndPassword(emailOption, pass);
+          loggedIn = true;
+          break;
+        } catch (error) {
+          // Tenta o próximo formato de domínio caso não encontre neste
+        }
+      }
+
+      if (!loggedIn) {
+        err.textContent = "E-mail/usuário ou senha incorretos.";
+        err.style.display = "block";
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Entrar no Sistema";
+    });
+
+    // ================= TROCA DE SENHA NO 1º ACESSO (FIREBASE AUTH) =================
+    document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const p1 = document.getElementById("new-pass").value.trim();
+      const p2 = document.getElementById("confirm-pass").value.trim();
+      const err = document.getElementById("pass-error");
+      const btn = document.getElementById("btn-save-first-pass");
+      err.style.display = "none";
+
+      if (p1 !== p2 || p1.length < 6) {
+        err.style.display = "block";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Atualizando senha...";
+
+      try {
+        const fbUser = auth.currentUser;
+        if (fbUser) {
+          await fbUser.updatePassword(p1);
+        }
+        await updateDocItem("lojas", pendingUnitLogin.id, {
+          firstAccess: false
         });
 
-        function carregarChamados(storeFilter) {
-            let q = collection(db, "chamados");
-            if (storeFilter) {
-                q = query(collection(db, "chamados"), where("loja", "==", storeFilter));
-            }
+        currentUser = { role: "loja", name: pendingUnitLogin.nome, loja: pendingUnitLogin.nome };
+        document.getElementById("first-access-view").style.display = "none";
+        openApp();
+      } catch (error) {
+        alert("Erro ao atualizar senha: " + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Salvar Nova Senha e Entrar";
+      }
+    });
 
-            onSnapshot(q, (snapshot) => {
-                chamadosContainer.innerHTML = "";
-                if (snapshot.empty) {
-                    chamadosContainer.innerHTML = `<p class="text-gray-500 col-span-full text-center py-8">Nenhum chamado encontrado para esta loja.</p>`;
-                    return;
-                }
+    async function logout() {
+      await auth.signOut();
+      localStorage.removeItem("ar_session");
+      location.reload();
+    }
 
-                snapshot.forEach((docSnap) => {
-                    const c = docSnap.data();
-                    const card = document.createElement("div");
-                    card.className = "bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between";
-                    card.innerHTML = `
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="font-semibold text-gray-900">${c.equipamento || 'Equipamento'}</span>
-                                <span class="text-xs px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800 font-medium">${c.status || 'aberto'}</span>
-                            </div>
-                            <p class="text-sm text-gray-600 mb-4">${c.descricao || 'Sem descrição'}</p>
-                        </div>
-                        <div class="text-xs text-gray-400 border-t pt-3 flex justify-between">
-                            <span>Loja: ${c.loja || 'N/A'}</span>
-                            <span>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ''}</span>
-                        </div>
-                    `;
-                    chamadosContainer.appendChild(card);
-                });
-            }, (error) => {
-                console.error("Erro ao carregar chamados:", error);
-                chamadosContainer.innerHTML = `<p class="text-red-500 col-span-full text-center py-8">Erro ao carregar dados do banco.</p>`;
-            });
+    function openApp() {
+      document.getElementById("login-view").style.display = "none";
+      document.getElementById("first-access-view").style.display = "none";
+      document.getElementById("app-view").style.display = "block";
+      document.getElementById("welcome-title").textContent = "Olá, " + currentUser.name;
+      document.getElementById("user-display-name").textContent = currentUser.name;
+      document.getElementById("user-display-role").textContent =
+        currentUser.role === "admin" ? "ADMINISTRADOR / TÉCNICO" : "UNIDADE / GERENTE";
+
+      if (currentUser.role !== "admin") {
+        document.getElementById("admin-menu").classList.add("hidden");
+        document.getElementById("btn-new-nota-shortcut").classList.add("hidden");
+        document.getElementById("client-menu").classList.remove("hidden");
+      } else {
+        document.getElementById("client-menu").classList.add("hidden");
+      }
+
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+
+      refreshAll();
+    }
+
+    function toggleDrawer() {
+      const drawer = document.getElementById("drawer");
+      const overlay = document.getElementById("drawer-overlay");
+      const isOpen = drawer.classList.contains("open");
+      drawer.classList.toggle("open", !isOpen);
+      overlay.style.display = isOpen ? "none" : "block";
+    }
+
+    function openClientPasswordModal() {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("drawer-overlay").style.display = "none";
+      document.getElementById("client-new-pass").value = "";
+      document.getElementById("client-confirm-pass").value = "";
+      document.getElementById("client-pass-error").style.display = "none";
+      document.getElementById("client-password-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-client-password").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const p1 = document.getElementById("client-new-pass").value.trim();
+      const p2 = document.getElementById("client-confirm-pass").value.trim();
+      const err = document.getElementById("client-pass-error");
+      err.style.display = "none";
+
+      if (p1 !== p2 || p1.length < 6) {
+        err.textContent = "As senhas devem coincidir e ter no mínimo 6 caracteres.";
+        err.style.display = "block";
+        return;
+      }
+
+      try {
+        const fbUser = auth.currentUser;
+        if (fbUser) {
+          await fbUser.updatePassword(p1);
+          closeModalById("client-password-modal");
+          alert("Senha alterada com sucesso no servidor!");
         }
-    </script>
+      } catch (error) {
+        if (error.code === "auth/requires-recent-login") {
+          alert("Por segurança, saia do aplicativo e entre novamente antes de trocar a senha.");
+        } else {
+          alert("Erro ao trocar senha: " + error.message);
+        }
+      }
+    });
+
+    function onChangeChamadosLojaFilter() {
+      selectedTicketIds.clear();
+      updateSelectionBar();
+      refreshAll();
+    }
+
+    function navigate(page) {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("drawer-overlay").style.display = "none";
+
+      ["sec-dashboard", "sec-novo-chamado", "sec-lista", "sec-notas", "sec-equipamentos", "sec-lojas"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+
+      if (page !== "finalizados") {
+        document.getElementById("selection-floating-bar").style.display = "none";
+      }
+
+      if (page === "dashboard") {
+        document.getElementById("sec-dashboard").classList.remove("hidden");
+      } else if (page === "novo-chamado") {
+        document.getElementById("sec-novo-chamado").classList.remove("hidden");
+      } else if (page === "notas") {
+        document.getElementById("sec-notas").classList.remove("hidden");
+      } else if (["abertos", "visualizado", "andamento", "finalizados", "nao_atendidos", "urgentes", "todos"].includes(page)) {
+        currentFilter = page;
+        const titles = {
+          abertos: "Chamados em Aberto",
+          visualizado: "Chamados Visualizados",
+          andamento: "Chamados em Andamento",
+          finalizados: "Chamados Finalizados",
+          nao_atendidos: "Chamados Não Atendidos",
+          urgentes: "🚨 Chamados Urgentes Ativos",
+          todos: "Todos os Chamados"
+        };
+        document.getElementById("lista-titulo").textContent = titles[page];
+        const hint = document.getElementById("finalizados-hint");
+        if (page === "finalizados" && currentUser.role === "admin") {
+          hint.classList.remove("hidden");
+        } else {
+          hint.classList.add("hidden");
+        }
+        document.getElementById("sec-lista").classList.remove("hidden");
+      } else if (page === "equipamentos") {
+        document.getElementById("sec-equipamentos").classList.remove("hidden");
+      } else if (page === "lojas") {
+        document.getElementById("sec-lojas").classList.remove("hidden");
+      }
+      refreshAll();
+    }
+
+    function openUrgentList() {
+      const urgents = cachedChamados.filter(c => c.prioridade === "Urgente" && c.status !== "finalizados" && c.status !== "nao_atendidos");
+      if (urgents.length === 1) {
+        viewTicket(urgents[0].id);
+      } else {
+        navigate("urgentes");
+      }
+    }
+
+    function formatDuration(ms) {
+      if (!ms || ms < 0) return "menos de 1 min";
+      const totalMins = Math.floor(ms / 60000);
+      const days = Math.floor(totalMins / 1440);
+      const hours = Math.floor((totalMins % 1440) / 60);
+      const mins = totalMins % 60;
+
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0) parts.push(`${hours}h`);
+      parts.push(`${mins}min`);
+      return parts.join(" ");
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return "";
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return "agora mesmo";
+      if (mins < 60) return `há ${mins} min`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `há ${hrs}h`;
+      const days = Math.floor(hrs / 24);
+      return `há ${days} dia(s)`;
+    }
+
+    function handlePhotoCompress(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 720;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const base64 = canvas.toDataURL("image/jpeg", 0.65);
+
+          if (type === "ticket") {
+            compressedPhotoBase64 = base64;
+            document.getElementById("photo-preview-img").src = base64;
+            document.getElementById("photo-preview-box").style.display = "block";
+          } else if (type === "nota") {
+            compressedNotaPhotoBase64 = base64;
+            document.getElementById("nota-photo-preview-img").src = base64;
+            document.getElementById("nota-photo-preview-box").style.display = "block";
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearPhoto(type) {
+      if (type === "ticket") {
+        compressedPhotoBase64 = "";
+        document.getElementById("ch-foto").value = "";
+        document.getElementById("photo-preview-box").style.display = "none";
+      } else if (type === "nota") {
+        compressedNotaPhotoBase64 = "";
+        document.getElementById("nota-nf-file").value = "";
+        document.getElementById("nota-photo-preview-box").style.display = "none";
+      }
+    }
+
+    async function fetchCollection(col) {
+      try {
+        const snap = await db.collection(col).get();
+        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setLocal(col, data);
+        document.getElementById("sync-status").textContent = "● Nuvem Protegida";
+        return data;
+      } catch (e) {
+        console.warn("Modo offline/local ativo:", e);
+        document.getElementById("sync-status").textContent = "● Modo Local";
+        return getLocal(col);
+      }
+    }
+
+    async function addItem(col, item) {
+      item.createdAt = new Date().toLocaleString("pt-BR");
+      item.timestamp = Date.now();
+      try {
+        const docRef = await db.collection(col).add(item);
+        item.id = docRef.id;
+      } catch (e) {
+        const list = getLocal(col);
+        item.id = Date.now().toString();
+        list.unshift(item);
+        setLocal(col, list);
+      }
+      refreshAll();
+      return item.id;
+    }
+
+    async function updateDocItem(col, id, fields) {
+      try {
+        await db.collection(col).doc(id).update(fields);
+      } catch (e) {
+        const list = getLocal(col).map(i => i.id === id ? { ...i, ...fields } : i);
+        setLocal(col, list);
+      }
+      refreshAll();
+    }
+
+    async function updateStatus(id, newStatus, extraFields = {}) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      const now = Date.now();
+      const nowStr = new Date(now).toLocaleString("pt-BR");
+      const updates = { status: newStatus, ...extraFields };
+
+      if (newStatus === "visualizado") {
+        updates.viewedAt = nowStr;
+        updates.viewedTimestamp = now;
+      } else if (newStatus === "andamento") {
+        updates.startedAt = nowStr;
+        updates.startedTimestamp = now;
+      } else if (newStatus === "finalizados") {
+        updates.finishedAt = nowStr;
+        updates.finishedTimestamp = now;
+        const startRef = (ticket && ticket.startedTimestamp) ? ticket.startedTimestamp : (ticket && ticket.timestamp ? ticket.timestamp : now);
+        updates.durationMs = now - startRef;
+        updates.totalDurationMs = ticket && ticket.timestamp ? (now - ticket.timestamp) : (now - startRef);
+      } else if (newStatus === "nao_atendidos") {
+        updates.closedAt = nowStr;
+      }
+
+      await updateDocItem("chamados", id, updates);
+      if (document.getElementById("ticket-modal").style.display === "flex") {
+        viewTicket(id);
+      }
+    }
+
+    // ================= FILTRO DINÂMICO DE EQUIPAMENTOS POR LOJA =================
+    function updateEquipamentosDropdown() {
+      const lojaSelecionada = document.getElementById("ch-loja").value;
+      const chEq = document.getElementById("ch-equipamento");
+      const eqDaLoja = cachedEquipamentos.filter(eq => eq.loja === lojaSelecionada);
+
+      chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
+        eqDaLoja.map(eq => `<option value="${eq.nome}${eq.modelo ? ' (' + eq.modelo + ')' : ''}">${eq.nome}${eq.modelo ? ' - ' + eq.modelo : ''}</option>`).join("");
+    }
+
+    // ================= MODAL DE FINALIZAÇÃO COM RELATÓRIO TÉCNICO =================
+    function openFinishTicketModal(id) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+      document.getElementById("finish-ticket-id").value = ticket.id;
+      document.getElementById("finish-ticket-header").textContent = `${ticket.loja} • ${ticket.titulo}`;
+      document.getElementById("finish-servico").value = ticket.servicoRealizado || "";
+      document.getElementById("finish-pecas").value = ticket.pecasTrocadas || "";
+      document.getElementById("finish-ticket-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-finish-ticket").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("finish-ticket-id").value;
+      const servico = document.getElementById("finish-servico").value.trim();
+      const pecas = document.getElementById("finish-pecas").value.trim() || "Nenhuma peça trocada";
+
+      const resumoNota = pecas !== "Nenhuma peça trocada"
+        ? `Serviço: ${servico} | Peças: ${pecas}`
+        : `Serviço: ${servico}`;
+
+      await updateStatus(id, "finalizados", {
+        servicoRealizado: servico,
+        pecasTrocadas: pecas,
+        obsTecnica: resumoNota
+      });
+
+      closeModalById("finish-ticket-modal");
+    });
+
+    async function deleteItem(col, id) {
+      if (!confirm("Deseja excluir este registro permanentemente?")) return;
+      try {
+        await db.collection(col).doc(id).delete();
+      } catch (e) {
+        const list = getLocal(col).filter(i => i.id !== id);
+        setLocal(col, list);
+      }
+      closeModalById("ticket-modal");
+      refreshAll();
+    }
+
+    function openEditTicketModal(id) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+      document.getElementById("edit-ch-id").value = ticket.id;
+      document.getElementById("edit-ch-prioridade").value = ticket.prioridade || "Média";
+      document.getElementById("edit-ch-titulo").value = ticket.titulo || "";
+      document.getElementById("edit-ch-descricao").value = ticket.descricao || "";
+      closeModalById("ticket-modal");
+      document.getElementById("edit-ticket-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-edit-chamado").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("edit-ch-id").value;
+      const prioridade = document.getElementById("edit-ch-prioridade").value;
+      const titulo = document.getElementById("edit-ch-titulo").value.trim();
+      const descricao = document.getElementById("edit-ch-descricao").value.trim();
+
+      await updateDocItem("chamados", id, {
+        prioridade: prioridade,
+        titulo: titulo,
+        descricao: descricao
+      });
+
+      closeModalById("edit-ticket-modal");
+      alert("Chamado atualizado com sucesso!");
+    });
+
+    function openPriceModal(id) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+      document.getElementById("price-ticket-id").value = ticket.id;
+      document.getElementById("price-ticket-title").textContent = `${ticket.loja} • ${ticket.titulo}`;
+      document.getElementById("price-labor").value = ticket.valorMaoDeObra || "";
+      document.getElementById("price-parts").value = ticket.valorPecas || 0;
+
+      const defaultNotes = ticket.obsTecnica || (
+        ticket.servicoRealizado
+          ? `Serviço: ${ticket.servicoRealizado}${ticket.pecasTrocadas ? " | Peças: " + ticket.pecasTrocadas : ""}`
+          : ""
+      );
+      document.getElementById("price-notes").value = defaultNotes;
+      document.getElementById("price-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-ticket-price").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("price-ticket-id").value;
+      const labor = parseFloat(document.getElementById("price-labor").value) || 0;
+      const parts = parseFloat(document.getElementById("price-parts").value) || 0;
+      const total = labor + parts;
+      const notes = document.getElementById("price-notes").value.trim();
+
+      await updateDocItem("chamados", id, {
+        valorMaoDeObra: labor,
+        valorPecas: parts,
+        valorTotal: total,
+        obsTecnica: notes
+      });
+
+      closeModalById("price-modal");
+      if (document.getElementById("ticket-modal").style.display === "flex") {
+        viewTicket(id);
+      }
+    });
+
+    function toggleTicketSelection(id) {
+      if (selectedTicketIds.has(id)) {
+        selectedTicketIds.delete(id);
+      } else {
+        selectedTicketIds.add(id);
+      }
+      updateSelectionBar();
+      refreshAll();
+    }
+
+    function clearTicketSelection() {
+      selectedTicketIds.clear();
+      updateSelectionBar();
+      refreshAll();
+    }
+
+    function updateSelectionBar() {
+      const bar = document.getElementById("selection-floating-bar");
+      if (currentFilter !== "finalizados" || currentUser.role !== "admin" || selectedTicketIds.size === 0) {
+        bar.style.display = "none";
+        return;
+      }
+
+      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
+      const sum = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
+
+      document.getElementById("sel-bar-count").textContent =
+        selectedList.length === 1 ? "1 serviço selecionado" : `${selectedList.length} serviços selecionados`;
+      document.getElementById("sel-bar-total").textContent = `Total acumulado: ${formatBRL(sum)}`;
+      bar.style.display = "flex";
+    }
+
+    function openCreateNotaModal() {
+      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
+      if (selectedList.length === 0) return;
+
+      const lojasUnicas = [...new Set(selectedList.map(c => c.loja))];
+      if (lojasUnicas.length > 1) {
+        alert("Selecione apenas serviços da MESMA loja para gerar uma nota de serviço única.");
+        return;
+      }
+
+      const lojaNome = lojasUnicas[0];
+      const total = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
+
+      const itemsHtml = selectedList.map((c, idx) => `
+        <div style="background:var(--bg-light);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--text);">
+            <span>${idx + 1}. ${c.titulo}</span>
+            <span>${formatBRL(c.valorTotal || 0)}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">
+            ${c.obsTecnica || c.servicoRealizado || c.descricao}
+          </div>
+        </div>
+      `).join("");
+
+      document.getElementById("nota-preview-summary").innerHTML = `
+        <div style="background:var(--navy);color:#FFF;padding:12px 14px;border-radius:12px;margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--yellow);font-weight:800;">CLIENTE / UNIDADE</div>
+          <div style="font-size:17px;font-weight:800;">${lojaNome}</div>
+          <div style="font-size:13px;margin-top:4px;">${selectedList.length} serviço(s) agrupado(s) • <strong>Total: ${formatBRL(total)}</strong></div>
+        </div>
+        ${itemsHtml}
+      `;
+
+      compressedNotaPhotoBase64 = "";
+      document.getElementById("nota-nf-file").value = "";
+      document.getElementById("nota-photo-preview-box").style.display = "none";
+      document.getElementById("create-nota-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-create-nota").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
+      if (selectedList.length === 0) return;
+
+      const lojaNome = selectedList[0].loja;
+      const foundLoja = cachedLojas.find(l => l.nome === lojaNome);
+      const lojaCnpj = foundLoja ? foundLoja.cnpj : "";
+
+      const totalGeral = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
+      
+      const nextSeq = cachedNotas.length + 1;
+      const numeroNota = "NS:" + String(nextSeq).padStart(4, "0");
+
+      const itensNota = selectedList.map(c => ({
+        ticketId: c.id,
+        titulo: c.titulo,
+        equipamento: c.equipamento,
+        motivo: c.descricao,
+        servicoRealizado: c.obsTecnica || (c.servicoRealizado ? `${c.servicoRealizado}${c.pecasTrocadas ? " | Peças: " + c.pecasTrocadas : ""}` : c.descricao),
+        dataFinalizacao: c.finishedAt || c.createdAt,
+        duracao: c.durationMs ? formatDuration(c.durationMs) : "-",
+        valorMaoDeObra: parseFloat(c.valorMaoDeObra) || 0,
+        valorPecas: parseFloat(c.valorPecas) || 0,
+        valorTotal: parseFloat(c.valorTotal) || 0
+      }));
+
+      const notaId = await addItem("notas_servico", {
+        numero: numeroNota,
+        loja: lojaNome,
+        lojaCnpj: lojaCnpj,
+        itens: itensNota,
+        valorTotal: totalGeral,
+        pix: document.getElementById("nota-pix").value.trim(),
+        observacao: document.getElementById("nota-obs").value.trim(),
+        notaFiscalFoto: compressedNotaPhotoBase64 || "",
+        statusPagamento: "em_aberto"
+      });
+
+      for (const c of selectedList) {
+        await updateDocItem("chamados", c.id, {
+          notaId: notaId,
+          notaNumero: numeroNota
+        });
+      }
+
+      selectedTicketIds.clear();
+      updateSelectionBar();
+      closeModalById("create-nota-modal");
+      navigate("notas");
+      setTimeout(() => viewNotaReceipt(notaId), 250);
+    });
+
+    async function toggleNotaStatus(notaId, newStatus) {
+      await updateDocItem("notas_servico", notaId, {
+        statusPagamento: newStatus,
+        paidAt: newStatus === "pago" ? new Date().toLocaleString("pt-BR") : ""
+      });
+      if (document.getElementById("receipt-pdf-modal").style.display === "flex") {
+        viewNotaReceipt(notaId);
+      }
+    }
+
+    function viewNotaReceipt(notaId) {
+      const nota = cachedNotas.find(n => n.id === notaId);
+      if (!nota) return;
+
+      const isPago = nota.statusPagamento === "pago";
+
+      const adminButtons = currentUser.role === "admin" ? `
+        ${!isPago
+          ? `<button class="btn-sm btn-done" onclick="toggleNotaStatus('${nota.id}', 'pago')">✅ Marcar como Pago</button>`
+          : `<button class="btn-sm btn-unattended" onclick="toggleNotaStatus('${nota.id}', 'em_aberto')">↩️ Reabrir</button>`
+        }
+        <button class="btn-sm btn-del" onclick="deleteNota('${nota.id}')">🗑️</button>
+      ` : "";
+
+      document.getElementById("receipt-admin-actions").innerHTML = adminButtons;
+
+      const itensHtml = (nota.itens || []).map((it, idx) => `
+        <div class="receipt-service-item">
+          <div class="receipt-service-top">
+            <span>${idx + 1}. ${it.titulo}</span>
+            <span>${formatBRL(it.valorTotal)}</span>
+          </div>
+          <div class="receipt-service-desc">
+            <strong>Equipamento:</strong> ${it.equipamento} • <strong>Concluído:</strong> ${it.dataFinalizacao || "-"} (${it.duracao})<br/>
+            <strong>Serviço executado:</strong> ${it.servicoRealizado}
+            ${(it.valorPecas > 0) ? `<br/><em>(Mão de obra: ${formatBRL(it.valorMaoDeObra)} + Peças: ${formatBRL(it.valorPecas)})</em>` : ""}
+          </div>
+        </div>
+      `).join("");
+
+      document.getElementById("printable-receipt-area").innerHTML = `
+        <div class="receipt-sheet">
+          <div class="receipt-header">
+            <div class="receipt-header-top">
+              <img src="logo.png" class="receipt-logo" alt="A&R" onerror="this.style.display='none'" />
+              <div class="receipt-company">
+                <div class="receipt-company-name">A&R MANUTENÇÃO E INSTALAÇÃO LTDA</div>
+                <div class="receipt-company-cnpj">CNPJ: 62.659.358/0001-88 • Cláudio - MG</div>
+                <div class="receipt-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="receipt-body-white">
+            <div style="text-align:center;font-weight:900;font-size:15px;color:#0F294A;margin-bottom:10px;text-transform:uppercase;">
+              NOTA DE PRESTAÇÃO DE SERVIÇO • ${nota.numero}
+            </div>
+
+            <div class="receipt-meta-grid">
+              <div>
+                <div style="color:#64748B;font-size:11px;font-weight:700;">CLIENTE / UNIDADE</div>
+                <div style="font-size:15px;font-weight:900;color:#0F294A;">${nota.loja}</div>
+                ${nota.lojaCnpj ? `<div style="font-size:12px;color:#475569;font-weight:700;">CNPJ: ${nota.lojaCnpj}</div>` : ""}
+              </div>
+              <div style="text-align:right;">
+                <div style="color:#64748B;font-size:11px;font-weight:700;">EMISSÃO</div>
+                <div style="font-weight:800;">${nota.createdAt || "-"}</div>
+                <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}" style="margin-top:4px;display:inline-block;">
+                  ${isPago ? '✅ PAGO' : '⏳ AGUARDANDO PAGAMENTO'}
+                </span>
+              </div>
+            </div>
+
+            <div style="font-size:11px;font-weight:800;color:#64748B;text-transform:uppercase;margin-bottom:4px;">
+              Discriminação dos Serviços Executados (${(nota.itens || []).length})
+            </div>
+
+            ${itensHtml}
+
+            ${nota.observacao ? `
+              <div style="margin-top:10px;padding:8px 10px;background:#FFFBEB;border-radius:8px;font-size:12px;color:#92400E;">
+                <strong>Obs.:</strong> ${nota.observacao}
+              </div>
+            ` : ""}
+
+            <div class="receipt-total-box">
+              <span style="font-size:14px;font-weight:900;color:#0F294A;">VALOR TOTAL DOS SERVIÇOS</span>
+              <span style="font-size:20px;font-weight:900;color:#0F294A;">${formatBRL(nota.valorTotal)}</span>
+            </div>
+
+            ${nota.notaFiscalFoto ? `
+              <div style="margin-top:16px;border-top:1.5px dashed #CBD5E1;padding-top:12px;">
+                <div style="font-size:12px;font-weight:900;color:#0F294A;margin-bottom:6px;">📎 NOTA FISCAL / COMPROVANTE ANEXADO:</div>
+                <img src="${nota.notaFiscalFoto}" style="width:100%;max-height:280px;object-fit:contain;border-radius:8px;border:1px solid #E2E8F0;" alt="Nota Fiscal Anexada" onclick="window.open(this.src)" />
+              </div>
+            ` : ""}
+          </div>
+
+          <div class="receipt-footer">
+            ${nota.pix ? `<div style="margin-bottom:6px;color:#FFD700;font-weight:800;">CHAVE PIX PARA PAGAMENTO: ${nota.pix}</div>` : ""}
+            <div>Obrigado pela confiança! Garantia técnica A&R Manutenção.</div>
+            <div class="signature-line">A&R Manutenção e Instalação LTDA / Assinatura Cliente</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("receipt-pdf-modal").style.display = "flex";
+    }
+
+    async function deleteNota(notaId) {
+      if (!confirm("Deseja excluir esta Nota de Serviço?")) return;
+      try {
+        await db.collection("notas_servico").doc(notaId).delete();
+      } catch (e) {
+        const list = getLocal("notas_servico").filter(n => n.id !== notaId);
+        setLocal("notas_servico", list);
+      }
+      closeModalById("receipt-pdf-modal");
+      refreshAll();
+    }
+
+    async function viewTicket(id) {
+      let ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+
+      if (currentUser.role === "admin" && ticket.status === "abertos") {
+        await updateStatus(id, "visualizado");
+        ticket = cachedChamados.find(c => c.id === id) || { ...ticket, status: "visualizado" };
+      }
+
+      const statusLabels = {
+        abertos: "Em aberto",
+        visualizado: "Visualizado",
+        andamento: "Em andamento",
+        finalizados: "Finalizado",
+        nao_atendidos: "Não atendido"
+      };
+
+      const prioClass = getPriorityBadgeClass(ticket.prioridade);
+
+      const techReportHtml = (ticket.status === "finalizados" && (ticket.servicoRealizado || ticket.pecasTrocadas)) ? `
+        <div class="tech-report-box">
+          <div style="font-weight:800;color:var(--success);margin-bottom:4px;">📋 Relatório de Encerramento Técnico</div>
+          ${ticket.servicoRealizado ? `<div><strong>Serviço realizado:</strong> ${ticket.servicoRealizado}</div>` : ""}
+          ${ticket.pecasTrocadas ? `<div style="margin-top:4px;"><strong>Peças / Materiais trocados:</strong> ${ticket.pecasTrocadas}</div>` : ""}
+        </div>
+      ` : "";
+
+      const durationHtml = ticket.status === "finalizados" ? `
+        <div class="duration-pill">
+          ⏱️ Tempo gasto no atendimento: <strong>${formatDuration(ticket.durationMs)}</strong>
+        </div>
+      ` : "";
+
+      const financialHtml = (ticket.status === "finalizados" && ticket.valorTotal > 0) ? `
+        <div class="price-pill" style="display:block;margin-top:10px;">
+          🧾 Valor do Serviço: <strong>${formatBRL(ticket.valorTotal)}</strong>
+          ${ticket.notaNumero ? `<br/>Vinculado à Nota: <strong>${ticket.notaNumero}</strong>` : ""}
+        </div>
+      ` : "";
+
+      const actionsHtml = currentUser.role === "admin" ? `
+        <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
+          ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar</button>` : ""}
+          ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${ticket.id}')">✅ Finalizar</button>` : ""}
+          ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Valor</button>` : ""}
+          <button class="btn-sm btn-status" onclick="openEditTicketModal('${ticket.id}')">✏️ Editar</button>
+          <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
+        </div>
+      ` : "";
+
+      document.getElementById("ticket-modal-content").innerHTML = `
+        <div class="item-header">
+          <div class="badge-group">
+            <span class="badge ${prioClass}">${ticket.prioridade}</span>
+            <span class="badge badge-st-${ticket.status}">${statusLabels[ticket.status] || ticket.status}</span>
+          </div>
+          <span class="badge badge-status">${ticket.loja}</span>
+        </div>
+        <div class="item-title" style="font-size:19px;margin-top:6px;">${ticket.titulo}</div>
+        <div class="item-meta">
+          <strong>Equipamento:</strong> ${ticket.equipamento}<br/>
+          <strong>Aberto por:</strong> ${ticket.autor} em ${ticket.createdAt || "-"}
+        </div>
+        <p style="font-size:14px;background:var(--bg-light);padding:12px;border-radius:12px;border:1px solid var(--border);">${ticket.descricao}</p>
+        ${techReportHtml}
+        ${durationHtml}
+        ${financialHtml}
+        ${ticket.foto ? `<img src="${ticket.foto}" class="ticket-photo" alt="Foto do chamado" onclick="window.open(this.src)" />` : ""}
+        ${actionsHtml}
+      `;
+
+      document.getElementById("ticket-modal").style.display = "flex";
+    }
+
+    function closeModalById(id, e) {
+      if (!e || e.target.id === id) {
+        document.getElementById(id).style.display = "none";
+      }
+    }
+
+    function getPriorityBadgeClass(p) {
+      if (p === "Urgente") return "badge-urgente";
+      if (p === "Alta") return "badge-alta";
+      if (p === "Média") return "badge-media";
+      return "badge-baixa";
+    }
+
+    // ================= CADASTRO DE LOJA COM CONTA REAL NO FIREBASE AUTH =================
+    document.getElementById("form-loja").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-save-loja");
+      const nome = document.getElementById("lj-nome").value.trim();
+      const cnpj = document.getElementById("lj-cnpj").value.trim();
+      const rawUser = document.getElementById("lj-user").value.trim().toLowerCase().replace(/\s+/g, "");
+      const rawPass = document.getElementById("lj-pass").value.trim();
+      const authEmail = `${rawUser}@aermanutencao.local`;
+
+      btn.disabled = true;
+      btn.textContent = "Criando conta segura...";
+
+      try {
+        // Usa uma instância secundária do Firebase para não deslogar o técnico atual
+        const secondaryApp = firebase.apps.find(a => a.name === "Secondary") || firebase.initializeApp(firebaseConfig, "Secondary");
+        await secondaryApp.auth().createUserWithEmailAndPassword(authEmail, rawPass);
+        await secondaryApp.auth().signOut();
+
+        await addItem("lojas", {
+          nome: nome,
+          cnpj: cnpj,
+          user: rawUser,
+          authEmail: authEmail,
+          firstAccess: true
+        });
+
+        e.target.reset();
+        alert(`Loja "${nome}" cadastrada com sucesso!\nUsuário de login: ${rawUser}`);
+      } catch (error) {
+        console.error(error);
+        if (error.code === "auth/email-already-in-use") {
+          alert("Esse usuário de login já existe. Escolha outro nome de usuário.");
+        } else {
+          alert("Erro ao criar acesso da loja: " + error.message);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "+ Cadastrar Loja e Gerar Acesso";
+      }
+    });
+
+    document.getElementById("form-equipamento").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await addItem("equipamentos", {
+        loja: document.getElementById("eq-loja").value,
+        nome: document.getElementById("eq-nome").value.trim(),
+        modelo: document.getElementById("eq-modelo").value.trim()
+      });
+      e.target.reset();
+      alert("Equipamento cadastrado!");
+    });
+
+    document.getElementById("form-chamado").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-save-chamado");
+      btn.disabled = true;
+      btn.textContent = "Salvando...";
+
+      await addItem("chamados", {
+        loja: document.getElementById("ch-loja").value,
+        prioridade: document.getElementById("ch-prioridade").value,
+        equipamento: document.getElementById("ch-equipamento").value,
+        titulo: document.getElementById("ch-titulo").value.trim(),
+        descricao: document.getElementById("ch-descricao").value.trim(),
+        autor: document.getElementById("ch-autor").value.trim(),
+        foto: compressedPhotoBase64 || "",
+        status: "abertos"
+      });
+
+      clearPhoto("ticket");
+      e.target.reset();
+      btn.disabled = false;
+      btn.textContent = "+ Salvar Chamado";
+      navigate("dashboard");
+    });
+
+    async function refreshAll() {
+      const lojas = await fetchCollection("lojas");
+      cachedLojas = lojas;
+      const equipamentos = await fetchCollection("equipamentos");
+      cachedEquipamentos = equipamentos;
+      let chamados = await fetchCollection("chamados");
+      let notas = await fetchCollection("notas_servico");
+
+      chamados.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      notas.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      if (currentUser.role !== "admin") {
+        chamados = chamados.filter(c => c.loja === currentUser.loja);
+        notas = notas.filter(n => n.loja === currentUser.loja);
+      }
+
+      cachedChamados = chamados;
+      cachedNotas = notas;
+
+      const abertosList = chamados.filter(c => c.status === "abertos");
+      const visualizadoList = chamados.filter(c => c.status === "visualizado");
+      const andamentoList = chamados.filter(c => c.status === "andamento");
+      const finalizadosList = chamados.filter(c => c.status === "finalizados");
+      const naoAtendidosList = chamados.filter(c => c.status === "nao_atendidos");
+
+      const bellDot = document.getElementById("bell-dot");
+      bellDot.style.display = abertosList.length > 0 ? "block" : "none";
+
+      if (lastKnownOpenCount !== null && abertosList.length > lastKnownOpenCount && currentUser.role === "admin") {
+        const newest = abertosList[0];
+        if ("Notification" in window && Notification.permission === "granted" && newest) {
+          new Notification(`Novo Chamado (${newest.prioridade}) - ${newest.loja}`, {
+            body: newest.titulo,
+            icon: "logo.png"
+          });
+        }
+      }
+      lastKnownOpenCount = abertosList.length;
+
+      document.getElementById("count-abertos").textContent = abertosList.length;
+      document.getElementById("count-visualizado").textContent = visualizadoList.length;
+      document.getElementById("count-andamento").textContent = andamentoList.length;
+      document.getElementById("count-finalizados").textContent = finalizadosList.length;
+      document.getElementById("count-nao-atendidos").textContent = naoAtendidosList.length;
+      document.getElementById("count-notas").textContent = notas.length;
+
+      const urgentesAtivos = chamados.filter(c =>
+        c.prioridade === "Urgente" && c.status !== "finalizados" && c.status !== "nao_atendidos"
+      );
+      const urgentBanner = document.getElementById("urgent-banner-dedicated");
+      if (urgentesAtivos.length > 0) {
+        urgentBanner.style.display = "block";
+        document.getElementById("urgent-count-pill").textContent =
+          urgentesAtivos.length === 1 ? "1 CHAMADO" : `${urgentesAtivos.length} CHAMADOS`;
+        const firstUrg = urgentesAtivos[0];
+        document.getElementById("urgent-banner-meta").textContent = `Loja: ${firstUrg.loja} | Status: ${firstUrg.status.toUpperCase()}`;
+        document.getElementById("urgent-banner-desc").textContent = `🚨 ${firstUrg.titulo}`;
+      } else {
+        urgentBanner.style.display = "none";
+      }
+
+      const statusLabels = {
+        abertos: "Em aberto",
+        visualizado: "Visualizado",
+        andamento: "Em andamento",
+        finalizados: "Finalizado",
+        nao_atendidos: "Não atendido"
+      };
+
+      const recentContainer = document.getElementById("recent-chamados-container");
+      const recents = chamados.slice(0, 5);
+      recentContainer.innerHTML = recents.length ? recents.map(c => `
+        <div class="recent-row" onclick="viewTicket('${c.id}')">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;">
+              ${c.loja} ${c.prioridade === "Urgente" ? "• 🚨 URGENTE" : ""}
+            </div>
+            <div style="font-size:15px;font-weight:800;color:var(--text);">${c.titulo}</div>
+            <div style="font-size:12px;color:var(--muted);">${timeAgo(c.timestamp)}</div>
+          </div>
+          <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
+        </div>
+      `).join("") : `<p style="color:var(--muted);font-size:13px;padding:8px 0;">Nenhum chamado registrado ainda.</p>`;
+
+      const chLoja = document.getElementById("ch-loja");
+      const eqLoja = document.getElementById("eq-loja");
+      const previousLoja = chLoja.value;
+
+      if (currentUser.role === "admin") {
+        const opts = lojas.length
+          ? lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("")
+          : `<option value="">Cadastre uma loja primeiro</option>`;
+        chLoja.innerHTML = opts;
+        eqLoja.innerHTML = opts;
+        if (previousLoja && lojas.some(l => l.nome === previousLoja)) {
+          chLoja.value = previousLoja;
+        }
+      } else {
+        chLoja.innerHTML = `<option value="${currentUser.loja}">${currentUser.loja}</option>`;
+      }
+
+      updateEquipamentosDropdown();
+
+      // ================= POPULAR FILTROS DE LOJA (CHAMADOS E NOTAS) =================
+      const filterChamadosWrap = document.getElementById("lista-loja-filter-wrap");
+      const filterChamadosSelect = document.getElementById("filter-chamados-loja");
+      const filterNotasWrap = document.getElementById("notas-loja-filter-wrap");
+      const filterNotasSelect = document.getElementById("filter-notas-loja");
+
+      if (currentUser.role === "admin") {
+        filterChamadosWrap.classList.remove("hidden");
+        filterNotasWrap.classList.remove("hidden");
+
+        const prevChFilter = filterChamadosSelect.value;
+        const prevNtFilter = filterNotasSelect.value;
+
+        const filterOptionsHtml = `<option value="TODAS">Todas as Lojas</option>` +
+          lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("");
+
+        filterChamadosSelect.innerHTML = filterOptionsHtml;
+        filterNotasSelect.innerHTML = filterOptionsHtml;
+
+        if (prevChFilter && (prevChFilter === "TODAS" || lojas.some(l => l.nome === prevChFilter))) {
+          filterChamadosSelect.value = prevChFilter;
+        }
+        if (prevNtFilter && (prevNtFilter === "TODAS" || lojas.some(l => l.nome === prevNtFilter))) {
+          filterNotasSelect.value = prevNtFilter;
+        }
+      } else {
+        filterChamadosWrap.classList.add("hidden");
+        filterNotasWrap.classList.add("hidden");
+      }
+
+      let filtrados = chamados;
+      if (currentFilter === "urgentes") {
+        filtrados = urgentesAtivos;
+      } else if (currentFilter !== "todos") {
+        filtrados = chamados.filter(c => c.status === currentFilter);
+      }
+
+      if (currentUser.role === "admin" && filterChamadosSelect.value && filterChamadosSelect.value !== "TODAS") {
+        filtrados = filtrados.filter(c => c.loja === filterChamadosSelect.value);
+      }
+
+      const chContainer = document.getElementById("chamados-container");
+      chContainer.innerHTML = filtrados.length ? filtrados.map(c => {
+        const isFinalizado = c.status === "finalizados";
+        const isSelected = selectedTicketIds.has(c.id);
+        const showCheckbox = isFinalizado && currentUser.role === "admin";
+
+        return `
+        <div class="item-card ${c.prioridade === 'Urgente' && !isFinalizado ? 'urgent-card' : ''} ${isSelected ? 'selected-ticket' : ''}">
+          <div class="item-header">
+            <div class="badge-group">
+              ${showCheckbox ? `
+                <input type="checkbox" class="ticket-select-checkbox" ${isSelected ? "checked" : ""} onchange="toggleTicketSelection('${c.id}')" title="Selecionar para Nota de Serviço" />
+              ` : ""}
+              <span class="badge ${getPriorityBadgeClass(c.prioridade)}">${c.prioridade}</span>
+              <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
+              ${isFinalizado && c.valorTotal > 0 ? `<span class="badge badge-price">${formatBRL(c.valorTotal)}</span>` : ""}
+              ${c.notaNumero ? `<span class="badge badge-nota-ok">🧾 ${c.notaNumero}</span>` : ""}
+            </div>
+            <span class="badge badge-status">${c.loja}</span>
+          </div>
+          <div class="item-title" style="cursor:pointer;" onclick="viewTicket('${c.id}')">${c.titulo}</div>
+          <div class="item-meta">
+            Equipamento: ${c.equipamento} • Aberto por: ${c.autor} (${c.createdAt || ''})
+          </div>
+          <p style="font-size:14px;color:var(--text);">${c.descricao}</p>
+          ${isFinalizado && (c.servicoRealizado || c.pecasTrocadas) ? `
+            <div class="tech-report-box">
+              ${c.servicoRealizado ? `<div><strong>✅ Feito:</strong> ${c.servicoRealizado}</div>` : ""}
+              ${c.pecasTrocadas ? `<div style="margin-top:2px;"><strong>🔧 Trocado:</strong> ${c.pecasTrocadas}</div>` : ""}
+            </div>
+          ` : ""}
+          ${isFinalizado && c.durationMs !== undefined ? `
+            <div class="duration-pill">⏱️ Duração: <strong>${formatDuration(c.durationMs)}</strong></div>
+          ` : ""}
+          ${c.foto ? `<img src="${c.foto}" class="ticket-photo" alt="Foto do chamado" onclick="viewTicket('${c.id}')" />` : ""}
+          <div class="item-actions">
+            <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir</button>
+            ${currentUser.role === "admin" ? `
+              <button class="btn-sm btn-status" onclick="openEditTicketModal('${c.id}')">✏️ Editar</button>
+              ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
+              ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${c.id}')">✅ Finalizar</button>` : ""}
+              ${isFinalizado ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 ${c.valorTotal > 0 ? 'Editar Valor' : 'Definir Valor'}</button>` : ""}
+              <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">🗑️ Excluir</button>
+            ` : ""}
+          </div>
+        </div>
+      `;
+      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhum chamado encontrado para este filtro.</p>`;
+
+      updateSelectionBar();
+
+      let notasFiltradas = notas;
+      if (currentUser.role === "admin" && filterNotasSelect.value && filterNotasSelect.value !== "TODAS") {
+        notasFiltradas = notasFiltradas.filter(n => n.loja === filterNotasSelect.value);
+      }
+
+      const notasContainer = document.getElementById("notas-container");
+      notasContainer.innerHTML = notasFiltradas.length ? notasFiltradas.map(n => {
+        const isPago = n.statusPagamento === "pago";
+        return `
+          <div class="item-card" style="border-left: 5px solid var(--yellow);">
+            <div class="item-header">
+              <div class="badge-group">
+                <span class="badge badge-price">${n.numero}</span>
+                <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}">${isPago ? '✅ PAGO' : '⏳ EM ABERTO'}</span>
+                ${n.notaFiscalFoto ? `<span class="badge" style="background:rgba(59,130,246,0.15);color:var(--info);">📎 Com NF</span>` : ""}
+              </div>
+              <span class="badge badge-status">${n.loja}</span>
+            </div>
+            <div class="item-title">${formatBRL(n.valorTotal)} <span style="font-size:13px;font-weight:600;color:var(--muted);">(${(n.itens || []).length} serviço(s))</span></div>
+            <div class="item-meta">
+              Emitida em: ${n.createdAt || "-"}
+              ${n.lojaCnpj ? `<br/>CNPJ: ${n.lojaCnpj}` : ""}
+              ${n.paidAt ? ` • Pago em: ${n.paidAt}` : ""}
+            </div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:10px;">
+              ${(n.itens || []).map(i => `• ${i.titulo} (${formatBRL(i.valorTotal)})`).join("<br/>")}
+            </div>
+            <div class="item-actions">
+              <button class="btn-sm btn-status" onclick="viewNotaReceipt('${n.id}')">📄 Ver Notinha / PDF</button>
+              ${currentUser.role === "admin" && !isPago ? `
+                <button class="btn-sm btn-done" onclick="toggleNotaStatus('${n.id}', 'pago')">✅ Dar Baixa (Pago)</button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma nota de serviço encontrada para este filtro.</p>`;
+
+      document.getElementById("lista-lojas").innerHTML = lojas.length ? lojas.map(l => `
+        <div class="item-card">
+          <div class="item-title">${l.nome}</div>
+          <div class="item-meta">CNPJ: <strong>${l.cnpj || 'Não informado'}</strong> | Login: <strong>${l.user}</strong></div>
+          <button class="btn-sm btn-del" onclick="deleteItem('lojas', '${l.id}')">Excluir Loja</button>
+        </div>
+      `).join("") : `<p style="color:var(--muted);font-size:13px;">Nenhuma loja cadastrada.</p>`;
+
+      document.getElementById("lista-equipamentos").innerHTML = equipamentos.length ? equipamentos.map(eq => `
+        <div class="item-card">
+          <div class="item-title">${eq.nome}</div>
+          <div class="item-meta">Loja: ${eq.loja} • ${eq.modelo || 'Sem observação'}</div>
+          <button class="btn-sm btn-del" onclick="deleteItem('equipamentos', '${eq.id}')">Excluir</button>
+        </div>
+      `).join("") : `<p style="color:var(--muted);font-size:13px;">Nenhum equipamento cadastrado.</p>`;
+    }
+  </script>
 </body>
 </html>
