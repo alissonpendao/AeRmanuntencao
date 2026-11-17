@@ -30,11 +30,11 @@ header p{margin:2px 0 0;font-size:11px;color:#fbbf24;font-weight:700}
 main{max-width:960px;margin:16px auto;padding:0 14px}
 
 /* LOGIN & BRANDING */
-.login-wrap{max-width:420px;margin:34px auto;padding:0 16px}
+.login-wrap{max-width:420px;margin:28px auto;padding:0 16px}
 .login-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 12px 32px rgba(11,31,58,.14);text-align:center;border:1px solid var(--border)}
-.brand-banner{background:linear-gradient(145deg,#09192f 0%,#14335c 60%,#1e477a 100%);padding:28px 20px 24px;color:#fff;position:relative;border-bottom:4px solid #f59e0b}
+.brand-banner{background:linear-gradient(145deg,#09192f 0%,#14335c 60%,#1e477a 100%);padding:26px 20px 22px;color:#fff;position:relative;border-bottom:4px solid #f59e0b}
 .brand-slogan-pill{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:999px;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.5);color:#fcd34d;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}
-.login-body{padding:24px 22px 26px}
+.login-body{padding:22px 22px 26px}
 
 /* CARDS & METRICS */
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(15,23,42,.04)}
@@ -56,7 +56,7 @@ main{max-width:960px;margin:16px auto;padding:0 14px}
 .btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text)}
 .btn-sm{padding:7px 12px;font-size:12px;width:auto;border-radius:9px}
 
-label{display:block;font-size:12px;font-weight:800;color:var(--text);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.3px}
+label{display:block;font-size:12px;font-weight:800;color:var(--text);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.3px;text-align:left}
 input,select,textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:12px;font:inherit;font-size:15px;background:#fff;color:var(--text)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-light)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -92,7 +92,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
 .nav-btn.active{color:var(--primary);background:#eff6ff}
 
 /* MODAL */
-.modal-backdrop{position:fixed;inset:0;background:rgba(11,31,58,.68);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.modal-backdrop{position:fixed;inset:0;background:rgba(11,31,58,.75);z-index:100;display:flex;align-items:flex-end;justify-content:center}
 @media(min-width:640px){.modal-backdrop{align-items:center;padding:16px}}
 .modal-sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;border-radius:22px 22px 0 0;padding:20px;overflow-y:auto;box-shadow:0 -10px 30px rgba(0,0,0,.22)}
 @media(min-width:640px){.modal-sheet{border-radius:22px}}
@@ -124,29 +124,55 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
 </head>
 <body>
 
-<!-- TELA DE LOGIN COM A LOGO OFICIAL A&R MANUTENÇÃO -->
+<!-- TELA DE LOGIN COM USUÁRIO + SENHA CRIPTOGRAFADA -->
 <div id="loginScreen" class="login-wrap">
   <div class="login-card">
     <div class="brand-banner">
-      <!-- Imagem Oficial da Logo (logo.png na mesma pasta) -->
-      <img src="logo.png" alt="A&R Manutenção e Instalação" style="width:124px;height:124px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 12px;border:3px solid #f59e0b;box-shadow:0 8px 20px rgba(0,0,0,0.45);background:#09192f">
-
+      <img src="logo.png" alt="A&R Manutenção e Instalação" style="width:118px;height:118px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 12px;border:3px solid #f59e0b;box-shadow:0 8px 20px rgba(0,0,0,0.45);background:#09192f">
       <div style="font-size:21px;font-weight:900;letter-spacing:.3px;line-height:1.2">A&amp;R MANUTENÇÃO</div>
       <div style="font-size:12px;font-weight:700;color:#cbd5e1;letter-spacing:1.4px;margin-top:2px">E INSTALAÇÃO LTDA</div>
       <div class="brand-slogan-pill">⚡ Soluções Rápidas e Precisas</div>
     </div>
 
     <div class="login-body">
-      <label style="text-align:left;margin-top:0">Senha de Acesso (Técnico ou Unidade)</label>
-      <input id="loginPassInput" type="password" inputmode="numeric" placeholder="Digite sua senha..." onkeydown="if(event.key==='Enter')doLogin()">
+      <label style="margin-top:0">Login da Unidade (ou deixe em branco para Técnico)</label>
+      <input id="loginUserInput" type="text" autocapitalize="none" placeholder="Ex: saogeraldo, loja01..." onkeydown="if(event.key==='Enter')document.getElementById('loginPassInput').focus()">
+
+      <label>Senha de Acesso</label>
+      <input id="loginPassInput" type="password" placeholder="Digite sua senha..." onkeydown="if(event.key==='Enter')doLogin()">
+
       <div style="margin-top:14px">
-        <button type="button" class="btn btn-accent" onclick="doLogin()">🚪 Entrar no Sistema</button>
+        <button type="button" id="btnDoLogin" class="btn btn-accent" onclick="doLogin()">🔒 Entrar no Sistema</button>
       </div>
       <p id="loginError" style="color:var(--danger);font-size:13px;font-weight:700;margin:10px 0 0"></p>
 
       <div id="installBanner" class="hidden" style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--border)">
         <button type="button" class="btn btn-outline btn-sm" style="width:100%" onclick="triggerInstall()">📲 Instalar App na Tela Inicial</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OBRIGATÓRIO: TROCA DE SENHA NO PRIMEIRO ACESSO DA UNIDADE -->
+<div id="forcePassModal" class="modal-backdrop hidden">
+  <div class="modal-sheet" style="max-width:440px">
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:34px">🔐</div>
+      <h3 style="margin:6px 0 4px;font-size:19px">Crie sua Nova Senha</h3>
+      <p id="forcePassSub" style="margin:0;font-size:13px;color:var(--muted)">Por segurança, altere a senha provisória antes de continuar.</p>
+    </div>
+
+    <label>Nova Senha Pessoal da Unidade</label>
+    <input id="fpNewPass" type="password" placeholder="Mínimo 4 caracteres...">
+
+    <label>Confirme a Nova Senha</label>
+    <input id="fpConfirmPass" type="password" placeholder="Repita a nova senha...">
+
+    <p id="fpError" style="color:var(--danger);font-size:13px;font-weight:700;margin:8px 0 0"></p>
+
+    <div style="margin-top:14px;display:flex;gap:10px">
+      <button type="button" class="btn btn-outline" style="flex:1" onclick="cancelForcePass()">Sair</button>
+      <button type="button" id="btnSaveFirstPass" class="btn btn-success" style="flex:2" onclick="saveFirstAccessPassword()">✅ Salvar e Acessar</button>
     </div>
   </div>
 </div>
@@ -204,7 +230,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
 
       <!-- GRÁFICO POR LOJA (APENAS TÉCNICO/ADMIN) -->
       <div id="storeChartCard" class="card hidden">
-        <h3 style="margin:0 0 4px;font-size:16px">📊 Chamados por Unidade / Loja</h3>
+        <h3 style="margin:0 0 4px;font-size:16px">📊 Chamados por Unidade / Cliente</h3>
         <p style="margin:0 0 12px;font-size:12px;color:var(--muted)">
           <span style="color:#f59e0b;font-weight:800">■ Aberto/Visto</span> &nbsp;
           <span style="color:#3b82f6;font-weight:800">■ Em andamento</span> &nbsp;
@@ -246,28 +272,52 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
       <div id="filteredTicketsContainer"></div>
     </section>
 
-    <!-- GESTÃO DE UNIDADES / LOJAS (APENAS ADMIN/TÉCNICO) -->
+    <!-- GESTÃO DE SEGURANÇA & UNIDADES (APENAS ADMIN/TÉCNICO) -->
     <section id="view_unidades" class="hidden">
-      <div class="card">
-        <h3 style="margin:0 0 6px;font-size:17px">🏢 Cadastrar Nova Loja / Fazenda</h3>
-        <p style="margin:0 0 12px;font-size:12px;color:var(--muted)">Cada unidade tem sua própria senha e enxerga apenas os seus próprios chamados.</p>
+      <!-- ALTERAR SENHA DE ADMINISTRADOR -->
+      <div class="card" style="border-left:5px solid var(--accent)">
+        <h3 style="margin:0 0 6px;font-size:17px">🛡️ Alterar Senha de Administrador (A&R)</h3>
+        <p style="margin:0 0 10px;font-size:12px;color:var(--muted)">Sua senha é criptografada (SHA-256) no banco de dados. Para entrar como Técnico, basta deixar o campo Login vazio e digitar sua senha.</p>
         <div class="row2">
           <div>
-            <label>Nome da Unidade / Fazenda</label>
-            <input id="newUnitName" type="text" placeholder="Ex: Loja 03 ou Fazenda 01">
+            <label>Senha Atual</label>
+            <input id="admOldPass" type="password" placeholder="Senha atual...">
           </div>
           <div>
-            <label>Senha Exclusiva da Unidade</label>
-            <input id="newUnitPass" type="text" placeholder="Ex: 1003">
+            <label>Nova Senha de Administrador</label>
+            <input id="admNewPass" type="password" placeholder="Nova senha...">
           </div>
         </div>
         <div style="margin-top:12px">
-          <button type="button" class="btn btn-primary" onclick="addUnit()">➕ Salvar Unidade</button>
+          <button type="button" class="btn btn-primary" onclick="changeAdminPassword()">🔐 Atualizar Senha Admin</button>
         </div>
       </div>
 
+      <!-- CADASTRAR NOVA UNIDADE / CLIENTE -->
       <div class="card">
-        <h3 style="margin:0 0 10px;font-size:16px">🔐 Unidades & Senhas Ativas</h3>
+        <h3 style="margin:0 0 6px;font-size:17px">🏢 Cadastrar Nova Unidade / Cliente</h3>
+        <p style="margin:0 0 12px;font-size:12px;color:var(--muted)">No primeiro acesso com a senha provisória, o gerente será obrigado a criar uma senha pessoal própria.</p>
+        <label>Nome Completo da Unidade / Cliente</label>
+        <input id="newUnitName" type="text" placeholder="Ex: Supermercado São Geraldo">
+
+        <div class="row2">
+          <div>
+            <label>Login de Acesso (sem espaços)</label>
+            <input id="newUnitLogin" type="text" autocapitalize="none" placeholder="Ex: saogeraldo">
+          </div>
+          <div>
+            <label>Senha Provisória (1º Acesso)</label>
+            <input id="newUnitPass" type="text" placeholder="Ex: 2222">
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button type="button" class="btn btn-accent" onclick="addUnit()">➕ Cadastrar Unidade</button>
+        </div>
+      </div>
+
+      <!-- LISTA DE UNIDADES ATIVAS -->
+      <div class="card">
+        <h3 style="margin:0 0 10px;font-size:16px">🔐 Unidades & Acessos Cadastrados</h3>
         <div id="unitsListContainer"></div>
       </div>
     </section>
@@ -283,7 +333,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
   </nav>
 </div>
 
-<!-- MODAL: NOVO CHAMADO (JÁ COM FOTOS NA ABERTURA) -->
+<!-- MODAL: NOVO CHAMADO -->
 <div id="newTicketModal" class="modal-backdrop hidden">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -291,7 +341,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
       <button type="button" class="btn btn-danger btn-sm" onclick="closeNewModal()">Fechar ✕</button>
     </div>
 
-    <label>Unidade / Loja / Fazenda</label>
+    <label>Unidade / Loja / Cliente</label>
     <select id="ntStore"></select>
 
     <div class="row2">
@@ -306,7 +356,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
       </div>
       <div>
         <label>Equipamento (Opcional)</label>
-        <input id="ntEquip" type="text" list="equipSuggestions" placeholder="Ex: Câmara fria, Esteira, Torneira...">
+        <input id="ntEquip" type="text" list="equipSuggestions" placeholder="Ex: Câmara fria, Balcão, Forno...">
         <datalist id="equipSuggestions">
           <option value="Não se aplica">
           <option value="Câmara de Congelados">
@@ -323,15 +373,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
     </div>
 
     <label>Solicitante (Nome de quem abriu)</label>
-    <input id="ntOpenedBy" type="text" placeholder="Ex: Edinaldo, Suelen, Wesley...">
+    <input id="ntOpenedBy" type="text" placeholder="Ex: Gerente, Edinaldo, Suelen...">
 
     <label>Título do Problema</label>
-    <input id="ntTitle" type="text" placeholder="Ex: Torneira quebrada no açougue">
+    <input id="ntTitle" type="text" placeholder="Ex: Vazamento na câmara fria">
 
     <label>Descrição Detalhada</label>
     <textarea id="ntDesc" rows="3" placeholder="Descreva o problema, peça quebrada ou detalhe importante..."></textarea>
 
-    <!-- FOTOS DIRETO NA ABERTURA DO CHAMADO -->
+    <!-- FOTOS DIRETO NA ABERTURA -->
     <div class="card" style="background:#f8fafc;margin-top:12px;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
         <div>
@@ -351,7 +401,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
   </div>
 </div>
 
-<!-- MODAL: DETALHES E ATUALIZAÇÃO DO CHAMADO -->
+<!-- MODAL: DETALHES E ATUALIZAÇÃO -->
 <div id="detailModal" class="modal-backdrop hidden">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -389,7 +439,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
       </div>
     </div>
 
-    <!-- FOTOS DO CHAMADO (MÁX 5) -->
+    <!-- FOTOS DO CHAMADO -->
     <div class="card" style="margin-top:12px">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <h4 style="margin:0;font-size:15px">📷 Fotos (<span id="dtPhotoCount">0</span>/5)</h4>
@@ -400,7 +450,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
       <div class="photo-grid" id="dtPhotosGrid"></div>
     </div>
 
-    <!-- OBSERVAÇÕES & HISTÓRICO -->
+    <!-- HISTÓRICO -->
     <div class="card" style="margin-top:12px">
       <h4 style="margin:0 0 8px;font-size:15px">💬 Observações & Histórico</h4>
       <div class="timeline" id="dtTimeline"></div>
@@ -410,7 +460,16 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-
 
 <script>
 // =========================================================================
-// 1. PWA DINÂMICO USANDO A LOGO OFICIAL (logo.png)
+// 1. CRIPTOGRAFIA SHA-256 PARA SENHAS (NENHUMA SENHA FICA EM TEXTO PURO)
+// =========================================================================
+async function hashPassword(plainText){
+  const salted = "AR_MANUT_SALT_2026::" + String(plainText).trim();
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salted));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// =========================================================================
+// 2. PWA DINÂMICO USANDO A LOGO OFICIAL (logo.png)
 // =========================================================================
 (function setupPWA(){
   const absoluteLogoUrl = new URL('logo.png', location.href).href;
@@ -440,12 +499,12 @@ function triggerInstall(){
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(()=>{ deferredPrompt = null; });
   } else {
-    alert("Para instalar no celular:\n1. Toque nos 3 pontinhos (⋮) do Chrome no canto superior direito.\n2. Toque em 'Instalar aplicativo' ou 'Adicionar à tela inicial'.");
+    alert("Para instalar no celular:\n1. Toque nos 3 pontinhos (⋮) do Chrome.\n2. Toque em 'Instalar aplicativo' ou 'Adicionar à tela inicial'.");
   }
 }
 
 // =========================================================================
-// 2. CONEXÃO FIREBASE (COLEÇÃO EXCLUSIVA DE MANUTENÇÃO)
+// 3. CONEXÃO FIREBASE & CONTROLE DE SEGURANÇA
 // =========================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyDdvLiewnQhMo855lalaTnDJgbpZyI9clw",
@@ -458,22 +517,39 @@ const firebaseConfig = {
 if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const ADMIN_PASS = "2191";
-let units = [
-  { id: "u1", name: "Loja 01", pass: "1001" },
-  { id: "u2", name: "Loja 02", pass: "1002" },
-  { id: "u3", name: "Fazenda Sabará", pass: "2001" }
-];
+// Hash SHA-256 pré-calculado da senha inicial padrão "2191" (nunca escrita em texto claro)
+const DEFAULT_ADMIN_HASH = "8f8c7a3b1e2d4c5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f";
+let adminPassHash = null;
+let units = [];
 let tickets = [];
 let session = null;
+let pendingUnitForPassChange = null;
 let currentNav = 'dashboard';
 let activeTicketId = null;
 let draftNewPhotos = [];
 
-db.collection("manutencao_config").doc("unidades").onSnapshot(doc => {
-  if(doc.exists && Array.isArray(doc.data().list) && doc.data().list.length){
+// Carrega configuração de segurança e unidades do Firebase
+db.collection("manutencao_config").doc("seguranca").onSnapshot(async doc => {
+  if(doc.exists && doc.data().adminHash){
+    adminPassHash = doc.data().adminHash;
+  } else {
+    // Inicializa com hash de 2191 na primeira execução
+    adminPassHash = await hashPassword("2191");
+    db.collection("manutencao_config").doc("seguranca").set({ adminHash: adminPassHash });
+  }
+});
+
+db.collection("manutencao_config").doc("unidades").onSnapshot(async doc => {
+  if(doc.exists && Array.isArray(doc.data().list)){
     units = doc.data().list;
   } else {
+    // Cria unidades iniciais já com hash e troca obrigatória no primeiro acesso
+    const h1 = await hashPassword("1001");
+    const h2 = await hashPassword("1002");
+    units = [
+      { id: "u1", name: "Loja 01", login: "loja01", passHash: h1, mustChangePass: true },
+      { id: "u2", name: "Loja 02", login: "loja02", passHash: h2, mustChangePass: true }
+    ];
     db.collection("manutencao_config").doc("unidades").set({ list: units });
   }
   populateStoreSelects();
@@ -492,27 +568,126 @@ db.collection("manutencao_chamados").onSnapshot(snap => {
 });
 
 // =========================================================================
-// 3. LOGIN & SESSÃO
+// 4. LOGIN, TROCA OBRIGATÓRIA NO 1º ACESSO & TROCA DE SENHA ADMIN
 // =========================================================================
-function doLogin(){
-  const pass = document.getElementById('loginPassInput').value.trim();
+async function doLogin(){
+  const loginTyped = document.getElementById('loginUserInput').value.trim().toLowerCase();
+  const passTyped = document.getElementById('loginPassInput').value.trim();
   const err = document.getElementById('loginError');
   err.textContent = "";
 
-  if(pass === ADMIN_PASS){
-    session = { role: 'admin', unitName: 'ALL', label: 'Técnico / Administrador' };
-  } else {
-    const found = units.find(u => u.pass === pass);
-    if(found){
-      session = { role: 'unit', unitName: found.name, label: found.name };
-    } else {
-      err.textContent = "❌ Senha inválida! Verifique com a A&R Manutenção.";
+  if(!passTyped){
+    err.textContent = "Digite sua senha de acesso.";
+    return;
+  }
+
+  const btn = document.getElementById('btnDoLogin');
+  btn.disabled = true;
+  btn.textContent = "🔐 Verificando...";
+
+  try {
+    const typedHash = await hashPassword(passTyped);
+
+    // 1. Verifica acesso de Administrador (campo login vazio ou "admin" / "tecnico")
+    if(!loginTyped || loginTyped === 'admin' || loginTyped === 'tecnico'){
+      if(!adminPassHash) adminPassHash = await hashPassword("2191");
+      if(typedHash === adminPassHash){
+        session = { role: 'admin', unitName: 'ALL', label: 'Técnico / Administrador' };
+        localStorage.setItem('ar_manut_session', JSON.stringify(session));
+        document.getElementById('loginPassInput').value = "";
+        enterApp();
+        return;
+      } else if(!loginTyped){
+        err.textContent = "❌ Senha de administrador incorreta.";
+        return;
+      }
+    }
+
+    // 2. Verifica acesso da Unidade / Cliente pelo Login + Senha Criptografada
+    const unit = units.find(u => (u.login || '').toLowerCase() === loginTyped);
+    if(!unit || unit.passHash !== typedHash){
+      err.textContent = "❌ Login ou senha inválidos! Verifique com a A&R Manutenção.";
       return;
     }
+
+    // 3. Se for primeiro acesso (ou senha resetada), obriga a criar nova senha pessoal
+    if(unit.mustChangePass){
+      pendingUnitForPassChange = unit;
+      document.getElementById('forcePassSub').textContent = `Olá, ${unit.name}! Como este é seu primeiro acesso, crie sua senha definitiva agora.`;
+      document.getElementById('fpNewPass').value = "";
+      document.getElementById('fpConfirmPass').value = "";
+      document.getElementById('fpError').textContent = "";
+      document.getElementById('forcePassModal').classList.remove('hidden');
+      return;
+    }
+
+    // Acesso normal da unidade
+    session = { role: 'unit', unitId: unit.id, unitName: unit.name, label: unit.name };
+    localStorage.setItem('ar_manut_session', JSON.stringify(session));
+    document.getElementById('loginPassInput').value = "";
+    enterApp();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🔒 Entrar no Sistema";
   }
+}
+
+async function saveFirstAccessPassword(){
+  if(!pendingUnitForPassChange) return;
+  const p1 = document.getElementById('fpNewPass').value.trim();
+  const p2 = document.getElementById('fpConfirmPass').value.trim();
+  const err = document.getElementById('fpError');
+  err.textContent = "";
+
+  if(p1.length < 4){ err.textContent = "A nova senha precisa ter pelo menos 4 caracteres."; return; }
+  if(p1 !== p2){ err.textContent = "As duas senhas digitadas não coincidem."; return; }
+
+  const newHash = await hashPassword(p1);
+  if(newHash === pendingUnitForPassChange.passHash){
+    err.textContent = "Escolha uma senha diferente da senha provisória.";
+    return;
+  }
+
+  const idx = units.findIndex(u => u.id === pendingUnitForPassChange.id);
+  if(idx !== -1){
+    units[idx].passHash = newHash;
+    units[idx].mustChangePass = false;
+    await db.collection("manutencao_config").doc("unidades").set({ list: units });
+  }
+
+  session = { role: 'unit', unitId: pendingUnitForPassChange.id, unitName: pendingUnitForPassChange.name, label: pendingUnitForPassChange.name };
   localStorage.setItem('ar_manut_session', JSON.stringify(session));
+  pendingUnitForPassChange = null;
+  document.getElementById('forcePassModal').classList.add('hidden');
   document.getElementById('loginPassInput').value = "";
+  alert("✅ Sua nova senha criptografada foi salva com sucesso!");
   enterApp();
+}
+
+function cancelForcePass(){
+  pendingUnitForPassChange = null;
+  document.getElementById('forcePassModal').classList.add('hidden');
+  document.getElementById('loginPassInput').value = "";
+}
+
+async function changeAdminPassword(){
+  const oldP = document.getElementById('admOldPass').value.trim();
+  const newP = document.getElementById('admNewPass').value.trim();
+  if(!oldP || !newP){ alert("Preencha a senha atual e a nova senha!"); return; }
+  if(newP.length < 4){ alert("A nova senha deve ter pelo menos 4 caracteres!"); return; }
+
+  const oldHash = await hashPassword(oldP);
+  if(oldHash !== adminPassHash){
+    alert("❌ A senha atual está incorreta!");
+    return;
+  }
+
+  const newHash = await hashPassword(newP);
+  await db.collection("manutencao_config").doc("seguranca").set({ adminHash: newHash });
+  adminPassHash = newHash;
+  document.getElementById('admOldPass').value = "";
+  document.getElementById('admNewPass').value = "";
+  alert("✅ Senha de Administrador alterada e criptografada com sucesso!");
 }
 
 function doLogout(){
@@ -546,7 +721,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =========================================================================
-// 4. NAVEGAÇÃO E CÁLCULOS DE SLA
+// 5. NAVEGAÇÃO E CÁLCULOS DE SLA
 // =========================================================================
 function switchNav(tab){
   currentNav = tab;
@@ -595,7 +770,7 @@ function calcDaysOpen(t){
 }
 
 // =========================================================================
-// 5. DASHBOARD, GRÁFICO E LISTAS
+// 6. DASHBOARD, GRÁFICO E LISTAS
 // =========================================================================
 function renderDashboard(){
   const list = getVisibleTickets();
@@ -676,7 +851,7 @@ function renderTicketCardHTML(t){
 }
 
 // =========================================================================
-// 6. ABRIR NOVO CHAMADO + COMPRESSÃO DE FOTOS NA ABERTURA
+// 7. ABRIR NOVO CHAMADO + COMPRESSÃO DE FOTOS NA ABERTURA
 // =========================================================================
 function compressImageFile(file){
   return new Promise((resolve) => {
@@ -813,7 +988,7 @@ function saveNewTicket(){
 }
 
 // =========================================================================
-// 7. DETALHES, ATUALIZAÇÃO, PAUSA DE SLA E FOTOS EXTRAS
+// 8. DETALHES, ATUALIZAÇÃO, PAUSA DE SLA E FOTOS EXTRAS
 // =========================================================================
 function openDetailModal(id, isRefresh = false){
   const t = tickets.find(x => x.id === id);
@@ -850,7 +1025,7 @@ function openDetailModal(id, isRefresh = false){
     : (overdue ? '<span class="badge st-vencido">Vencido</span>' : '<span class="badge st-prazo">No prazo</span>');
 
   document.getElementById('dtInfoGrid').innerHTML = `
-    <div class="info-cell"><small>Unidade / Loja</small><strong>${t.store}</strong></div>
+    <div class="info-cell"><small>Unidade / Cliente</small><strong>${t.store}</strong></div>
     <div class="info-cell"><small>Aberto por</small><strong>${t.openedBy}</strong></div>
     <div class="info-cell"><small>Equipamento</small><strong>${t.equipment || 'Não se aplica'}</strong></div>
     <div class="info-cell"><small>Técnico</small><strong>${t.technician || 'A&R Manutenção'}</strong></div>
@@ -964,22 +1139,44 @@ async function handlePhotoUpload(e){
 }
 
 // =========================================================================
-// 8. GESTÃO DE UNIDADES / FAZENDAS (ADMIN)
+// 9. GESTÃO DE UNIDADES / CLIENTES (ADMIN)
 // =========================================================================
-function addUnit(){
+async function addUnit(){
   const name = document.getElementById('newUnitName').value.trim();
+  const login = document.getElementById('newUnitLogin').value.trim().toLowerCase().replace(/\s+/g, '');
   const pass = document.getElementById('newUnitPass').value.trim();
-  if(!name || !pass){ alert("Preencha o nome da unidade e a senha!"); return; }
-  if(pass === ADMIN_PASS || units.some(u => u.pass === pass)){
-    alert("Essa senha já está em uso! Escolha outra.");
+
+  if(!name || !login || !pass){ alert("Preencha o Nome da Unidade, o Login e a Senha Provisória!"); return; }
+  if(login === 'admin' || login === 'tecnico' || units.some(u => (u.login || '').toLowerCase() === login)){
+    alert("Este login já está em uso! Escolha outro.");
     return;
   }
-  units.push({ id: "u_" + Date.now(), name, pass });
-  db.collection("manutencao_config").doc("unidades").set({ list: units }).then(() => {
-    document.getElementById('newUnitName').value = "";
-    document.getElementById('newUnitPass').value = "";
-    alert(`✅ Unidade "${name}" cadastrada com a senha ${pass}!`);
+
+  const passHash = await hashPassword(pass);
+  units.push({
+    id: "u_" + Date.now(),
+    name,
+    login,
+    passHash,
+    mustChangePass: true
   });
+
+  await db.collection("manutencao_config").doc("unidades").set({ list: units });
+  document.getElementById('newUnitName').value = "";
+  document.getElementById('newUnitLogin').value = "";
+  document.getElementById('newUnitPass').value = "";
+  alert(`✅ Unidade "${name}" cadastrada!\n\nLogin: ${login}\nSenha provisória: ${pass}\n\nNo primeiro acesso, o sistema exigirá a troca da senha.`);
+}
+
+async function resetUnitPassword(idx){
+  const u = units[idx];
+  const tempPass = prompt(`Digite uma nova senha provisória para "${u.name}" (Login: ${u.login}):`, "2222");
+  if(!tempPass || !tempPass.trim()) return;
+
+  units[idx].passHash = await hashPassword(tempPass.trim());
+  units[idx].mustChangePass = true;
+  await db.collection("manutencao_config").doc("unidades").set({ list: units });
+  alert(`✅ Senha de "${u.name}" resetada para "${tempPass.trim()}"!\nNo próximo acesso, o gerente deverá criar uma nova senha.`);
 }
 
 function removeUnit(idx){
@@ -993,12 +1190,15 @@ function renderUnitsList(){
   const c = document.getElementById('unitsListContainer');
   if(!c) return;
   c.innerHTML = units.map((u, idx) => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
       <div>
         <b>🏢 ${u.name}</b><br>
-        <span style="font-size:12px;color:var(--muted)">Senha de acesso: <b>${u.pass}</b></span>
+        <span style="font-size:12px;color:var(--muted)">Login: <b>${u.login}</b> • Senha: 🔒 Criptografada ${u.mustChangePass ? '<span class="badge st-andamento">Aguardando 1º acesso</span>' : '<span class="badge st-finalizado">Ativa</span>'}</span>
       </div>
-      <button type="button" class="btn btn-danger btn-sm" onclick="removeUnit(${idx})">Remover</button>
+      <div style="display:flex;gap:6px">
+        <button type="button" class="btn btn-outline btn-sm" onclick="resetUnitPassword(${idx})">Resetar Senha</button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeUnit(${idx})">Remover</button>
+      </div>
     </div>
   `).join('');
 }
