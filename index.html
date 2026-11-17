@@ -1375,7 +1375,7 @@
       </div>
     </div>
 
-    <!-- MODAL CONFERÊNCIA PARA CRIAR NOTA DE SERVIÇO (COM ANEXO DE NOTA FISCAL) -->
+    <!-- MODAL CONFERÊNCIA PARA CRIAR NOTA DE SERVIÇO -->
     <div id="create-nota-modal" class="modal-overlay" onclick="closeModalById('create-nota-modal', event)">
       <div class="modal-box" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1450,7 +1450,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ================= CONTROLE DA SPLASH SCREEN =================
     window.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         const splash = document.getElementById("splash-screen");
@@ -1674,7 +1673,6 @@
       return `há ${days} dia(s)`;
     }
 
-    // ================= COMPRESSÃO NATIVA DE FOTOS =================
     function handlePhotoCompress(event, type) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1727,7 +1725,6 @@
       }
     }
 
-    // ================= CAMADA DE DADOS (FIRESTORE) =================
     async function fetchCollection(col) {
       try {
         const snap = await db.collection(col).get();
@@ -1919,7 +1916,10 @@
 
       const lojaNome = selectedList[0].loja;
       const totalGeral = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
-      const numeroNota = "NS-" + String(Date.now()).slice(-5);
+      
+      // GERAÇÃO DE NÚMERO SEQUENCIAL (NS:0001, NS:0002, etc.)
+      const nextSeq = cachedNotas.length + 1;
+      const numeroNota = "NS:" + String(nextSeq).padStart(4, "0");
 
       const itensNota = selectedList.map(c => ({
         ticketId: c.id,
