@@ -280,7 +280,7 @@
       display: none;
       min-height: 100vh;
       background: var(--bg-light);
-      padding-bottom: 85px;
+      padding-bottom: 95px;
     }
 
     .topbar {
@@ -611,6 +611,12 @@
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 12px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .item-card.selected-ticket {
+      border: 2px solid var(--navy);
+      background: #FEFCE8;
     }
 
     .item-card.urgent-card {
@@ -651,6 +657,16 @@
     .badge-st-andamento { background: #EDE9FE; color: #6D28D9; }
     .badge-st-finalizados { background: #D1FAE5; color: #047857; }
     .badge-st-nao_atendidos { background: #FEE2E2; color: #B91C1C; }
+    .badge-price { background: #0F294A; color: #FFD700; }
+    .badge-nota-ok { background: #DCFCE7; color: #166534; }
+    .badge-nota-open { background: #FEF9C3; color: #854D0E; }
+
+    .ticket-select-checkbox {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--navy);
+      cursor: pointer;
+    }
 
     .item-title {
       font-size: 17px;
@@ -676,6 +692,18 @@
       color: #065F46;
       font-size: 13px;
       font-weight: 700;
+    }
+
+    .price-pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: #1E3A8A;
+      font-size: 13px;
+      font-weight: 800;
     }
 
     .ticket-photo {
@@ -721,8 +749,31 @@
     .btn-view { background: var(--info); color: #FFFFFF; }
     .btn-status { background: var(--navy); color: #FFFFFF; }
     .btn-done { background: var(--success); color: #FFFFFF; }
+    .btn-gold { background: var(--yellow); color: var(--navy); font-weight: 800; }
     .btn-unattended { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
     .btn-del { background: #FEE2E2; color: #DC2626; }
+
+    /* Barra Flutuante de Agrupamento em Nota de Serviço */
+    .selection-floating-bar {
+      position: fixed;
+      bottom: 66px;
+      left: 12px;
+      right: 12px;
+      max-width: 700px;
+      margin: 0 auto;
+      background: var(--navy);
+      color: #FFFFFF;
+      border: 2px solid var(--yellow);
+      border-radius: 18px;
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 95;
+      box-shadow: 0 10px 28px rgba(15, 41, 74, 0.45);
+      animation: slideUpFade 0.25s ease forwards;
+    }
 
     /* Recent list on dashboard */
     .recent-row {
@@ -736,27 +787,164 @@
     }
     .recent-row:last-child { border-bottom: none; }
 
-    /* Modal Detalhes do Chamado */
+    /* Modal Detalhes / Precificação / Recibo PDF */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 41, 74, 0.65);
+      background: rgba(15, 41, 74, 0.72);
       z-index: 300;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 14px;
     }
 
     .modal-box {
       background: #FFFFFF;
       width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
+      max-width: 560px;
+      max-height: 92vh;
       overflow-y: auto;
       border-radius: 22px;
-      padding: 22px;
+      padding: 20px;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+    }
+
+    /* ================= LAYOUT DA NOTINHA / RECIBO A&R (AZUL E BRANCO) ================= */
+    .receipt-sheet {
+      background: var(--navy);
+      border: 3px solid var(--navy);
+      border-radius: 18px;
+      overflow: hidden;
+      color: #FFFFFF;
+      box-shadow: 0 12px 30px rgba(15, 41, 74, 0.25);
+    }
+
+    .receipt-header {
+      background: var(--navy);
+      padding: 18px 16px;
+      text-align: center;
+      border-bottom: 3px solid var(--yellow);
+    }
+
+    .receipt-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .receipt-logo {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      border: 2px solid var(--yellow);
+      object-fit: cover;
+      background: var(--navy);
+    }
+
+    .receipt-company {
+      text-align: left;
+    }
+
+    .receipt-company-name {
+      font-size: 16px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 0.3px;
+    }
+
+    .receipt-company-cnpj {
+      font-size: 11px;
+      color: #CBD5E1;
+      margin-top: 2px;
+    }
+
+    .receipt-slogan {
+      display: inline-block;
+      background: var(--yellow);
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.6px;
+      margin-top: 4px;
+    }
+
+    /* Centro Branco da Notinha */
+    .receipt-body-white {
+      background: #FFFFFF;
+      color: #1E293B;
+      padding: 18px 16px;
+      margin: 0 8px;
+      border-radius: 12px;
+    }
+
+    .receipt-meta-grid {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1.5px dashed #CBD5E1;
+      font-size: 12px;
+    }
+
+    .receipt-service-item {
+      border-bottom: 1px solid #E2E8F0;
+      padding: 10px 0;
+    }
+
+    .receipt-service-item:last-child {
+      border-bottom: none;
+    }
+
+    .receipt-service-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      font-weight: 800;
+      color: var(--navy);
+      font-size: 13px;
+    }
+
+    .receipt-service-desc {
+      font-size: 12px;
+      color: #475569;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .receipt-total-box {
+      background: #F1F5F9;
+      border: 1.5px solid var(--navy);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .receipt-footer {
+      background: var(--navy);
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 11px;
+      color: #E2E8F0;
+    }
+
+    .signature-line {
+      border-top: 1px solid rgba(255, 255, 255, 0.45);
+      width: 75%;
+      margin: 22px auto 4px;
+      padding-top: 4px;
+      font-size: 11px;
+      color: #CBD5E1;
     }
 
     /* Barra Inferior */
@@ -794,6 +982,27 @@
     }
 
     .hidden { display: none !important; }
+
+    /* Estilos de Impressão / PDF Limpo */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-receipt-area, #printable-receipt-area * {
+        visibility: visible;
+      }
+      #printable-receipt-area {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -885,7 +1094,7 @@
         <div class="drawer-header">
           <img src="logo.png" alt="A&R" onerror="this.style.display='none'" />
           <div style="font-weight:800;font-size:16px;">A&R Manutenção</div>
-          <div style="font-size:11px;opacity:0.8;">Gestão Técnica & Preventiva</div>
+          <div style="font-size:11px;opacity:0.8;">Gestão Técnica & Financeira</div>
         </div>
         <nav class="drawer-nav">
           <div class="nav-section">Principal</div>
@@ -897,6 +1106,9 @@
           <div class="nav-item" onclick="navigate('andamento')">⏳ Em andamento</div>
           <div class="nav-item" onclick="navigate('finalizados')">✅ Finalizados</div>
           <div class="nav-item" onclick="navigate('nao_atendidos')">🚫 Não atendidos</div>
+
+          <div class="nav-section">Faturamento</div>
+          <div class="nav-item" onclick="navigate('notas')">🧾 Notas de Serviço</div>
 
           <div id="admin-menu">
             <div class="nav-section">Manutenção & Gestão</div>
@@ -960,18 +1172,18 @@
             <div class="stat-link">Ver detalhes →</div>
           </div>
 
-          <div class="stat-card" onclick="navigate('nao_atendidos')" style="grid-column: span 2;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <div class="stat-icon-box" style="background:#FEE2E2;">🚫</div>
-                <div class="stat-label">Não atendidos</div>
-                <div class="stat-value" id="count-nao-atendidos" style="color:var(--danger);">0</div>
-                <div class="stat-link">Ver detalhes →</div>
-              </div>
-              <div style="font-size:12px;color:var(--muted);max-width:175px;text-align:right;">
-                Chamados encerrados sem atendimento ou cancelados
-              </div>
-            </div>
+          <div class="stat-card" onclick="navigate('nao_atendidos')">
+            <div class="stat-icon-box" style="background:#FEE2E2;">🚫</div>
+            <div class="stat-label">Não atendidos</div>
+            <div class="stat-value" id="count-nao-atendidos" style="color:var(--danger);">0</div>
+            <div class="stat-link">Ver detalhes →</div>
+          </div>
+
+          <div class="stat-card" onclick="navigate('notas')" style="border: 1.5px solid var(--navy); background: #FFFDF2;">
+            <div class="stat-icon-box" style="background:var(--navy); color:var(--yellow);">🧾</div>
+            <div class="stat-label" style="color:var(--navy);">Notas de Serviço</div>
+            <div class="stat-value" id="count-notas" style="color:var(--navy);">0</div>
+            <div class="stat-link">Recibos e Valores →</div>
           </div>
         </div>
 
@@ -1041,8 +1253,25 @@
       <section id="sec-lista" class="hidden">
         <div class="section-card">
           <div class="section-title" id="lista-titulo">Chamados</div>
+          <div id="finalizados-hint" class="hidden" style="background:#EFF6FF;border:1px solid #BFDBFE;color:#1E3A8A;padding:12px;border-radius:12px;font-size:13px;margin-bottom:14px;">
+            💡 <strong>Agrupar em Nota de Serviço:</strong> Defina os valores em cada serviço finalizado e marque as caixinhas dos chamados da mesma loja (ex: 4 serviços do Castro Supermercado) para gerar uma única notinha consolidada.
+          </div>
           <button class="btn-primary" style="margin-bottom:14px;" onclick="navigate('novo-chamado')">+ Novo chamado</button>
           <div id="chamados-container"></div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO NOTAS DE SERVIÇO -->
+      <section id="sec-notas" class="hidden">
+        <div class="section-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <div class="section-title" style="margin-bottom:0;">🧾 Notas de Serviço</div>
+            <button id="btn-new-nota-shortcut" class="btn-sm btn-gold" onclick="navigate('finalizados')">+ Selecionar Serviços Finalizados</button>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">
+            Notas consolidadas de prestação de serviço da <strong>A&R Manutenção e Instalação LTDA</strong>.
+          </p>
+          <div id="notas-container"></div>
         </div>
       </section>
 
@@ -1079,11 +1308,11 @@
           <form id="form-loja">
             <div class="form-group">
               <label>Nome da Loja / Unidade</label>
-              <input type="text" id="lj-nome" class="form-control" placeholder="Ex: Loja 01 - Centro" required />
+              <input type="text" id="lj-nome" class="form-control" placeholder="Ex: Castro Supermercado" required />
             </div>
             <div class="form-group">
               <label>Usuário de Acesso (Login)</label>
-              <input type="text" id="lj-user" class="form-control" placeholder="Ex: loja01" required />
+              <input type="text" id="lj-user" class="form-control" placeholder="Ex: castro" required />
             </div>
             <div class="form-group">
               <label>Senha Provisória (Trocará no 1º acesso)</label>
@@ -1099,14 +1328,88 @@
       </section>
     </main>
 
+    <!-- BARRA FLUTUANTE PARA GERAR NOTA DE SERVIÇO COM VÁRIOS CHAMADOS -->
+    <div id="selection-floating-bar" class="selection-floating-bar">
+      <div>
+        <div id="sel-bar-count" style="font-size:13px;font-weight:800;color:var(--yellow);">0 serviços selecionados</div>
+        <div id="sel-bar-total" style="font-size:12px;color:#E2E8F0;">Total: R$ 0,00</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-sm" style="background:rgba(255,255,255,0.15);color:#FFF;" onclick="clearTicketSelection()">Limpar</button>
+        <button class="btn-sm btn-gold" onclick="openCreateNotaModal()">🧾 Gerar Nota</button>
+      </div>
+    </div>
+
     <!-- MODAL DE VISUALIZAÇÃO DO CHAMADO -->
-    <div id="ticket-modal" class="modal-overlay" onclick="closeTicketModal(event)">
+    <div id="ticket-modal" class="modal-overlay" onclick="closeModalById('ticket-modal', event)">
       <div class="modal-box" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <strong style="font-size:17px;color:var(--navy);">Detalhes do Chamado</strong>
-          <button onclick="closeTicketModal()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+          <button onclick="closeModalById('ticket-modal')" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
         </div>
         <div id="ticket-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- MODAL DEFINIR VALOR DO SERVIÇO FINALIZADO -->
+    <div id="price-modal" class="modal-overlay" onclick="closeModalById('price-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;color:var(--navy);">💰 Definir Valor do Serviço</strong>
+          <button onclick="closeModalById('price-modal')" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-ticket-price">
+          <input type="hidden" id="price-ticket-id" />
+          <div id="price-ticket-title" style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;background:#F8FAFC;padding:10px;border-radius:10px;"></div>
+          <div class="form-group">
+            <label>Valor Mão de Obra (R$)</label>
+            <input type="number" step="0.01" min="0" id="price-labor" class="form-control" placeholder="Ex: 150.00" required />
+          </div>
+          <div class="form-group">
+            <label>Valor Peças / Materiais (R$)</label>
+            <input type="number" step="0.01" min="0" id="price-parts" class="form-control" placeholder="Ex: 45.00 (ou 0)" value="0" />
+          </div>
+          <div class="form-group">
+            <label>Observação Técnica / Peças Trocadas (sai na nota)</label>
+            <textarea id="price-notes" class="form-control" rows="2" placeholder="Ex: Troca de sensor NTC e regulagem de temperatura..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Salvar Valor no Chamado</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL CONFERÊNCIA PARA CRIAR NOTA DE SERVIÇO CONSOLIDADA -->
+    <div id="create-nota-modal" class="modal-overlay" onclick="closeModalById('create-nota-modal', event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:17px;color:var(--navy);">🧾 Emitir Nota de Serviço Única</strong>
+          <button onclick="closeModalById('create-nota-modal')" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+        <form id="form-create-nota">
+          <div id="nota-preview-summary" style="margin-bottom:14px;"></div>
+          <div class="form-group">
+            <label>Chave PIX / Forma de Pagamento (aparece no rodapé)</label>
+            <input type="text" id="nota-pix" class="form-control" placeholder="Ex: CNPJ 62.659.358/0001-88 (A&R Manutenção)" value="CNPJ 62.659.358/0001-88" />
+          </div>
+          <div class="form-group">
+            <label>Observação Geral da Nota (Opcional)</label>
+            <input type="text" id="nota-obs" class="form-control" placeholder="Ex: Fechamento semanal de manutenção preventiva/corretiva" />
+          </div>
+          <button type="submit" class="btn-primary">✅ Confirmar e Gerar Notinha</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL VISUALIZAÇÃO / PDF DA NOTINHA (FOLHA AZUL E CENTRO BRANCO) -->
+    <div id="receipt-pdf-modal" class="modal-overlay" onclick="closeModalById('receipt-pdf-modal', event)">
+      <div class="modal-box" style="max-width:540px;padding:14px;" onclick="event.stopPropagation()">
+        <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+          <button class="btn-sm btn-status" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+          <div id="receipt-admin-actions" style="display:flex;gap:6px;"></div>
+          <button onclick="closeModalById('receipt-pdf-modal')" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;">✕</button>
+        </div>
+
+        <div id="printable-receipt-area"></div>
       </div>
     </div>
 
@@ -1118,11 +1421,11 @@
       <div class="bottom-item" onclick="navigate('abertos')">
         <span class="bottom-icon">🎫</span>Em aberto
       </div>
-      <div class="bottom-item" onclick="navigate('andamento')">
-        <span class="bottom-icon">⏳</span>Andamento
-      </div>
       <div class="bottom-item" onclick="navigate('finalizados')">
         <span class="bottom-icon">✅</span>Finalizados
+      </div>
+      <div class="bottom-item" onclick="navigate('notas')">
+        <span class="bottom-icon">🧾</span>Notas
       </div>
     </nav>
   </div>
@@ -1167,7 +1470,14 @@
     let currentFilter = "abertos";
     let compressedPhotoBase64 = "";
     let cachedChamados = [];
+    let cachedNotas = [];
+    let selectedTicketIds = new Set();
     let lastKnownOpenCount = null;
+
+    function formatBRL(val) {
+      const num = parseFloat(val) || 0;
+      return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
 
     function getLocal(key) {
       return JSON.parse(localStorage.getItem("ar_" + key) || "[]");
@@ -1262,6 +1572,7 @@
 
       if (currentUser.role !== "admin") {
         document.getElementById("admin-menu").classList.add("hidden");
+        document.getElementById("btn-new-nota-shortcut").classList.add("hidden");
       }
 
       if ("Notification" in window && Notification.permission === "default") {
@@ -1283,14 +1594,20 @@
       document.getElementById("drawer").classList.remove("open");
       document.getElementById("drawer-overlay").style.display = "none";
 
-      ["sec-dashboard", "sec-novo-chamado", "sec-lista", "sec-equipamentos", "sec-lojas"].forEach(id => {
+      ["sec-dashboard", "sec-novo-chamado", "sec-lista", "sec-notas", "sec-equipamentos", "sec-lojas"].forEach(id => {
         document.getElementById(id).classList.add("hidden");
       });
+
+      if (page !== "finalizados") {
+        document.getElementById("selection-floating-bar").style.display = "none";
+      }
 
       if (page === "dashboard") {
         document.getElementById("sec-dashboard").classList.remove("hidden");
       } else if (page === "novo-chamado") {
         document.getElementById("sec-novo-chamado").classList.remove("hidden");
+      } else if (page === "notas") {
+        document.getElementById("sec-notas").classList.remove("hidden");
       } else if (["abertos", "visualizado", "andamento", "finalizados", "nao_atendidos", "urgentes", "todos"].includes(page)) {
         currentFilter = page;
         const titles = {
@@ -1303,6 +1620,12 @@
           todos: "Todos os Chamados"
         };
         document.getElementById("lista-titulo").textContent = titles[page];
+        const hint = document.getElementById("finalizados-hint");
+        if (page === "finalizados" && currentUser.role === "admin") {
+          hint.classList.remove("hidden");
+        } else {
+          hint.classList.add("hidden");
+        }
         document.getElementById("sec-lista").classList.remove("hidden");
       } else if (page === "equipamentos") {
         document.getElementById("sec-equipamentos").classList.remove("hidden");
@@ -1406,7 +1729,8 @@
       item.createdAt = new Date().toLocaleString("pt-BR");
       item.timestamp = Date.now();
       try {
-        await db.collection(col).add(item);
+        const docRef = await db.collection(col).add(item);
+        item.id = docRef.id;
       } catch (e) {
         const list = getLocal(col);
         item.id = Date.now().toString();
@@ -1414,6 +1738,7 @@
         setLocal(col, list);
       }
       refreshAll();
+      return item.id;
     }
 
     async function updateDocItem(col, id, fields) {
@@ -1462,7 +1787,269 @@
         const list = getLocal(col).filter(i => i.id !== id);
         setLocal(col, list);
       }
-      closeTicketModal();
+      closeModalById("ticket-modal");
+      refreshAll();
+    }
+
+    // ================= PRECIFICAÇÃO E SELEÇÃO DE CHAMADOS FINALIZADOS =================
+    function openPriceModal(id) {
+      const ticket = cachedChamados.find(c => c.id === id);
+      if (!ticket) return;
+      document.getElementById("price-ticket-id").value = ticket.id;
+      document.getElementById("price-ticket-title").textContent = `${ticket.loja} • ${ticket.titulo}`;
+      document.getElementById("price-labor").value = ticket.valorMaoDeObra || "";
+      document.getElementById("price-parts").value = ticket.valorPecas || 0;
+      document.getElementById("price-notes").value = ticket.obsTecnica || "";
+      document.getElementById("price-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-ticket-price").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("price-ticket-id").value;
+      const labor = parseFloat(document.getElementById("price-labor").value) || 0;
+      const parts = parseFloat(document.getElementById("price-parts").value) || 0;
+      const total = labor + parts;
+      const notes = document.getElementById("price-notes").value.trim();
+
+      await updateDocItem("chamados", id, {
+        valorMaoDeObra: labor,
+        valorPecas: parts,
+        valorTotal: total,
+        obsTecnica: notes
+      });
+
+      closeModalById("price-modal");
+      if (document.getElementById("ticket-modal").style.display === "flex") {
+        viewTicket(id);
+      }
+    });
+
+    function toggleTicketSelection(id) {
+      if (selectedTicketIds.has(id)) {
+        selectedTicketIds.delete(id);
+      } else {
+        selectedTicketIds.add(id);
+      }
+      updateSelectionBar();
+      refreshAll();
+    }
+
+    function clearTicketSelection() {
+      selectedTicketIds.clear();
+      updateSelectionBar();
+      refreshAll();
+    }
+
+    function updateSelectionBar() {
+      const bar = document.getElementById("selection-floating-bar");
+      if (currentFilter !== "finalizados" || currentUser.role !== "admin" || selectedTicketIds.size === 0) {
+        bar.style.display = "none";
+        return;
+      }
+
+      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
+      const sum = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
+
+      document.getElementById("sel-bar-count").textContent =
+        selectedList.length === 1 ? "1 serviço selecionado" : `${selectedList.length} serviços selecionados`;
+      document.getElementById("sel-bar-total").textContent = `Total acumulado: ${formatBRL(sum)}`;
+      bar.style.display = "flex";
+    }
+
+    function openCreateNotaModal() {
+      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
+      if (selectedList.length === 0) return;
+
+      const lojasUnicas = [...new Set(selectedList.map(c => c.loja))];
+      if (lojasUnicas.length > 1) {
+        alert("Selecione apenas serviços da MESMA loja para gerar uma nota de serviço única. Lojas marcadas: " + lojasUnicas.join(", "));
+        return;
+      }
+
+      const lojaNome = lojasUnicas[0];
+      const total = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
+
+      const itemsHtml = selectedList.map((c, idx) => `
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--navy);">
+            <span>${idx + 1}. ${c.titulo}</span>
+            <span>${formatBRL(c.valorTotal || 0)}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">
+            ${c.obsTecnica || c.descricao}
+          </div>
+          ${!c.valorTotal ? `<div style="font-size:11px;color:var(--danger);font-weight:700;margin-top:4px;">⚠️ Sem valor definido (será R$ 0,00 se não preencher antes)</div>` : ""}
+        </div>
+      `).join("");
+
+      document.getElementById("nota-preview-summary").innerHTML = `
+        <div style="background:var(--navy);color:#FFF;padding:12px 14px;border-radius:12px;margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--yellow);font-weight:800;">CLIENTE / UNIDADE</div>
+          <div style="font-size:17px;font-weight:800;">${lojaNome}</div>
+          <div style="font-size:13px;margin-top:4px;">${selectedList.length} serviço(s) agrupado(s) • <strong>Total: ${formatBRL(total)}</strong></div>
+        </div>
+        ${itemsHtml}
+      `;
+
+      document.getElementById("create-nota-modal").style.display = "flex";
+    }
+
+    document.getElementById("form-create-nota").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
+      if (selectedList.length === 0) return;
+
+      const lojaNome = selectedList[0].loja;
+      const totalGeral = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
+      const numeroNota = "NS-" + String(Date.now()).slice(-5);
+
+      const itensNota = selectedList.map(c => ({
+        ticketId: c.id,
+        titulo: c.titulo,
+        equipamento: c.equipamento,
+        motivo: c.descricao,
+        servicoRealizado: c.obsTecnica || c.descricao,
+        dataFinalizacao: c.finishedAt || c.createdAt,
+        duracao: c.durationMs ? formatDuration(c.durationMs) : "-",
+        valorMaoDeObra: parseFloat(c.valorMaoDeObra) || 0,
+        valorPecas: parseFloat(c.valorPecas) || 0,
+        valorTotal: parseFloat(c.valorTotal) || 0
+      }));
+
+      const notaId = await addItem("notas_servico", {
+        numero: numeroNota,
+        loja: lojaNome,
+        itens: itensNota,
+        valorTotal: totalGeral,
+        pix: document.getElementById("nota-pix").value.trim(),
+        observacao: document.getElementById("nota-obs").value.trim(),
+        statusPagamento: "em_aberto"
+      });
+
+      for (const c of selectedList) {
+        await updateDocItem("chamados", c.id, {
+          notaId: notaId,
+          notaNumero: numeroNota
+        });
+      }
+
+      selectedTicketIds.clear();
+      updateSelectionBar();
+      closeModalById("create-nota-modal");
+      navigate("notas");
+      setTimeout(() => viewNotaReceipt(notaId), 250);
+    });
+
+    async function toggleNotaStatus(notaId, newStatus) {
+      await updateDocItem("notas_servico", notaId, {
+        statusPagamento: newStatus,
+        paidAt: newStatus === "pago" ? new Date().toLocaleString("pt-BR") : ""
+      });
+      if (document.getElementById("receipt-pdf-modal").style.display === "flex") {
+        viewNotaReceipt(notaId);
+      }
+    }
+
+    function viewNotaReceipt(notaId) {
+      const nota = cachedNotas.find(n => n.id === notaId);
+      if (!nota) return;
+
+      const isPago = nota.statusPagamento === "pago";
+
+      const adminButtons = currentUser.role === "admin" ? `
+        ${!isPago
+          ? `<button class="btn-sm btn-done" onclick="toggleNotaStatus('${nota.id}', 'pago')">✅ Marcar como Pago</button>`
+          : `<button class="btn-sm btn-unattended" onclick="toggleNotaStatus('${nota.id}', 'em_aberto')">↩️ Reabrir Pagamento</button>`
+        }
+        <button class="btn-sm btn-del" onclick="deleteNota('${nota.id}')">🗑️</button>
+      ` : "";
+
+      document.getElementById("receipt-admin-actions").innerHTML = adminButtons;
+
+      const itensHtml = (nota.itens || []).map((it, idx) => `
+        <div class="receipt-service-item">
+          <div class="receipt-service-top">
+            <span>${idx + 1}. ${it.titulo}</span>
+            <span>${formatBRL(it.valorTotal)}</span>
+          </div>
+          <div class="receipt-service-desc">
+            <strong>Equipamento:</strong> ${it.equipamento} • <strong>Concluído:</strong> ${it.dataFinalizacao || "-"} (${it.duracao})<br/>
+            <strong>Motivo / Serviço executado:</strong> ${it.servicoRealizado}
+            ${(it.valorPecas > 0) ? `<br/><em>(Mão de obra: ${formatBRL(it.valorMaoDeObra)} + Peças: ${formatBRL(it.valorPecas)})</em>` : ""}
+          </div>
+        </div>
+      `).join("");
+
+      document.getElementById("printable-receipt-area").innerHTML = `
+        <div class="receipt-sheet">
+          <div class="receipt-header">
+            <div class="receipt-header-top">
+              <img src="logo.png" class="receipt-logo" alt="A&R" onerror="this.style.display='none'" />
+              <div class="receipt-company">
+                <div class="receipt-company-name">A&R MANUTENÇÃO E INSTALAÇÃO LTDA</div>
+                <div class="receipt-company-cnpj">CNPJ: 62.659.358/0001-88 • Cláudio - MG</div>
+                <div class="receipt-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="receipt-body-white">
+            <div style="text-align:center;font-weight:900;font-size:15px;color:var(--navy);margin-bottom:10px;text-transform:uppercase;">
+              NOTA DE PRESTAÇÃO DE SERVIÇO • ${nota.numero}
+            </div>
+
+            <div class="receipt-meta-grid">
+              <div>
+                <div style="color:#64748B;font-size:11px;font-weight:700;">CLIENTE / UNIDADE</div>
+                <div style="font-size:15px;font-weight:900;color:var(--navy);">${nota.loja}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="color:#64748B;font-size:11px;font-weight:700;">EMISSÃO</div>
+                <div style="font-weight:800;">${nota.createdAt || "-"}</div>
+                <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}" style="margin-top:4px;display:inline-block;">
+                  ${isPago ? '✅ PAGO' : '⏳ AGUARDANDO PAGAMENTO'}
+                </span>
+              </div>
+            </div>
+
+            <div style="font-size:11px;font-weight:800;color:#64748B;text-transform:uppercase;margin-bottom:4px;">
+              Discriminação dos Serviços Executados (${(nota.itens || []).length})
+            </div>
+
+            ${itensHtml}
+
+            ${nota.observacao ? `
+              <div style="margin-top:10px;padding:8px 10px;background:#FFFBEB;border-radius:8px;font-size:12px;color:#92400E;">
+                <strong>Obs.:</strong> ${nota.observacao}
+              </div>
+            ` : ""}
+
+            <div class="receipt-total-box">
+              <span style="font-size:14px;font-weight:900;color:var(--navy);">VALOR TOTAL DOS SERVIÇOS</span>
+              <span style="font-size:20px;font-weight:900;color:var(--navy);">${formatBRL(nota.valorTotal)}</span>
+            </div>
+          </div>
+
+          <div class="receipt-footer">
+            ${nota.pix ? `<div style="margin-bottom:6px;color:var(--yellow);font-weight:800;">CHAVE PIX PARA PAGAMENTO: ${nota.pix}</div>` : ""}
+            <div>Obrigado pela confiança! Garantia técnica A&R Manutenção.</div>
+            <div class="signature-line">A&R Manutenção e Instalação LTDA / Assinatura Cliente</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("receipt-pdf-modal").style.display = "flex";
+    }
+
+    async function deleteNota(notaId) {
+      if (!confirm("Deseja excluir esta Nota de Serviço?")) return;
+      try {
+        await db.collection("notas_servico").doc(notaId).delete();
+      } catch (e) {
+        const list = getLocal("notas_servico").filter(n => n.id !== notaId);
+        setLocal("notas_servico", list);
+      }
+      closeModalById("receipt-pdf-modal");
       refreshAll();
     }
 
@@ -1471,7 +2058,6 @@
       let ticket = cachedChamados.find(c => c.id === id);
       if (!ticket) return;
 
-      // Ao clicar para abrir um chamado em aberto, técnico move automaticamente para 'visualizado'
       if (currentUser.role === "admin" && ticket.status === "abertos") {
         await updateStatus(id, "visualizado");
         ticket = cachedChamados.find(c => c.id === id) || { ...ticket, status: "visualizado" };
@@ -1494,6 +2080,13 @@
         </div>
       ` : "";
 
+      const financialHtml = (ticket.status === "finalizados" && ticket.valorTotal > 0) ? `
+        <div class="price-pill" style="display:block;margin-top:10px;">
+          🧾 Valor do Serviço: <strong>${formatBRL(ticket.valorTotal)}</strong>
+          ${ticket.notaNumero ? `<br/>Vinculado à Nota: <strong>${ticket.notaNumero}</strong>` : ""}
+        </div>
+      ` : "";
+
       const actionsHtml = currentUser.role === "admin" ? `
         <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
           ${(ticket.status === "visualizado") ? `
@@ -1501,6 +2094,9 @@
           ` : ""}
           ${ticket.status === "andamento" ? `
             <button class="btn-sm btn-done" onclick="updateStatus('${ticket.id}', 'finalizados')">✅ Finalizar Chamado</button>
+          ` : ""}
+          ${ticket.status === "finalizados" ? `
+            <button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Definir / Editar Valor</button>
           ` : ""}
           ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `
             <button class="btn-sm btn-unattended" onclick="updateStatus('${ticket.id}', 'nao_atendidos')">🚫 Não Atendido</button>
@@ -1529,6 +2125,7 @@
         </div>
         <p style="font-size:14px;color:var(--text);background:#F8FAFC;padding:12px;border-radius:12px;border:1px solid var(--border);">${ticket.descricao}</p>
         ${durationHtml}
+        ${financialHtml}
         ${ticket.foto ? `<img src="${ticket.foto}" class="ticket-photo" alt="Foto do chamado" onclick="window.open(this.src)" />` : ""}
         ${actionsHtml}
       `;
@@ -1536,9 +2133,9 @@
       document.getElementById("ticket-modal").style.display = "flex";
     }
 
-    function closeTicketModal(e) {
-      if (!e || e.target.id === "ticket-modal") {
-        document.getElementById("ticket-modal").style.display = "none";
+    function closeModalById(id, e) {
+      if (!e || e.target.id === id) {
+        document.getElementById(id).style.display = "none";
       }
     }
 
@@ -1605,14 +2202,18 @@
       const lojas = await fetchCollection("lojas");
       const equipamentos = await fetchCollection("equipamentos");
       let chamados = await fetchCollection("chamados");
+      let notas = await fetchCollection("notas_servico");
 
       chamados.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      notas.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
       if (currentUser.role !== "admin") {
         chamados = chamados.filter(c => c.loja === currentUser.loja);
+        notas = notas.filter(n => n.loja === currentUser.loja);
       }
 
       cachedChamados = chamados;
+      cachedNotas = notas;
 
       const abertosList = chamados.filter(c => c.status === "abertos");
       const visualizadoList = chamados.filter(c => c.status === "visualizado");
@@ -1641,6 +2242,7 @@
       document.getElementById("count-andamento").textContent = andamentoList.length;
       document.getElementById("count-finalizados").textContent = finalizadosList.length;
       document.getElementById("count-nao-atendidos").textContent = naoAtendidosList.length;
+      document.getElementById("count-notas").textContent = notas.length;
 
       // Banner Dedicado de Chamado Urgente (Abaixo do botão Novo Chamado)
       const urgentesAtivos = chamados.filter(c =>
@@ -1712,12 +2314,22 @@
       }
 
       const chContainer = document.getElementById("chamados-container");
-      chContainer.innerHTML = filtrados.length ? filtrados.map(c => `
-        <div class="item-card ${c.prioridade === 'Urgente' && c.status !== 'finalizados' ? 'urgent-card' : ''}">
+      chContainer.innerHTML = filtrados.length ? filtrados.map(c => {
+        const isFinalizado = c.status === "finalizados";
+        const isSelected = selectedTicketIds.has(c.id);
+        const showCheckbox = isFinalizado && currentUser.role === "admin";
+
+        return `
+        <div class="item-card ${c.prioridade === 'Urgente' && !isFinalizado ? 'urgent-card' : ''} ${isSelected ? 'selected-ticket' : ''}">
           <div class="item-header">
             <div class="badge-group">
+              ${showCheckbox ? `
+                <input type="checkbox" class="ticket-select-checkbox" ${isSelected ? "checked" : ""} onchange="toggleTicketSelection('${c.id}')" title="Selecionar para Nota de Serviço" />
+              ` : ""}
               <span class="badge ${getPriorityBadgeClass(c.prioridade)}">${c.prioridade}</span>
               <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
+              ${isFinalizado && c.valorTotal > 0 ? `<span class="badge badge-price">${formatBRL(c.valorTotal)}</span>` : ""}
+              ${c.notaNumero ? `<span class="badge badge-nota-ok">🧾 ${c.notaNumero}</span>` : ""}
             </div>
             <span class="badge badge-status">${c.loja}</span>
           </div>
@@ -1727,7 +2339,7 @@
             ${c.finishedAt ? `<br/>Finalizado em: ${c.finishedAt}` : ""}
           </div>
           <p style="font-size:14px;color:var(--text);">${c.descricao}</p>
-          ${c.status === "finalizados" && c.durationMs !== undefined ? `
+          ${isFinalizado && c.durationMs !== undefined ? `
             <div class="duration-pill">⏱️ Duração: <strong>${formatDuration(c.durationMs)}</strong></div>
           ` : ""}
           ${c.foto ? `<img src="${c.foto}" class="ticket-photo" alt="Foto do chamado" onclick="viewTicket('${c.id}')" />` : ""}
@@ -1736,12 +2348,47 @@
             ${currentUser.role === "admin" ? `
               ${(c.status === "visualizado") ? `<button class="btn-sm btn-status" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar Chamado</button>` : ""}
               ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="updateStatus('${c.id}', 'finalizados')">✅ Finalizar</button>` : ""}
+              ${isFinalizado ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 ${c.valorTotal > 0 ? 'Editar Valor' : 'Definir Valor'}</button>` : ""}
               ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-unattended" onclick="updateStatus('${c.id}', 'nao_atendidos')">🚫 Não Atendido</button>` : ""}
               ${(c.status === "abertos" || c.status === "visualizado" || c.status === "nao_atendidos") ? `<button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">Excluir</button>` : ""}
             ` : ""}
           </div>
         </div>
-      `).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhum chamado nesta categoria.</p>`;
+      `;
+      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhum chamado nesta categoria.</p>`;
+
+      updateSelectionBar();
+
+      // Lista de Notas de Serviço
+      const notasContainer = document.getElementById("notas-container");
+      notasContainer.innerHTML = notas.length ? notas.map(n => {
+        const isPago = n.statusPagamento === "pago";
+        return `
+          <div class="item-card" style="border-left: 5px solid var(--navy);">
+            <div class="item-header">
+              <div class="badge-group">
+                <span class="badge badge-price">${n.numero}</span>
+                <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}">${isPago ? '✅ PAGO' : '⏳ EM ABERTO'}</span>
+              </div>
+              <span class="badge badge-status">${n.loja}</span>
+            </div>
+            <div class="item-title">${formatBRL(n.valorTotal)} <span style="font-size:13px;font-weight:600;color:var(--muted);">(${(n.itens || []).length} serviço(s))</span></div>
+            <div class="item-meta">
+              Emitida em: ${n.createdAt || "-"}
+              ${n.paidAt ? ` • Pago em: ${n.paidAt}` : ""}
+            </div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:10px;">
+              ${(n.itens || []).map(i => `• ${i.titulo} (${formatBRL(i.valorTotal)})`).join("<br/>")}
+            </div>
+            <div class="item-actions">
+              <button class="btn-sm btn-status" onclick="viewNotaReceipt('${n.id}')">📄 Ver Notinha / PDF</button>
+              ${currentUser.role === "admin" && !isPago ? `
+                <button class="btn-sm btn-done" onclick="toggleNotaStatus('${n.id}', 'pago')">✅ Dar Baixa (Pago)</button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("") : `<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma nota de serviço gerada ainda.</p>`;
 
       // Lista de Lojas
       document.getElementById("lista-lojas").innerHTML = lojas.length ? lojas.map(l => `
