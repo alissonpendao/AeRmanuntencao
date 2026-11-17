@@ -56,105 +56,6 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* ================= SPLASH SCREEN ANIMADA ================= */
-    #splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, var(--navy-light) 0%, var(--navy) 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      padding: 24px;
-      text-align: center;
-      transition: opacity 0.6s ease, visibility 0.6s ease;
-    }
-
-    #splash-screen.fade-out {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .splash-logo-wrap {
-      width: 145px;
-      height: 145px;
-      border-radius: 50%;
-      border: 3px solid var(--yellow);
-      background: var(--navy);
-      padding: 6px;
-      box-shadow: 0 0 32px rgba(255, 215, 0, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      animation: pulseZoom 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    .splash-logo-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-
-    .splash-title {
-      color: #FFFFFF;
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-top: 20px;
-      opacity: 0;
-      animation: slideUpFade 0.8s ease 0.25s forwards;
-    }
-
-    .splash-slogan {
-      background-color: var(--yellow);
-      color: #0F294A;
-      font-size: 12px;
-      font-weight: 800;
-      padding: 6px 16px;
-      border-radius: 20px;
-      letter-spacing: 0.8px;
-      margin-top: 10px;
-      opacity: 0;
-      animation: slideUpFade 0.8s ease 0.45s forwards;
-    }
-
-    .splash-loader {
-      width: 130px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 28px;
-      opacity: 0;
-      animation: slideUpFade 0.6s ease 0.55s forwards;
-    }
-
-    .splash-loader-bar {
-      width: 0%;
-      height: 100%;
-      background: var(--yellow);
-      animation: loadProgress 2.1s ease-in-out forwards;
-    }
-
-    @keyframes pulseZoom {
-      0% { transform: scale(0.55); opacity: 0; }
-      70% { transform: scale(1.06); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes slideUpFade {
-      from { transform: translateY(15px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes loadProgress {
-      0% { width: 0%; }
-      100% { width: 100%; }
-    }
-
     /* ================= TELA DE LOGIN & PRIMEIRO ACESSO ================= */
     .auth-wrapper {
       min-height: 100vh;
@@ -191,7 +92,6 @@
       padding: 32px 24px;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
       text-align: center;
-      animation: slideUpFade 0.5s ease forwards;
     }
 
     .login-logo {
@@ -1038,20 +938,8 @@
 </head>
 <body>
 
-  <!-- 1. TELA DE ABERTURA ANIMADA (SPLASH) -->
-  <div id="splash-screen">
-    <div class="splash-logo-wrap">
-      <img src="logo.png" alt="A&R Manutenção" onerror="this.style.display='none'" />
-    </div>
-    <div class="splash-title">A&R MANUTENÇÃO</div>
-    <div class="splash-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
-    <div class="splash-loader">
-      <div class="splash-loader-bar"></div>
-    </div>
-  </div>
-
-  <!-- 2. TELA DE LOGIN -->
-  <div id="login-view" class="auth-wrapper">
+  <!-- 1. TELA DE LOGIN (DIRETA, SEM ANIMAÇÃO INICIAL) -->
+  <div id="login-view" class="auth-wrapper" style="display: flex;">
     <!-- BOTÃO INSTALAR PWA NA TELA DE LOGIN -->
     <button id="btn-install-pwa-login" class="login-install-btn hidden" onclick="installPWA()">
       📥 Instalar App
@@ -1067,8 +955,8 @@
 
       <form id="login-form">
         <div class="form-group">
-          <label for="login-user">Login da Unidade (Deixe em branco para Técnico)</label>
-          <input type="text" id="login-user" class="form-control" placeholder="Ex: loja01 (ou vazio para Técnico)" />
+          <label for="login-user">Usuário / Unidade (Vazio para Técnico)</label>
+          <input type="text" id="login-user" class="form-control" />
         </div>
         <div class="form-group">
           <label for="login-pass">Senha de Acesso</label>
@@ -1080,7 +968,7 @@
     </div>
   </div>
 
-  <!-- 2B. TROCA OBRIGATÓRIA DE SENHA NO 1º ACESSO -->
+  <!-- 2. TROCA OBRIGATÓRIA DE SENHA NO 1º ACESSO -->
   <div id="first-access-view" class="auth-wrapper">
     <div class="login-card">
       <div class="login-logo">
@@ -1593,15 +1481,7 @@
       if (localStorage.getItem("ar_dark") === "1") {
         document.body.classList.add("dark-mode");
       }
-
-      setTimeout(() => {
-        const splash = document.getElementById("splash-screen");
-        splash.classList.add("fade-out");
-        setTimeout(() => {
-          splash.style.display = "none";
-          checkSession();
-        }, 600);
-      }, 2200);
+      checkSession();
     });
 
     async function hashPassword(str) {
