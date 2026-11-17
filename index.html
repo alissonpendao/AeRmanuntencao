@@ -1,1207 +1,141 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#0b1f3a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>A&R Manutenção e Instalação • Chamados</title>
-<link id="pwaManifest" rel="manifest" href="">
-<link id="pwaIcon" rel="icon" type="image/png" href="logo.png">
-<link id="appleTouchIcon" rel="apple-touch-icon" href="logo.png">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<style>
-:root{
-  --primary:#0b1f3a;--primary-light:#1d4ed8;--accent:#f59e0b;--accent-dark:#d97706;
-  --bg:#f1f5f9;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;
-  --success:#16a34a;--danger:#dc2626;--info:#0284c7;--purple:#7c3aed
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:84px}
-header{background:linear-gradient(135deg,#0b1f3a,#173763);color:#fff;padding:12px 16px;position:sticky;top:0;z-index:50;box-shadow:0 3px 12px rgba(11,31,58,.25);display:flex;justify-content:space-between;align-items:center;gap:10px}
-.header-brand{display:flex;align-items:center;gap:10px}
-header h1{margin:0;font-size:16px;font-weight:800;letter-spacing:-.2px}
-header p{margin:2px 0 0;font-size:11px;color:#fbbf24;font-weight:700}
-.header-actions{display:flex;gap:8px;align-items:center}
-.btn-logout{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);padding:7px 11px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}
-main{max-width:960px;margin:16px auto;padding:0 14px}
-
-/* LOGIN & BRANDING */
-.login-wrap{max-width:420px;margin:28px auto;padding:0 16px}
-.login-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 12px 32px rgba(11,31,58,.14);text-align:center;border:1px solid var(--border)}
-.brand-banner{background:linear-gradient(145deg,#09192f 0%,#14335c 60%,#1e477a 100%);padding:26px 20px 22px;color:#fff;position:relative;border-bottom:4px solid #f59e0b}
-.brand-slogan-pill{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:999px;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.5);color:#fcd34d;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}
-.login-body{padding:22px 22px 26px}
-
-/* CARDS & METRICS */
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(15,23,42,.04)}
-.metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
-@media(min-width:640px){.metrics-grid{grid-template-columns:repeat(5,1fr)}}
-.metric-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 12px;cursor:pointer;transition:transform .12s,border-color .12s}
-.metric-box:active{transform:scale(.97)}
-.metric-box .m-label{font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px}
-.metric-box .m-num{font-size:28px;font-weight:900;margin:6px 0 2px}
-.metric-box .m-link{font-size:11px;font-weight:700;color:var(--primary-light)}
-
-/* BUTTONS & INPUTS */
-.btn{border:0;border-radius:12px;padding:13px 16px;font-size:14px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;transition:opacity .15s}
-.btn:active{opacity:.85}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-accent{background:linear-gradient(135deg,#f59e0b,#eab308);color:#0b1f3a;box-shadow:0 4px 12px rgba(245,158,11,.32)}
-.btn-success{background:var(--success);color:#fff}
-.btn-danger{background:#fee2e2;color:var(--danger)}
-.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text)}
-.btn-sm{padding:7px 12px;font-size:12px;width:auto;border-radius:9px}
-
-label{display:block;font-size:12px;font-weight:800;color:var(--text);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.3px;text-align:left}
-input,select,textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:12px;font:inherit;font-size:15px;background:#fff;color:var(--text)}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-light)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:560px){.row2{grid-template-columns:1fr}}
-
-/* BADGES */
-.badge{display:inline-block;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
-.prio-baixa{background:#e2e8f0;color:#475569}
-.prio-media{background:#fef3c7;color:#b45309}
-.prio-alta{background:#ffedd5;color:#c2410c}
-.prio-urgente{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
-
-.st-aberto{background:#f1f5f9;color:#334155}
-.st-visualizado{background:#dbeafe;color:#1d4ed8}
-.st-andamento{background:#fef08a;color:#854d0e}
-.st-finalizado{background:#dcfce7;color:#15803d}
-.st-vencido{background:#fee2e2;color:#b91c1c}
-.st-prazo{background:#dcfce7;color:#15803d}
-
-/* TICKET ITEM */
-.ticket-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:15px;margin-bottom:12px;cursor:pointer;transition:border-color .15s}
-.ticket-card:hover{border-color:#93c5fd}
-.ticket-card.urgent-border{border-left:5px solid var(--danger)}
-.ticket-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.ticket-num{font-weight:900;color:var(--primary);font-size:14px}
-.ticket-title{font-size:16px;font-weight:800;margin:0 0 4px}
-.ticket-meta{font-size:12px;color:var(--muted);line-height:1.45}
-
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 4px;z-index:60;box-shadow:0 -2px 10px rgba(0,0,0,.05)}
-.nav-btn{flex:1;border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:700;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-radius:10px}
-.nav-btn span.ico{font-size:18px}
-.nav-btn.active{color:var(--primary);background:#eff6ff}
-
-/* MODAL */
-.modal-backdrop{position:fixed;inset:0;background:rgba(11,31,58,.75);z-index:100;display:flex;align-items:flex-end;justify-content:center}
-@media(min-width:640px){.modal-backdrop{align-items:center;padding:16px}}
-.modal-sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;border-radius:22px 22px 0 0;padding:20px;overflow-y:auto;box-shadow:0 -10px 30px rgba(0,0,0,.22)}
-@media(min-width:640px){.modal-sheet{border-radius:22px}}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-.info-cell{background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:10px}
-.info-cell small{display:block;font-size:11px;color:var(--muted);font-weight:700}
-.info-cell strong{display:block;font-size:13px;margin-top:2px;color:var(--text)}
-
-.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:10px}
-.photo-thumb{position:relative;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);aspect-ratio:1;background:#f8fafc}
-.photo-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
-.photo-thumb small{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.68);color:#fff;font-size:9px;padding:3px 5px}
-.photo-del-btn{position:absolute;top:4px;right:4px;background:rgba(220,38,38,.92);color:#fff;border:0;border-radius:50%;width:22px;height:22px;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
-
-.timeline{border-left:2px solid #cbd5e1;margin:10px 0 0 8px;padding-left:14px}
-.tl-item{position:relative;margin-bottom:12px;font-size:13px}
-.tl-item::before{content:'';position:absolute;left:-20px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--primary-light);border:2px solid #fff}
-
-/* CHART BARS */
-.chart-row{margin-bottom:10px}
-.chart-label{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px}
-.chart-track{background:#e2e8f0;height:12px;border-radius:999px;overflow:hidden;display:flex}
-.chart-seg-open{background:#f59e0b;height:100%}
-.chart-seg-prog{background:#3b82f6;height:100%}
-.chart-seg-done{background:#16a34a;height:100%}
-
-.hidden{display:none!important}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A&R Manutenção</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0F294A">
+    <link rel="apple-touch-icon" href="logo.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0F294A; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #0F294A; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.5s ease; padding: 20px;
+        }
+        .splash-logo {
+            width: 100%; max-width: 280px; height: auto;
+            object-fit: contain; margin-bottom: 20px;
+        }
+        
+        .login-card {
+            background: white; width: 90%; max-width: 400px; padding: 25px;
+            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center; margin: 20px; max-height: 90vh; overflow-y: auto;
+        }
+        .login-logo {
+            width: 100%; max-width: 160px; height: auto;
+            object-fit: contain; margin: 0 auto 15px auto; display: block;
+        }
+        h1 { font-size: 1.5rem; color: #0F294A; margin-bottom: 5px; font-weight: 800; }
+        .slogan {
+            display: inline-flex; align-items: center; background: #FFF3CD;
+            color: #856403; padding: 4px 12px; border-radius: 50px;
+            font-size: 0.85rem; font-weight: bold; margin-bottom: 20px;
+        }
+        .slogan lightning { color: #FFC107; margin-right: 4px; }
+        
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; color: #495057; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; }
+        input {
+            width: 100%; padding: 12px; border: 2px solid #CED4DA; border-radius: 12px;
+            font-size: 1rem; outline: none; transition: border-color 0.3s;
+            background-color: #F8F9FA;
+        }
+        input:focus { border-color: #FFC107; background-color: white; }
+        
+        button {
+            width: 100%; padding: 14px; background-color: #FFC107; color: #0F294A;
+            border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(255,193,7,0.3);
+            margin-top: 10px; display: flex; justify-content: center; align-items: center;
+        }
+        button:active { transform: scale(0.98); }
+        
+        .install-banner {
+            margin-top: 20px; padding-top: 15px; border-top: 1px solid #E9ECEF;
+        }
+        .install-btn {
+            background: transparent; border: 1px dashed #CED4DA; color: #6C757D;
+            font-size: 0.9rem; padding: 10px; border-radius: 10px; box-shadow: none;
+        }
+    </style>
 </head>
 <body>
 
-<!-- TELA DE LOGIN COM USUÁRIO + SENHA CRIPTOGRAFADA -->
-<div id="loginScreen" class="login-wrap">
-  <div class="login-card">
-    <div class="brand-banner">
-      <img src="logo.png" alt="A&R Manutenção e Instalação" style="width:118px;height:118px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 12px;border:3px solid #f59e0b;box-shadow:0 8px 20px rgba(0,0,0,0.45);background:#09192f">
-      <div style="font-size:21px;font-weight:900;letter-spacing:.3px;line-height:1.2">A&amp;R MANUTENÇÃO</div>
-      <div style="font-size:12px;font-weight:700;color:#cbd5e1;letter-spacing:1.4px;margin-top:2px">E INSTALAÇÃO LTDA</div>
-      <div class="brand-slogan-pill">⚡ Soluções Rápidas e Precisas</div>
+    <div id="splash-screen">
+        <img src="logo.png" alt="A&R Logo" class="splash-logo">
     </div>
 
-    <div class="login-body">
-      <label style="margin-top:0">Login da Unidade (ou deixe em branco para Técnico)</label>
-      <input id="loginUserInput" type="text" autocapitalize="none" placeholder="Ex: saogeraldo, loja01..." onkeydown="if(event.key==='Enter')document.getElementById('loginPassInput').focus()">
-
-      <label>Senha de Acesso</label>
-      <input id="loginPassInput" type="password" placeholder="Digite sua senha..." onkeydown="if(event.key==='Enter')doLogin()">
-
-      <div style="margin-top:14px">
-        <button type="button" id="btnDoLogin" class="btn btn-accent" onclick="doLogin()">🔒 Entrar no Sistema</button>
-      </div>
-      <p id="loginError" style="color:var(--danger);font-size:13px;font-weight:700;margin:10px 0 0"></p>
-
-      <div id="installBanner" class="hidden" style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--border)">
-        <button type="button" class="btn btn-outline btn-sm" style="width:100%" onclick="triggerInstall()">📲 Instalar App na Tela Inicial</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL OBRIGATÓRIO: TROCA DE SENHA NO PRIMEIRO ACESSO DA UNIDADE -->
-<div id="forcePassModal" class="modal-backdrop hidden">
-  <div class="modal-sheet" style="max-width:440px">
-    <div style="text-align:center;margin-bottom:12px">
-      <div style="font-size:34px">🔐</div>
-      <h3 style="margin:6px 0 4px;font-size:19px">Crie sua Nova Senha</h3>
-      <p id="forcePassSub" style="margin:0;font-size:13px;color:var(--muted)">Por segurança, altere a senha provisória antes de continuar.</p>
-    </div>
-
-    <label>Nova Senha Pessoal da Unidade</label>
-    <input id="fpNewPass" type="password" placeholder="Mínimo 4 caracteres...">
-
-    <label>Confirme a Nova Senha</label>
-    <input id="fpConfirmPass" type="password" placeholder="Repita a nova senha...">
-
-    <p id="fpError" style="color:var(--danger);font-size:13px;font-weight:700;margin:8px 0 0"></p>
-
-    <div style="margin-top:14px;display:flex;gap:10px">
-      <button type="button" class="btn btn-outline" style="flex:1" onclick="cancelForcePass()">Sair</button>
-      <button type="button" id="btnSaveFirstPass" class="btn btn-success" style="flex:2" onclick="saveFirstAccessPassword()">✅ Salvar e Acessar</button>
-    </div>
-  </div>
-</div>
-
-<!-- INTERFACE PRINCIPAL -->
-<div id="appShell" class="hidden">
-  <header>
-    <div class="header-brand">
-      <img src="logo.png" alt="A&R" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid #f59e0b;flex-shrink:0;background:#09192f">
-      <div>
-        <h1 id="topTitle">A&R Manutenção</h1>
-        <p id="topSubtitle">Soluções Rápidas e Precisas</p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <button type="button" id="btnHeaderInstall" class="btn-logout hidden" onclick="triggerInstall()">📲 Instalar</button>
-      <button type="button" class="btn-logout" onclick="doLogout()">Sair</button>
-    </div>
-  </header>
-
-  <main>
-    <!-- DASHBOARD / INÍCIO -->
-    <section id="view_dashboard">
-      <div style="margin-bottom:14px">
-        <button type="button" class="btn btn-accent" onclick="openNewTicketModal()">+ Abrir novo chamado</button>
-      </div>
-
-      <div class="metrics-grid">
-        <div class="metric-box" onclick="switchNav('abertos')">
-          <div class="m-label">📋 Abertos</div>
-          <div class="m-num" id="mAbertos" style="color:#d97706">0</div>
-          <div class="m-link">Ver detalhes →</div>
+    <div class="login-card">
+        <img src="logo.png" alt="A&R Logo" class="login-logo">
+        <h1>A&R MANUTENÇÃO</h1>
+        <div class="slogan">
+            <span>⚡ SOLUÇÕES RÁPIDAS E PRECISAS</span>
         </div>
-        <div class="metric-box" onclick="switchNav('abertos')">
-          <div class="m-label">🛠️ Visualizados</div>
-          <div class="m-num" id="mVisualizados" style="color:#1d4ed8">0</div>
-          <div class="m-link">Ver detalhes →</div>
-        </div>
-        <div class="metric-box" onclick="switchNav('andamento')">
-          <div class="m-label">⏳ Em andamento</div>
-          <div class="m-num" id="mAndamento" style="color:#7c3aed">0</div>
-          <div class="m-link">Ver detalhes →</div>
-        </div>
-        <div class="metric-box" onclick="switchNav('finalizados')">
-          <div class="m-label">✅ Finalizados</div>
-          <div class="m-num" id="mFinalizados" style="color:#16a34a">0</div>
-          <div class="m-link">Ver detalhes →</div>
-        </div>
-        <div class="metric-box" onclick="switchNav('abertos')">
-          <div class="m-label">⏰ SLA Vencido</div>
-          <div class="m-num" id="mVencidos" style="color:#dc2626">0</div>
-          <div class="m-link">Atenção →</div>
-        </div>
-      </div>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="unity">Login da Unidade (ou deixe em branco para técnico)</label>
+                <input type="text" id="unity" placeholder="Ex: saogeraldo, loja01...">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Senha de Acesso</label>
+                <input type="password" id="password" placeholder="Digite sua senha...">
+            </div>
+            
+            <button type="submit">Entrar no Sistema</button>
+        </form>
 
-      <!-- GRÁFICO POR LOJA (APENAS TÉCNICO/ADMIN) -->
-      <div id="storeChartCard" class="card hidden">
-        <h3 style="margin:0 0 4px;font-size:16px">📊 Chamados por Unidade / Cliente</h3>
-        <p style="margin:0 0 12px;font-size:12px;color:var(--muted)">
-          <span style="color:#f59e0b;font-weight:800">■ Aberto/Visto</span> &nbsp;
-          <span style="color:#3b82f6;font-weight:800">■ Em andamento</span> &nbsp;
-          <span style="color:#16a34a;font-weight:800">■ Finalizado</span>
-        </p>
-        <div id="storeChartBars"></div>
-      </div>
-
-      <!-- ÚLTIMOS CHAMADOS -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <h3 style="margin:0;font-size:16px">🕒 Últimos Chamados</h3>
-          <button type="button" class="btn btn-outline btn-sm" onclick="switchNav('abertos')">Ver todos</button>
+        <div class="install-banner" id="installBanner" style="display: none;">
+            <button id="installBtn" class="install-btn">Instalar App na Tela Inicial</button>
         </div>
-        <div id="recentTicketsList"></div>
-      </div>
-    </section>
-
-    <!-- LISTA DE CHAMADOS FILTRADA -->
-    <section id="view_list" class="hidden">
-      <div class="card" style="padding:12px 14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-          <h3 id="listSectionTitle" style="margin:0;font-size:17px">Chamados</h3>
-          <button type="button" class="btn btn-accent btn-sm" onclick="openNewTicketModal()">+ Novo chamado</button>
-        </div>
-        <div class="row2" style="margin-top:10px">
-          <select id="filterStoreSelect" onchange="renderListView()">
-            <option value="ALL">Todas as Unidades</option>
-          </select>
-          <select id="filterPrioSelect" onchange="renderListView()">
-            <option value="ALL">Todas as Prioridades</option>
-            <option value="Urgente">🔴 Urgente</option>
-            <option value="Alta">🟠 Alta</option>
-            <option value="Média">🟡 Média</option>
-            <option value="Baixa">⚪ Baixa</option>
-          </select>
-        </div>
-      </div>
-      <div id="filteredTicketsContainer"></div>
-    </section>
-
-    <!-- GESTÃO DE SEGURANÇA & UNIDADES (APENAS ADMIN/TÉCNICO) -->
-    <section id="view_unidades" class="hidden">
-      <!-- ALTERAR SENHA DE ADMINISTRADOR -->
-      <div class="card" style="border-left:5px solid var(--accent)">
-        <h3 style="margin:0 0 6px;font-size:17px">🛡️ Alterar Senha de Administrador (A&R)</h3>
-        <p style="margin:0 0 10px;font-size:12px;color:var(--muted)">Sua senha é criptografada (SHA-256) no banco de dados. Para entrar como Técnico, basta deixar o campo Login vazio e digitar sua senha.</p>
-        <div class="row2">
-          <div>
-            <label>Senha Atual</label>
-            <input id="admOldPass" type="password" placeholder="Senha atual...">
-          </div>
-          <div>
-            <label>Nova Senha de Administrador</label>
-            <input id="admNewPass" type="password" placeholder="Nova senha...">
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <button type="button" class="btn btn-primary" onclick="changeAdminPassword()">🔐 Atualizar Senha Admin</button>
-        </div>
-      </div>
-
-      <!-- CADASTRAR NOVA UNIDADE / CLIENTE -->
-      <div class="card">
-        <h3 style="margin:0 0 6px;font-size:17px">🏢 Cadastrar Nova Unidade / Cliente</h3>
-        <p style="margin:0 0 12px;font-size:12px;color:var(--muted)">No primeiro acesso com a senha provisória, o gerente será obrigado a criar uma senha pessoal própria.</p>
-        <label>Nome Completo da Unidade / Cliente</label>
-        <input id="newUnitName" type="text" placeholder="Ex: Supermercado São Geraldo">
-
-        <div class="row2">
-          <div>
-            <label>Login de Acesso (sem espaços)</label>
-            <input id="newUnitLogin" type="text" autocapitalize="none" placeholder="Ex: saogeraldo">
-          </div>
-          <div>
-            <label>Senha Provisória (1º Acesso)</label>
-            <input id="newUnitPass" type="text" placeholder="Ex: 2222">
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <button type="button" class="btn btn-accent" onclick="addUnit()">➕ Cadastrar Unidade</button>
-        </div>
-      </div>
-
-      <!-- LISTA DE UNIDADES ATIVAS -->
-      <div class="card">
-        <h3 style="margin:0 0 10px;font-size:16px">🔐 Unidades & Acessos Cadastrados</h3>
-        <div id="unitsListContainer"></div>
-      </div>
-    </section>
-  </main>
-
-  <!-- NAVEGAÇÃO INFERIOR -->
-  <nav class="bottom-nav">
-    <button type="button" class="nav-btn active" id="nav_dashboard" onclick="switchNav('dashboard')"><span class="ico">📊</span>Dashboard</button>
-    <button type="button" class="nav-btn" id="nav_abertos" onclick="switchNav('abertos')"><span class="ico">🎫</span>Em aberto</button>
-    <button type="button" class="nav-btn" id="nav_andamento" onclick="switchNav('andamento')"><span class="ico">⏳</span>Andamento</button>
-    <button type="button" class="nav-btn" id="nav_finalizados" onclick="switchNav('finalizados')"><span class="ico">✅</span>Finalizados</button>
-    <button type="button" class="nav-btn hidden" id="nav_unidades" onclick="switchNav('unidades')"><span class="ico">🏢</span>Unidades</button>
-  </nav>
-</div>
-
-<!-- MODAL: NOVO CHAMADO -->
-<div id="newTicketModal" class="modal-backdrop hidden">
-  <div class="modal-sheet">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="margin:0;font-size:19px">➕ Novo Chamado</h3>
-      <button type="button" class="btn btn-danger btn-sm" onclick="closeNewModal()">Fechar ✕</button>
     </div>
 
-    <label>Unidade / Loja / Cliente</label>
-    <select id="ntStore"></select>
-
-    <div class="row2">
-      <div>
-        <label>Prioridade (Define o SLA)</label>
-        <select id="ntPriority">
-          <option value="Baixa">Baixa (SLA: 72h)</option>
-          <option value="Média" selected>Média (SLA: 48h)</option>
-          <option value="Alta">Alta (SLA: 24h)</option>
-          <option value="Urgente">Urgente (SLA: 8h)</option>
-        </select>
-      </div>
-      <div>
-        <label>Equipamento (Opcional)</label>
-        <input id="ntEquip" type="text" list="equipSuggestions" placeholder="Ex: Câmara fria, Balcão, Forno...">
-        <datalist id="equipSuggestions">
-          <option value="Não se aplica">
-          <option value="Câmara de Congelados">
-          <option value="Balcão Refrigerado">
-          <option value="Ilha AHT">
-          <option value="Esteira de Caixa">
-          <option value="Forno Industrial">
-          <option value="Moedor de Carne">
-          <option value="Ar Condicionado">
-          <option value="Hidráulica / Torneira">
-          <option value="Elétrica / Quadro">
-        </datalist>
-      </div>
-    </div>
-
-    <label>Solicitante (Nome de quem abriu)</label>
-    <input id="ntOpenedBy" type="text" placeholder="Ex: Gerente, Edinaldo, Suelen...">
-
-    <label>Título do Problema</label>
-    <input id="ntTitle" type="text" placeholder="Ex: Vazamento na câmara fria">
-
-    <label>Descrição Detalhada</label>
-    <textarea id="ntDesc" rows="3" placeholder="Descreva o problema, peça quebrada ou detalhe importante..."></textarea>
-
-    <!-- FOTOS DIRETO NA ABERTURA -->
-    <div class="card" style="background:#f8fafc;margin-top:12px;padding:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-        <div>
-          <strong style="font-size:13px">📷 Fotos do Problema (<span id="ntPhotoCount">0</span>/5)</strong>
-          <div style="font-size:11px;color:var(--muted)">Tire foto da peça para o técnico providenciar antes de ir</div>
-        </div>
-        <label for="ntPhotoInput" class="btn btn-primary btn-sm" style="margin:0;cursor:pointer;white-space:nowrap">+ Tirar / Anexar</label>
-        <input id="ntPhotoInput" type="file" accept="image/*" capture="environment" multiple class="hidden" onchange="handleNewTicketPhotos(event)">
-      </div>
-      <div class="photo-grid" id="ntPhotosPreview"></div>
-    </div>
-
-    <div style="margin-top:14px;display:flex;gap:10px">
-      <button type="button" class="btn btn-outline" style="flex:1" onclick="closeNewModal()">Cancelar</button>
-      <button type="button" id="btnSaveNewTicket" class="btn btn-accent" style="flex:2" onclick="saveNewTicket()">💾 Salvar Chamado</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: DETALHES E ATUALIZAÇÃO -->
-<div id="detailModal" class="modal-backdrop hidden">
-  <div class="modal-sheet">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div id="dtBadges"></div>
-      <button type="button" class="btn btn-danger btn-sm" onclick="closeDetailModal()">Fechar ✕</button>
-    </div>
-
-    <h3 id="dtTitle" style="margin:4px 0;font-size:19px"></h3>
-    <p id="dtDesc" style="margin:0 0 10px;font-size:14px;color:var(--muted)"></p>
-
-    <div id="dtSlaNotice" class="hidden" style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;padding:10px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:10px"></div>
-
-    <div class="info-grid" id="dtInfoGrid"></div>
-
-    <!-- ÁREA DE ATUALIZAÇÃO (TÉCNICO / ADMIN) -->
-    <div id="techUpdateBox" class="card" style="background:#f8fafc;border-color:#cbd5e1;margin-top:12px">
-      <h4 style="margin:0 0 8px;font-size:15px">🛠️ Atualizar Chamado</h4>
-      <label>Status</label>
-      <select id="dtStatusSelect">
-        <option value="aberto">Em aberto</option>
-        <option value="visualizado">Visualizado pelo técnico</option>
-        <option value="andamento">Em andamento (Pausa SLA / Aguardando peça)</option>
-        <option value="finalizado">Finalizado com sucesso</option>
-      </select>
-      <p style="font-size:11px;color:var(--muted);margin:6px 0">
-        <b>Em andamento:</b> Pausa o relógio de SLA enquanto aguarda peça ou fornecedor.
-      </p>
-
-      <label>Observação</label>
-      <textarea id="dtObsInput" rows="2" placeholder="Adicione uma observação ao histórico..."></textarea>
-
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-        <button type="button" class="btn btn-primary" style="flex:2" onclick="saveTicketUpdate()">Salvar atualização</button>
-        <button type="button" id="btnDeleteTicket" class="btn btn-danger hidden" style="flex:1" onclick="deleteCurrentTicket()">Excluir</button>
-      </div>
-    </div>
-
-    <!-- FOTOS DO CHAMADO -->
-    <div class="card" style="margin-top:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h4 style="margin:0;font-size:15px">📷 Fotos (<span id="dtPhotoCount">0</span>/5)</h4>
-        <label for="photoFileInput" class="btn btn-primary btn-sm" style="margin:0;cursor:pointer">+ Adicionar foto</label>
-        <input id="photoFileInput" type="file" accept="image/*" capture="environment" class="hidden" onchange="handlePhotoUpload(event)">
-      </div>
-      <p style="font-size:11px;color:var(--muted);margin:6px 0 0">Toque na foto para ampliar e verificar peças.</p>
-      <div class="photo-grid" id="dtPhotosGrid"></div>
-    </div>
-
-    <!-- HISTÓRICO -->
-    <div class="card" style="margin-top:12px">
-      <h4 style="margin:0 0 8px;font-size:15px">💬 Observações & Histórico</h4>
-      <div class="timeline" id="dtTimeline"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-// =========================================================================
-// 1. CRIPTOGRAFIA SHA-256 PARA SENHAS (NENHUMA SENHA FICA EM TEXTO PURO)
-// =========================================================================
-async function hashPassword(plainText){
-  const salted = "AR_MANUT_SALT_2026::" + String(plainText).trim();
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salted));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-// =========================================================================
-// 2. PWA DINÂMICO USANDO A LOGO OFICIAL (logo.png)
-// =========================================================================
-(function setupPWA(){
-  const absoluteLogoUrl = new URL('logo.png', location.href).href;
-  const manifest = {
-    name: "A&R Manutenção e Instalação",
-    short_name: "A&R Manut.",
-    description: "Soluções Rápidas e Precisas - Gestão de Chamados",
-    start_url: location.href,
-    display: "standalone",
-    background_color: "#09192f",
-    theme_color: "#0b1f3a",
-    icons: [{ src: absoluteLogoUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-  document.getElementById('pwaManifest').href = URL.createObjectURL(blob);
-})();
-
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installBanner')?.classList.remove('hidden');
-  document.getElementById('btnHeaderInstall')?.classList.remove('hidden');
-});
-function triggerInstall(){
-  if(deferredPrompt){
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(()=>{ deferredPrompt = null; });
-  } else {
-    alert("Para instalar no celular:\n1. Toque nos 3 pontinhos (⋮) do Chrome.\n2. Toque em 'Instalar aplicativo' ou 'Adicionar à tela inicial'.");
-  }
-}
-
-// =========================================================================
-// 3. CONEXÃO FIREBASE & CONTROLE DE SEGURANÇA
-// =========================================================================
-const firebaseConfig = {
-  apiKey: "AIzaSyDdvLiewnQhMo855lalaTnDJgbpZyI9clw",
-  authDomain: "reforcosophia.firebaseapp.com",
-  projectId: "reforcosophia",
-  storageBucket: "reforcosophia.firebasestorage.app",
-  messagingSenderId: "344687846766",
-  appId: "1:344687846766:web:464e5221876146d8ff0d7f"
-};
-if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// Hash SHA-256 pré-calculado da senha inicial padrão "2191" (nunca escrita em texto claro)
-const DEFAULT_ADMIN_HASH = "8f8c7a3b1e2d4c5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f";
-let adminPassHash = null;
-let units = [];
-let tickets = [];
-let session = null;
-let pendingUnitForPassChange = null;
-let currentNav = 'dashboard';
-let activeTicketId = null;
-let draftNewPhotos = [];
-
-// Carrega configuração de segurança e unidades do Firebase
-db.collection("manutencao_config").doc("seguranca").onSnapshot(async doc => {
-  if(doc.exists && doc.data().adminHash){
-    adminPassHash = doc.data().adminHash;
-  } else {
-    // Inicializa com hash de 2191 na primeira execução
-    adminPassHash = await hashPassword("2191");
-    db.collection("manutencao_config").doc("seguranca").set({ adminHash: adminPassHash });
-  }
-});
-
-db.collection("manutencao_config").doc("unidades").onSnapshot(async doc => {
-  if(doc.exists && Array.isArray(doc.data().list)){
-    units = doc.data().list;
-  } else {
-    // Cria unidades iniciais já com hash e troca obrigatória no primeiro acesso
-    const h1 = await hashPassword("1001");
-    const h2 = await hashPassword("1002");
-    units = [
-      { id: "u1", name: "Loja 01", login: "loja01", passHash: h1, mustChangePass: true },
-      { id: "u2", name: "Loja 02", login: "loja02", passHash: h2, mustChangePass: true }
-    ];
-    db.collection("manutencao_config").doc("unidades").set({ list: units });
-  }
-  populateStoreSelects();
-  if(session && session.role === 'admin') renderUnitsList();
-});
-
-db.collection("manutencao_chamados").onSnapshot(snap => {
-  tickets = [];
-  snap.forEach(d => tickets.push({ id: d.id, ...d.data() }));
-  tickets.sort((a,b) => (b.number || 0) - (a.number || 0));
-  if(session){
-    renderDashboard();
-    if(currentNav !== 'dashboard' && currentNav !== 'unidades') renderListView();
-    if(activeTicketId) openDetailModal(activeTicketId, true);
-  }
-});
-
-// =========================================================================
-// 4. LOGIN, TROCA OBRIGATÓRIA NO 1º ACESSO & TROCA DE SENHA ADMIN
-// =========================================================================
-async function doLogin(){
-  const loginTyped = document.getElementById('loginUserInput').value.trim().toLowerCase();
-  const passTyped = document.getElementById('loginPassInput').value.trim();
-  const err = document.getElementById('loginError');
-  err.textContent = "";
-
-  if(!passTyped){
-    err.textContent = "Digite sua senha de acesso.";
-    return;
-  }
-
-  const btn = document.getElementById('btnDoLogin');
-  btn.disabled = true;
-  btn.textContent = "🔐 Verificando...";
-
-  try {
-    const typedHash = await hashPassword(passTyped);
-
-    // 1. Verifica acesso de Administrador (campo login vazio ou "admin" / "tecnico")
-    if(!loginTyped || loginTyped === 'admin' || loginTyped === 'tecnico'){
-      if(!adminPassHash) adminPassHash = await hashPassword("2191");
-      if(typedHash === adminPassHash){
-        session = { role: 'admin', unitName: 'ALL', label: 'Técnico / Administrador' };
-        localStorage.setItem('ar_manut_session', JSON.stringify(session));
-        document.getElementById('loginPassInput').value = "";
-        enterApp();
-        return;
-      } else if(!loginTyped){
-        err.textContent = "❌ Senha de administrador incorreta.";
-        return;
-      }
-    }
-
-    // 2. Verifica acesso da Unidade / Cliente pelo Login + Senha Criptografada
-    const unit = units.find(u => (u.login || '').toLowerCase() === loginTyped);
-    if(!unit || unit.passHash !== typedHash){
-      err.textContent = "❌ Login ou senha inválidos! Verifique com a A&R Manutenção.";
-      return;
-    }
-
-    // 3. Se for primeiro acesso (ou senha resetada), obriga a criar nova senha pessoal
-    if(unit.mustChangePass){
-      pendingUnitForPassChange = unit;
-      document.getElementById('forcePassSub').textContent = `Olá, ${unit.name}! Como este é seu primeiro acesso, crie sua senha definitiva agora.`;
-      document.getElementById('fpNewPass').value = "";
-      document.getElementById('fpConfirmPass').value = "";
-      document.getElementById('fpError').textContent = "";
-      document.getElementById('forcePassModal').classList.remove('hidden');
-      return;
-    }
-
-    // Acesso normal da unidade
-    session = { role: 'unit', unitId: unit.id, unitName: unit.name, label: unit.name };
-    localStorage.setItem('ar_manut_session', JSON.stringify(session));
-    document.getElementById('loginPassInput').value = "";
-    enterApp();
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "🔒 Entrar no Sistema";
-  }
-}
-
-async function saveFirstAccessPassword(){
-  if(!pendingUnitForPassChange) return;
-  const p1 = document.getElementById('fpNewPass').value.trim();
-  const p2 = document.getElementById('fpConfirmPass').value.trim();
-  const err = document.getElementById('fpError');
-  err.textContent = "";
-
-  if(p1.length < 4){ err.textContent = "A nova senha precisa ter pelo menos 4 caracteres."; return; }
-  if(p1 !== p2){ err.textContent = "As duas senhas digitadas não coincidem."; return; }
-
-  const newHash = await hashPassword(p1);
-  if(newHash === pendingUnitForPassChange.passHash){
-    err.textContent = "Escolha uma senha diferente da senha provisória.";
-    return;
-  }
-
-  const idx = units.findIndex(u => u.id === pendingUnitForPassChange.id);
-  if(idx !== -1){
-    units[idx].passHash = newHash;
-    units[idx].mustChangePass = false;
-    await db.collection("manutencao_config").doc("unidades").set({ list: units });
-  }
-
-  session = { role: 'unit', unitId: pendingUnitForPassChange.id, unitName: pendingUnitForPassChange.name, label: pendingUnitForPassChange.name };
-  localStorage.setItem('ar_manut_session', JSON.stringify(session));
-  pendingUnitForPassChange = null;
-  document.getElementById('forcePassModal').classList.add('hidden');
-  document.getElementById('loginPassInput').value = "";
-  alert("✅ Sua nova senha criptografada foi salva com sucesso!");
-  enterApp();
-}
-
-function cancelForcePass(){
-  pendingUnitForPassChange = null;
-  document.getElementById('forcePassModal').classList.add('hidden');
-  document.getElementById('loginPassInput').value = "";
-}
-
-async function changeAdminPassword(){
-  const oldP = document.getElementById('admOldPass').value.trim();
-  const newP = document.getElementById('admNewPass').value.trim();
-  if(!oldP || !newP){ alert("Preencha a senha atual e a nova senha!"); return; }
-  if(newP.length < 4){ alert("A nova senha deve ter pelo menos 4 caracteres!"); return; }
-
-  const oldHash = await hashPassword(oldP);
-  if(oldHash !== adminPassHash){
-    alert("❌ A senha atual está incorreta!");
-    return;
-  }
-
-  const newHash = await hashPassword(newP);
-  await db.collection("manutencao_config").doc("seguranca").set({ adminHash: newHash });
-  adminPassHash = newHash;
-  document.getElementById('admOldPass').value = "";
-  document.getElementById('admNewPass').value = "";
-  alert("✅ Senha de Administrador alterada e criptografada com sucesso!");
-}
-
-function doLogout(){
-  localStorage.removeItem('ar_manut_session');
-  session = null;
-  document.getElementById('appShell').classList.add('hidden');
-  document.getElementById('loginScreen').classList.remove('hidden');
-}
-
-function enterApp(){
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('appShell').classList.remove('hidden');
-
-  const isAdmin = session.role === 'admin';
-  document.getElementById('topTitle').textContent = isAdmin ? "A&R Manutenção • Painel Técnico" : `A&R Manutenção • ${session.unitName}`;
-  document.getElementById('topSubtitle').textContent = "Soluções Rápidas e Precisas";
-
-  document.getElementById('nav_unidades').classList.toggle('hidden', !isAdmin);
-  document.getElementById('storeChartCard').classList.toggle('hidden', !isAdmin);
-  document.getElementById('filterStoreSelect').classList.toggle('hidden', !isAdmin);
-
-  populateStoreSelects();
-  renderDashboard();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('ar_manut_session');
-  if(saved){
-    try { session = JSON.parse(saved); enterApp(); } catch(e){}
-  }
-});
-
-// =========================================================================
-// 5. NAVEGAÇÃO E CÁLCULOS DE SLA
-// =========================================================================
-function switchNav(tab){
-  currentNav = tab;
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('nav_' + tab)?.classList.add('active');
-
-  document.getElementById('view_dashboard').classList.toggle('hidden', tab !== 'dashboard');
-  document.getElementById('view_unidades').classList.toggle('hidden', tab !== 'unidades');
-  const isList = (tab === 'abertos' || tab === 'andamento' || tab === 'finalizados');
-  document.getElementById('view_list').classList.toggle('hidden', !isList);
-
-  if(tab === 'dashboard') renderDashboard();
-  if(isList) renderListView();
-  if(tab === 'unidades') renderUnitsList();
-}
-
-function getVisibleTickets(){
-  if(!session) return [];
-  if(session.role === 'admin') return tickets;
-  return tickets.filter(t => t.store === session.unitName);
-}
-
-function calcSlaHours(prio){
-  if(prio === 'Urgente') return 8;
-  if(prio === 'Alta') return 24;
-  if(prio === 'Baixa') return 72;
-  return 48;
-}
-
-function isSlaOverdue(t){
-  if(t.status === 'finalizado' || t.status === 'andamento') return false;
-  if(!t.slaDeadline) return false;
-  return Date.now() > new Date(t.slaDeadline).getTime();
-}
-
-function formatDateTime(iso){
-  if(!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString('pt-BR') + " " + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-}
-
-function calcDaysOpen(t){
-  const start = new Date(t.createdAt).getTime();
-  const end = t.closedAt ? new Date(t.closedAt).getTime() : Date.now();
-  return Math.max(0, Math.floor((end - start) / (1000 * 60 * 60 * 24)));
-}
-
-// =========================================================================
-// 6. DASHBOARD, GRÁFICO E LISTAS
-// =========================================================================
-function renderDashboard(){
-  const list = getVisibleTickets();
-  document.getElementById('mAbertos').textContent = list.filter(t => t.status === 'aberto').length;
-  document.getElementById('mVisualizados').textContent = list.filter(t => t.status === 'visualizado').length;
-  document.getElementById('mAndamento').textContent = list.filter(t => t.status === 'andamento').length;
-  document.getElementById('mFinalizados').textContent = list.filter(t => t.status === 'finalizado').length;
-  document.getElementById('mVencidos').textContent = list.filter(t => isSlaOverdue(t)).length;
-
-  if(session.role === 'admin'){
-    const chartDiv = document.getElementById('storeChartBars');
-    chartDiv.innerHTML = units.map(u => {
-      const uTickets = tickets.filter(t => t.store === u.name);
-      const tot = uTickets.length || 1;
-      const cOpen = uTickets.filter(t => t.status === 'aberto' || t.status === 'visualizado').length;
-      const cProg = uTickets.filter(t => t.status === 'andamento').length;
-      const cDone = uTickets.filter(t => t.status === 'finalizado').length;
-      return `
-        <div class="chart-row">
-          <div class="chart-label"><span>${u.name}</span><span>${uTickets.length} total</span></div>
-          <div class="chart-track">
-            <div class="chart-seg-open" style="width:${(cOpen/tot)*100}%"></div>
-            <div class="chart-seg-prog" style="width:${(cProg/tot)*100}%"></div>
-            <div class="chart-seg-done" style="width:${(cDone/tot)*100}%"></div>
-          </div>
-        </div>`;
-    }).join('');
-  }
-
-  const recent = list.slice(0, 6);
-  const recDiv = document.getElementById('recentTicketsList');
-  recDiv.innerHTML = recent.length ? recent.map(renderTicketCardHTML).join('') : '<p style="text-align:center;color:var(--muted);font-size:13px">Nenhum chamado registrado ainda.</p>';
-}
-
-function renderListView(){
-  const titles = { abertos: "🎫 Chamados em Aberto / Visualizados", andamento: "⏳ Chamados em Andamento", finalizados: "✅ Chamados Finalizados" };
-  document.getElementById('listSectionTitle').textContent = titles[currentNav] || "Chamados";
-
-  let list = getVisibleTickets();
-  if(currentNav === 'abertos') list = list.filter(t => t.status === 'aberto' || t.status === 'visualizado');
-  if(currentNav === 'andamento') list = list.filter(t => t.status === 'andamento');
-  if(currentNav === 'finalizados') list = list.filter(t => t.status === 'finalizado');
-
-  const stFilter = document.getElementById('filterStoreSelect').value;
-  const prFilter = document.getElementById('filterPrioSelect').value;
-  if(session.role === 'admin' && stFilter !== 'ALL') list = list.filter(t => t.store === stFilter);
-  if(prFilter !== 'ALL') list = list.filter(t => t.priority === prFilter);
-
-  const cont = document.getElementById('filteredTicketsContainer');
-  cont.innerHTML = list.length ? list.map(renderTicketCardHTML).join('') : '<div class="card" style="text-align:center;color:var(--muted)">Nenhum chamado nesta aba.</div>';
-}
-
-function renderTicketCardHTML(t){
-  const prioClass = 'prio-' + (t.priority || 'Média').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-  const stLabels = { aberto: 'Em aberto', visualizado: 'Visualizado', andamento: 'Em andamento', finalizado: 'Finalizado' };
-  const overdue = isSlaOverdue(t);
-  const dias = calcDaysOpen(t);
-  const qtdFotos = (t.photos || []).length;
-
-  return `
-    <div class="ticket-card ${t.priority==='Urgente'?'urgent-border':''}" onclick="openDetailModal('${t.id}')">
-      <div class="ticket-top">
-        <div>
-          <span class="ticket-num">#${t.number}</span>
-          <span class="badge ${prioClass}">${t.priority}</span>
-          <span class="badge st-${t.status}">${stLabels[t.status] || t.status}</span>
-          ${overdue ? '<span class="badge st-vencido">⏰ Vencido</span>' : ''}
-          ${qtdFotos ? `<span class="badge" style="background:#e0f2fe;color:#0369a1">📷 ${qtdFotos}</span>` : ''}
-        </div>
-        <span style="font-size:11px;font-weight:700;color:var(--muted)">${dias} dia(s)</span>
-      </div>
-      <div class="ticket-title">${t.title}</div>
-      <div class="ticket-meta">
-        <b>${t.store}</b> ${t.equipment && t.equipment !== 'Não se aplica' ? '• ' + t.equipment : ''}<br>
-        Aberto por <b>${t.openedBy || 'Gerente'}</b> em ${formatDateTime(t.createdAt)}
-      </div>
-    </div>`;
-}
-
-// =========================================================================
-// 7. ABRIR NOVO CHAMADO + COMPRESSÃO DE FOTOS NA ABERTURA
-// =========================================================================
-function compressImageFile(file){
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = new Image();
-      img.onload = () => {
-        const maxW = 720;
-        const scale = img.width > maxW ? (maxW / img.width) : 1;
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.55));
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function populateStoreSelects(){
-  const opts = units.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-  const nt = document.getElementById('ntStore');
-  if(nt){
-    nt.innerHTML = opts;
-    if(session && session.role === 'unit'){
-      nt.value = session.unitName;
-      nt.disabled = true;
-    } else {
-      nt.disabled = false;
-    }
-  }
-  const fl = document.getElementById('filterStoreSelect');
-  if(fl) fl.innerHTML = '<option value="ALL">Todas as Unidades</option>' + opts;
-}
-
-function openNewTicketModal(){
-  populateStoreSelects();
-  draftNewPhotos = [];
-  renderDraftNewPhotos();
-  document.getElementById('ntTitle').value = "";
-  document.getElementById('ntDesc').value = "";
-  document.getElementById('ntEquip').value = "";
-  document.getElementById('ntOpenedBy').value = session.role === 'admin' ? "Técnico Manutenção" : "";
-  document.getElementById('newTicketModal').classList.remove('hidden');
-}
-function closeNewModal(){
-  draftNewPhotos = [];
-  document.getElementById('newTicketModal').classList.add('hidden');
-}
-
-async function handleNewTicketPhotos(e){
-  const files = Array.from(e.target.files || []);
-  for(const file of files){
-    if(draftNewPhotos.length >= 5){
-      alert("Limite máximo de 5 fotos por chamado!");
-      break;
-    }
-    const compressed = await compressImageFile(file);
-    draftNewPhotos.push(compressed);
-  }
-  renderDraftNewPhotos();
-  e.target.value = "";
-}
-
-function removeDraftPhoto(idx){
-  draftNewPhotos.splice(idx, 1);
-  renderDraftNewPhotos();
-}
-
-function renderDraftNewPhotos(){
-  document.getElementById('ntPhotoCount').textContent = draftNewPhotos.length;
-  const grid = document.getElementById('ntPhotosPreview');
-  grid.innerHTML = draftNewPhotos.map((src, idx) => `
-    <div class="photo-thumb">
-      <img src="${src}" alt="Prévia">
-      <button type="button" class="photo-del-btn" onclick="removeDraftPhoto(${idx})">✕</button>
-    </div>
-  `).join('');
-}
-
-function saveNewTicket(){
-  const store = document.getElementById('ntStore').value;
-  const priority = document.getElementById('ntPriority').value;
-  const equipment = document.getElementById('ntEquip').value.trim() || "Não se aplica";
-  const openedBy = document.getElementById('ntOpenedBy').value.trim() || (session.role === 'admin' ? "Técnico Manutenção" : "Gerente");
-  const title = document.getElementById('ntTitle').value.trim();
-  const description = document.getElementById('ntDesc').value.trim();
-
-  if(!title){ alert("Digite o título do problema!"); return; }
-
-  const btn = document.getElementById('btnSaveNewTicket');
-  btn.disabled = true;
-  btn.textContent = "⏳ Salvando chamado...";
-
-  const maxNum = tickets.reduce((m, t) => Math.max(m, t.number || 400), 484);
-  const now = new Date();
-  const nowIso = now.toISOString();
-  const slaDeadline = new Date(now.getTime() + calcSlaHours(priority) * 3600 * 1000).toISOString();
-
-  const initialPhotos = draftNewPhotos.map(data => ({
-    data,
-    user: openedBy,
-    date: nowIso
-  }));
-
-  const newDoc = {
-    number: maxNum + 1,
-    store, priority, equipment, openedBy, title, description,
-    status: "aberto",
-    technician: "A&R Manutenção",
-    createdAt: nowIso,
-    slaDeadline,
-    pausedAt: null,
-    closedAt: null,
-    photos: initialPhotos,
-    history: [{
-      date: nowIso,
-      user: openedBy,
-      text: `Chamado criado (${priority})${initialPhotos.length ? ` com ${initialPhotos.length} foto(s)` : ''} → Em aberto`
-    }]
-  };
-
-  db.collection("manutencao_chamados").add(newDoc).then(() => {
-    btn.disabled = false;
-    btn.textContent = "💾 Salvar Chamado";
-    closeNewModal();
-  }).catch(err => {
-    btn.disabled = false;
-    btn.textContent = "💾 Salvar Chamado";
-    alert("Erro ao salvar chamado: " + err.message);
-  });
-}
-
-// =========================================================================
-// 8. DETALHES, ATUALIZAÇÃO, PAUSA DE SLA E FOTOS EXTRAS
-// =========================================================================
-function openDetailModal(id, isRefresh = false){
-  const t = tickets.find(x => x.id === id);
-  if(!t) return;
-  activeTicketId = id;
-
-  if(!isRefresh && session.role === 'admin' && t.status === 'aberto'){
-    const nowIso = new Date().toISOString();
-    const hist = [...(t.history || []), { date: nowIso, user: "Técnico Manutenção", text: "Em aberto → Visualizado pelo técnico" }];
-    db.collection("manutencao_chamados").doc(t.id).update({ status: 'visualizado', history: hist });
-    return;
-  }
-
-  const prioClass = 'prio-' + (t.priority || 'Média').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-  const stLabels = { aberto: 'Em aberto', visualizado: 'Visualizado', andamento: 'Em andamento', finalizado: 'Finalizado' };
-  document.getElementById('dtBadges').innerHTML = `
-    <span class="badge ${prioClass}">${t.priority}</span>
-    <span class="badge st-${t.status}">${stLabels[t.status]}</span>
-  `;
-  document.getElementById('dtTitle').textContent = `#${t.number} ${t.title}`;
-  document.getElementById('dtDesc').textContent = t.description || "Sem descrição adicional.";
-
-  const slaNotice = document.getElementById('dtSlaNotice');
-  if(t.status === 'andamento'){
-    slaNotice.classList.remove('hidden');
-    slaNotice.textContent = `⏸️ Relógio de SLA pausado desde ${formatDateTime(t.pausedAt)}. Ao sair de "Em andamento", o prazo será empurrado pelo tempo parado.`;
-  } else {
-    slaNotice.classList.add('hidden');
-  }
-
-  const overdue = isSlaOverdue(t);
-  const slaBadge = t.status === 'finalizado'
-    ? '<span class="badge st-finalizado">Concluído</span>'
-    : (overdue ? '<span class="badge st-vencido">Vencido</span>' : '<span class="badge st-prazo">No prazo</span>');
-
-  document.getElementById('dtInfoGrid').innerHTML = `
-    <div class="info-cell"><small>Unidade / Cliente</small><strong>${t.store}</strong></div>
-    <div class="info-cell"><small>Aberto por</small><strong>${t.openedBy}</strong></div>
-    <div class="info-cell"><small>Equipamento</small><strong>${t.equipment || 'Não se aplica'}</strong></div>
-    <div class="info-cell"><small>Técnico</small><strong>${t.technician || 'A&R Manutenção'}</strong></div>
-    <div class="info-cell"><small>Abertura</small><strong>${formatDateTime(t.createdAt)}</strong></div>
-    <div class="info-cell"><small>Fechamento</small><strong>${t.closedAt ? formatDateTime(t.closedAt) : 'Em aberto'}</strong></div>
-    <div class="info-cell"><small>Tempo total</small><strong>${calcDaysOpen(t)} dia(s)</strong></div>
-    <div class="info-cell"><small>Prazo SLA</small><strong>${formatDateTime(t.slaDeadline)} ${slaBadge}</strong></div>
-  `;
-
-  const isAdmin = session.role === 'admin';
-  document.getElementById('techUpdateBox').classList.toggle('hidden', !isAdmin);
-  document.getElementById('btnDeleteTicket').classList.toggle('hidden', !isAdmin);
-  if(isAdmin && !isRefresh){
-    document.getElementById('dtStatusSelect').value = t.status;
-    document.getElementById('dtObsInput').value = "";
-  }
-
-  const photos = t.photos || [];
-  document.getElementById('dtPhotoCount').textContent = photos.length;
-  document.getElementById('dtPhotosGrid').innerHTML = photos.map(p => `
-    <div class="photo-thumb" onclick="openFullPhoto('${p.data}')">
-      <img src="${p.data}" alt="Foto">
-      <small>${p.user}<br>${formatDateTime(p.date)}</small>
-    </div>
-  `).join('');
-
-  const hist = [...(t.history || [])].reverse();
-  document.getElementById('dtTimeline').innerHTML = hist.map(h => `
-    <div class="tl-item">
-      <div style="font-weight:700;color:var(--text)">${h.text}</div>
-      <div style="font-size:11px;color:var(--muted)">👤 ${h.user} • ${formatDateTime(h.date)}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('detailModal').classList.remove('hidden');
-}
-
-function openFullPhoto(dataUrl){
-  const w = window.open("");
-  if(w) w.document.write(`<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${dataUrl}" style="max-width:100%;max-height:100vh"></body>`);
-}
-
-function closeDetailModal(){
-  activeTicketId = null;
-  document.getElementById('detailModal').classList.add('hidden');
-}
-
-function saveTicketUpdate(){
-  const t = tickets.find(x => x.id === activeTicketId);
-  if(!t) return;
-
-  const newStatus = document.getElementById('dtStatusSelect').value;
-  const obs = document.getElementById('dtObsInput').value.trim();
-  const nowIso = new Date().toISOString();
-  const stLabels = { aberto: 'Em aberto', visualizado: 'Visualizado pelo técnico', andamento: 'Em andamento', finalizado: 'Finalizado com sucesso' };
-
-  let slaDeadline = t.slaDeadline;
-  let pausedAt = t.pausedAt;
-  let closedAt = t.closedAt;
-
-  if(newStatus === 'andamento' && t.status !== 'andamento'){
-    pausedAt = nowIso;
-  } else if(t.status === 'andamento' && newStatus !== 'andamento' && pausedAt){
-    const pausedDuration = Date.now() - new Date(pausedAt).getTime();
-    slaDeadline = new Date(new Date(slaDeadline).getTime() + pausedDuration).toISOString();
-    pausedAt = null;
-  }
-
-  if(newStatus === 'finalizado' && !closedAt) closedAt = nowIso;
-  if(newStatus !== 'finalizado') closedAt = null;
-
-  const hist = [...(t.history || [])];
-  if(newStatus !== t.status){
-    hist.push({ date: nowIso, user: "Técnico Manutenção", text: `${stLabels[t.status]} → ${stLabels[newStatus]}` });
-  }
-  if(obs){
-    hist.push({ date: nowIso, user: "Técnico Manutenção", text: `💬 ${obs}` });
-  }
-
-  db.collection("manutencao_chamados").doc(t.id).update({
-    status: newStatus, slaDeadline, pausedAt, closedAt, history: hist
-  }).then(() => {
-    document.getElementById('dtObsInput').value = "";
-    alert("✅ Chamado atualizado!");
-  });
-}
-
-function deleteCurrentTicket(){
-  if(!activeTicketId) return;
-  if(confirm("Tem certeza que deseja excluir este chamado permanentemente?")){
-    db.collection("manutencao_chamados").doc(activeTicketId).delete().then(closeDetailModal);
-  }
-}
-
-async function handlePhotoUpload(e){
-  const file = e.target.files[0];
-  if(!file || !activeTicketId) return;
-  const t = tickets.find(x => x.id === activeTicketId);
-  if(!t) return;
-  const photos = t.photos || [];
-  if(photos.length >= 5){ alert("Limite máximo de 5 fotos por chamado!"); return; }
-
-  const compressed = await compressImageFile(file);
-  const newPhotos = [...photos, {
-    data: compressed,
-    user: session.role === 'admin' ? "Técnico Manutenção" : session.unitName,
-    date: new Date().toISOString()
-  }];
-  db.collection("manutencao_chamados").doc(t.id).update({ photos: newPhotos });
-  e.target.value = "";
-}
-
-// =========================================================================
-// 9. GESTÃO DE UNIDADES / CLIENTES (ADMIN)
-// =========================================================================
-async function addUnit(){
-  const name = document.getElementById('newUnitName').value.trim();
-  const login = document.getElementById('newUnitLogin').value.trim().toLowerCase().replace(/\s+/g, '');
-  const pass = document.getElementById('newUnitPass').value.trim();
-
-  if(!name || !login || !pass){ alert("Preencha o Nome da Unidade, o Login e a Senha Provisória!"); return; }
-  if(login === 'admin' || login === 'tecnico' || units.some(u => (u.login || '').toLowerCase() === login)){
-    alert("Este login já está em uso! Escolha outro.");
-    return;
-  }
-
-  const passHash = await hashPassword(pass);
-  units.push({
-    id: "u_" + Date.now(),
-    name,
-    login,
-    passHash,
-    mustChangePass: true
-  });
-
-  await db.collection("manutencao_config").doc("unidades").set({ list: units });
-  document.getElementById('newUnitName').value = "";
-  document.getElementById('newUnitLogin').value = "";
-  document.getElementById('newUnitPass').value = "";
-  alert(`✅ Unidade "${name}" cadastrada!\n\nLogin: ${login}\nSenha provisória: ${pass}\n\nNo primeiro acesso, o sistema exigirá a troca da senha.`);
-}
-
-async function resetUnitPassword(idx){
-  const u = units[idx];
-  const tempPass = prompt(`Digite uma nova senha provisória para "${u.name}" (Login: ${u.login}):`, "2222");
-  if(!tempPass || !tempPass.trim()) return;
-
-  units[idx].passHash = await hashPassword(tempPass.trim());
-  units[idx].mustChangePass = true;
-  await db.collection("manutencao_config").doc("unidades").set({ list: units });
-  alert(`✅ Senha de "${u.name}" resetada para "${tempPass.trim()}"!\nNo próximo acesso, o gerente deverá criar uma nova senha.`);
-}
-
-function removeUnit(idx){
-  if(confirm(`Remover acesso da unidade "${units[idx].name}"?`)){
-    units.splice(idx, 1);
-    db.collection("manutencao_config").doc("unidades").set({ list: units });
-  }
-}
-
-function renderUnitsList(){
-  const c = document.getElementById('unitsListContainer');
-  if(!c) return;
-  c.innerHTML = units.map((u, idx) => `
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
-      <div>
-        <b>🏢 ${u.name}</b><br>
-        <span style="font-size:12px;color:var(--muted)">Login: <b>${u.login}</b> • Senha: 🔒 Criptografada ${u.mustChangePass ? '<span class="badge st-andamento">Aguardando 1º acesso</span>' : '<span class="badge st-finalizado">Ativa</span>'}</span>
-      </div>
-      <div style="display:flex;gap:6px">
-        <button type="button" class="btn btn-outline btn-sm" onclick="resetUnitPassword(${idx})">Resetar Senha</button>
-        <button type="button" class="btn btn-danger btn-sm" onclick="removeUnit(${idx})">Remover</button>
-      </div>
-    </div>
-  `).join('');
-}
-</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Service Worker registrado com sucesso.'))
+            .catch(err => console.log('Erro ao registrar Service Worker:', err));
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 500);
+            }, 1000);
+        };
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', (e) => {
+            document.getElementById('installBanner').style.display = 'none';
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou o prompt de instalação');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Função de login conectada ao Firebase.');
+        });
+    </script>
 </body>
 </html>
