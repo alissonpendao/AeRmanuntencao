@@ -1076,7 +1076,7 @@
       <form id="login-form">
         <div class="form-group">
           <label for="login-user">E-mail ou Usuário da Loja</label>
-          <input type="text" id="login-user" class="form-control" placeholder="Ex: aermanutencao@superdito.com.br ou castro" required />
+          <input type="text" id="login-user" class="form-control" placeholder="Ex: saogeraldo, castro ou e-mail..." required />
         </div>
         <div class="form-group">
           <label for="login-pass">Senha de Acesso</label>
@@ -1716,16 +1716,20 @@
       localStorage.setItem("ar_" + key, JSON.stringify(data));
     }
 
-    // Converte o usuário da loja (ex: "castro") em e-mail padrão do sistema se não tiver @
+    // Converte o usuário da loja em e-mail e aceita tanto @aermanutencao.local quanto @manuntencao.com.br / @manuntencao.local
     function resolveAuthEmail(input) {
       const clean = input.trim().toLowerCase();
       if (clean === "" || clean === "tecnico" || clean === "admin") {
-        return ADMIN_EMAIL;
+        return [ADMIN_EMAIL];
       }
       if (clean.includes("@")) {
-        return clean;
+        return [clean];
       }
-      return `${clean}@aermanutencao.local`;
+      return [
+        `${clean}@aermanutencao.local`,
+        `${clean}@manuntencao.com.br`,
+        `${clean}@manuntencao.local`
+      ];
     }
 
     // ================= LOGIN VIA FIREBASE AUTHENTICATION =================
@@ -1740,19 +1744,26 @@
       btn.disabled = true;
       btn.textContent = "Verificando...";
 
-      const authEmail = resolveAuthEmail(userInput);
+      const candidateEmails = resolveAuthEmail(userInput);
+      let loggedIn = false;
 
-      try {
-        await auth.signInWithEmailAndPassword(authEmail, pass);
-        // O onAuthStateChanged cuidará de abrir o painel automaticamente
-      } catch (error) {
-        console.error("Erro no login:", error.code, error.message);
+      for (const emailOption of candidateEmails) {
+        try {
+          await auth.signInWithEmailAndPassword(emailOption, pass);
+          loggedIn = true;
+          break;
+        } catch (error) {
+          // Tenta o próximo formato de domínio caso não encontre neste
+        }
+      }
+
+      if (!loggedIn) {
         err.textContent = "E-mail/usuário ou senha incorretos.";
         err.style.display = "block";
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Entrar no Sistema";
       }
+
+      btn.disabled = false;
+      btn.textContent = "Entrar no Sistema";
     });
 
     // ================= TROCA DE SENHA NO 1º ACESSO (FIREBASE AUTH) =================
@@ -2533,7 +2544,7 @@
       const cnpj = document.getElementById("lj-cnpj").value.trim();
       const rawUser = document.getElementById("lj-user").value.trim().toLowerCase().replace(/\s+/g, "");
       const rawPass = document.getElementById("lj-pass").value.trim();
-      const authEmail = resolveAuthEmail(rawUser);
+      const authEmail = `${rawUser}@aermanutencao.local`;
 
       btn.disabled = true;
       btn.textContent = "Criando conta segura...";
