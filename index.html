@@ -15,16 +15,13 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 16px;
         }
-        
+
         /* Splash Screen */
         #splash-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background-color: #0F2537;
             display: flex;
             flex-direction: column;
@@ -33,279 +30,132 @@
             z-index: 9999;
             transition: opacity 0.5s ease;
         }
-        
         .logo-container {
-            width: 170px;
-            height: 170px;
+            width: 170px; height: 170px;
             background-color: #0F2537;
             border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             overflow: hidden;
             box-shadow: 0 6px 18px rgba(0,0,0,0.4);
             margin-bottom: 20px;
             border: 3px solid #FFD700;
         }
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-        .app-title {
-            color: #FFFFFF;
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            text-align: center;
-            letter-spacing: 0.5px;
-        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .app-title { color: #FFFFFF; font-size: 24px; font-weight: 800; margin-bottom: 10px; text-align: center; }
         .app-slogan {
-            background-color: #FFD700;
-            color: #0F2537;
-            padding: 6px 18px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 12px;
-            display: inline-block;
-            letter-spacing: 0.5px;
+            background-color: #FFD700; color: #0F2537;
+            padding: 6px 18px; border-radius: 20px;
+            font-weight: 800; font-size: 12px; display: inline-block;
         }
-        
-        /* Cards Principais */
-        #login-card, #app-screen {
+
+        /* Containers */
+        .card-container {
             background: #FFFFFF;
-            padding: 32px 26px;
+            padding: 28px 22px;
             border-radius: 24px;
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
             text-align: center;
             box-shadow: 0 12px 30px rgba(0,0,0,0.3);
             display: none;
         }
-        #login-card .logo-container {
-            width: 115px;
-            height: 115px;
-            margin: 0 auto 15px auto;
-        }
-        .input-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #0F2537;
-            font-size: 12px;
-            font-weight: 700;
-        }
+        .card-container .logo-container { width: 110px; height: 110px; margin: 0 auto 14px auto; }
+
+        /* Forms */
+        .input-group { margin-bottom: 16px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 6px; color: #0F2537; font-size: 12px; font-weight: 700; }
         .input-group input, .input-group select, .input-group textarea {
-            width: 100%;
-            padding: 13px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.3s;
-            background: #f9f9f9;
+            width: 100%; padding: 12px; border: 2px solid #e0e0e0;
+            border-radius: 12px; font-size: 15px; outline: none; background: #f9f9f9;
         }
         .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
-            border-color: #FFD700;
-            background: #fff;
+            border-color: #FFD700; background: #fff;
         }
         .btn-submit {
-            background-color: #FFD700;
-            color: #0F2537;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: 800;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.1s, background 0.3s;
-            margin-top: 5px;
+            background-color: #FFD700; color: #0F2537; border: none;
+            width: 100%; padding: 14px; font-size: 16px; font-weight: 800;
+            border-radius: 12px; cursor: pointer; margin-top: 6px;
         }
-        .btn-submit:active {
-            transform: scale(0.98);
-        }
-        #error-msg {
-            color: #D32F2F;
-            font-size: 13px;
-            font-weight: bold;
-            margin-top: 12px;
-            display: none;
-        }
-        #install-container {
-            margin-top: 18px;
-            display: none;
-        }
-        .btn-install {
-            background-color: transparent;
-            border: 1.5px solid #0F2537;
-            color: #0F2537;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .btn-submit:active { transform: scale(0.98); }
+        .error-msg { color: #D32F2F; font-size: 13px; font-weight: bold; margin-top: 10px; display: none; }
 
-        /* Painel Interno do App */
-        #app-screen {
-            text-align: left;
-            padding: 24px 20px;
-        }
+        /* App Header & Tabs */
+        #app-screen { text-align: left; padding: 22px 18px; }
         .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 14px;
-            margin-bottom: 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; margin-bottom: 16px;
         }
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .mini-logo {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid #FFD700;
-            object-fit: cover;
-        }
-        .user-info h2 {
-            color: #0F2537;
-            font-size: 17px;
-            font-weight: 800;
-        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .mini-logo { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #FFD700; object-fit: cover; }
+        .user-info h2 { color: #0F2537; font-size: 16px; font-weight: 800; }
         .user-info span {
-            font-size: 11px;
-            background: #FFD700;
-            color: #0F2537;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 800;
-            display: inline-block;
-            margin-top: 2px;
+            font-size: 11px; background: #FFD700; color: #0F2537;
+            padding: 2px 8px; border-radius: 10px; font-weight: 800; display: inline-block; margin-top: 2px;
         }
         .btn-logout {
-            background: #ffebee;
-            color: #D32F2F;
-            border: 1px solid #ffcdd2;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
+            background: #ffebee; color: #D32F2F; border: 1px solid #ffcdd2;
+            padding: 8px 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px;
         }
 
-        /* Abas de Navegação */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 18px;
-        }
+        .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
         .tab-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            background: #f0f2f5;
-            color: #555;
-            transition: 0.2s;
+            flex: 1; min-width: 80px; padding: 10px 6px; border: none; border-radius: 10px;
+            font-size: 12px; font-weight: bold; cursor: pointer; background: #f0f2f5; color: #555;
         }
-        .tab-btn.active {
-            background: #0F2537;
-            color: #FFD700;
-        }
+        .tab-btn.active { background: #0F2537; color: #FFD700; }
 
-        /* Lista de Chamados */
-        .chamado-card {
-            background: #f8f9fa;
-            border-left: 4px solid #FFD700;
-            padding: 14px;
-            border-radius: 10px;
-            margin-bottom: 12px;
+        /* Tickets & Cards */
+        .item-card {
+            background: #f8f9fa; border-left: 4px solid #FFD700;
+            padding: 14px; border-radius: 10px; margin-bottom: 12px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .chamado-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-        .chamado-unidade {
-            font-weight: 800;
-            color: #0F2537;
-            font-size: 14px;
-        }
-        .status-badge {
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-weight: bold;
-        }
+        .item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .item-title { font-weight: 800; color: #0F2537; font-size: 14px; }
+        .status-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
         .status-pendente { background: #fff3cd; color: #856404; }
+        .status-andamento { background: #cce5ff; color: #004085; }
         .status-concluido { background: #d4edda; color: #155724; }
-        .chamado-desc {
-            font-size: 13px;
-            color: #444;
-            margin-bottom: 8px;
-            line-height: 1.4;
+        .item-desc { font-size: 13px; color: #444; margin-bottom: 8px; line-height: 1.4; }
+        .ticket-photo {
+            width: 100%; max-height: 200px; object-fit: cover;
+            border-radius: 8px; margin-bottom: 8px; border: 1px solid #ddd;
         }
-        .chamado-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            color: #888;
+        .item-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; gap: 6px; flex-wrap: wrap; }
+        .btn-action {
+            background: #0F2537; color: #FFD700; border: none;
+            padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
         }
-        .btn-concluir {
-            background: #0F2537;
-            color: #FFD700;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
+        .btn-progress {
+            background: #0277BD; color: #fff; border: none;
+            padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
         }
-        .empty-state {
-            text-align: center;
-            color: #888;
-            font-size: 14px;
-            padding: 30px 10px;
+        .btn-danger {
+            background: #D32F2F; color: #fff; border: none;
+            padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
         }
+        .empty-state { text-align: center; color: #888; font-size: 13px; padding: 24px 10px; }
+        #photo-preview { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 8px; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Tela de Abertura -->
+    <!-- Splash Screen -->
     <div id="splash-screen">
-        <div class="logo-container">
-            <img src="logo.png" alt="A&R Logo">
-        </div>
+        <div class="logo-container"><img src="logo.png" alt="A&R Logo"></div>
         <div class="app-title">A&R MANUTENÇÃO</div>
         <div class="app-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
     </div>
 
-    <!-- Tela de Login -->
-    <div id="login-card">
-        <div class="logo-container">
-            <img src="logo.png" alt="A&R Logo">
-        </div>
-        <div class="app-title" style="color: #0F2537; font-size: 22px;">A&R MANUTENÇÃO</div>
+    <!-- Login Screen -->
+    <div id="login-card" class="card-container">
+        <div class="logo-container"><img src="logo.png" alt="A&R Logo"></div>
+        <div class="app-title" style="color: #0F2537; font-size: 21px;">A&R MANUTENÇÃO</div>
         <div class="app-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
         
-        <form id="loginForm" style="margin-top: 24px;">
+        <form id="loginForm" style="margin-top: 22px;">
             <div class="input-group">
-                <label for="unitLogin">LOGIN DA UNIDADE (OU DEIXE EM BRANCO PARA TÉCNICO)</label>
+                <label for="unitLogin">LOGIN DA UNIDADE (DEIXE EM BRANCO PARA TÉCNICO)</label>
                 <input type="text" id="unitLogin" placeholder="Usuário" autocomplete="username">
             </div>
             <div class="input-group">
@@ -313,16 +163,32 @@
                 <input type="password" id="password" placeholder="Digite sua senha..." autocomplete="current-password">
             </div>
             <button type="submit" class="btn-submit">Entrar no Sistema</button>
-            <div id="error-msg"></div>
+            <div id="login-error" class="error-msg"></div>
         </form>
-
-        <div id="install-container">
-            <button id="installBtn" class="btn-install">Instalar App na Tela Inicial</button>
-        </div>
     </div>
 
-    <!-- Tela Principal do Aplicativo -->
-    <div id="app-screen">
+    <!-- First Access Password Change Screen -->
+    <div id="change-pass-card" class="card-container">
+        <div class="logo-container"><img src="logo.png" alt="A&R Logo"></div>
+        <div class="app-title" style="color: #0F2537; font-size: 19px;">PRIMEIRO ACESSO</div>
+        <p style="font-size: 13px; color: #555; margin-bottom: 18px;">Por segurança, defina uma nova senha pessoal para sua unidade.</p>
+        
+        <form id="changePassForm">
+            <div class="input-group">
+                <label for="newPass">NOVA SENHA</label>
+                <input type="password" id="newPass" placeholder="Mínimo 4 caracteres" required>
+            </div>
+            <div class="input-group">
+                <label for="confirmPass">CONFIRMAR NOVA SENHA</label>
+                <input type="password" id="confirmPass" placeholder="Repita a nova senha" required>
+            </div>
+            <button type="submit" class="btn-submit">Salvar Nova Senha e Entrar</button>
+            <div id="pass-error" class="error-msg"></div>
+        </form>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="app-screen" class="card-container">
         <div class="app-header">
             <div class="header-left">
                 <img src="logo.png" alt="Logo" class="mini-logo">
@@ -335,21 +201,28 @@
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" id="tab-lista" onclick="mudarAba('lista')">📋 Chamados</button>
-            <button class="tab-btn" id="tab-novo" onclick="mudarAba('novo')">➕ Novo Chamado</button>
+            <button class="tab-btn active" id="tab-lista" onclick="switchTab('lista')">📋 Chamados</button>
+            <button class="tab-btn" id="tab-andamento" onclick="switchTab('andamento')">🔧 Em Andamento</button>
+            <button class="tab-btn" id="tab-novo" onclick="switchTab('novo')">➕ Novo</button>
+            <button class="tab-btn" id="tab-lojas" onclick="switchTab('lojas')" style="display: none;">🏢 Lojas</button>
         </div>
 
-        <!-- Aba: Lista de Chamados -->
+        <!-- View: Tickets List (Pendentes e Concluídos) -->
         <div id="view-lista">
             <div id="lista-chamados"></div>
         </div>
 
-        <!-- Aba: Abrir Novo Chamado -->
+        <!-- View: Em Andamento -->
+        <div id="view-andamento" style="display: none;">
+            <div id="lista-andamento"></div>
+        </div>
+
+        <!-- View: New Ticket -->
         <div id="view-novo" style="display: none;">
             <form id="chamadoForm">
                 <div class="input-group">
-                    <label for="chamadoUnidade">UNIDADE / LOCAL</label>
-                    <input type="text" id="chamadoUnidade" placeholder="Ex: Unidade Centro" required>
+                    <label for="chamadoUnidade">UNIDADE / LOJA</label>
+                    <input type="text" id="chamadoUnidade" placeholder="Nome da unidade" required>
                 </div>
                 <div class="input-group">
                     <label for="chamadoTipo">TIPO DE MANUTENÇÃO</label>
@@ -362,165 +235,363 @@
                 </div>
                 <div class="input-group">
                     <label for="chamadoDesc">DESCRIÇÃO DO PROBLEMA</label>
-                    <textarea id="chamadoDesc" rows="3" placeholder="Descreva o que precisa ser feito..." required></textarea>
+                    <textarea id="chamadoDesc" rows="3" placeholder="Descreva o problema..." required></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="chamadoFoto">ANEXAR FOTO (OPCIONAL)</label>
+                    <input type="file" id="chamadoFoto" accept="image/*" capture="environment">
+                    <img id="photo-preview" alt="Pré-visualização">
                 </div>
                 <button type="submit" class="btn-submit">Registrar Chamado</button>
             </form>
         </div>
+
+        <!-- View: Manage Units (Technician Only) -->
+        <div id="view-lojas" style="display: none;">
+            <form id="lojaForm" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 16px;">
+                <div class="input-group">
+                    <label for="novaLojaNome">NOME DA UNIDADE / LOJA</label>
+                    <input type="text" id="novaLojaNome" placeholder="Ex: São Geraldo" required>
+                </div>
+                <div class="input-group">
+                    <label for="novaLojaSenha">SENHA PROVISÓRIA (1º ACESSO)</label>
+                    <input type="text" id="novaLojaSenha" placeholder="Ex: 1234" required>
+                </div>
+                <button type="submit" class="btn-submit">Cadastrar / Resetar Loja</button>
+            </form>
+            <div id="lista-lojas"></div>
+        </div>
     </div>
 
     <script>
+        const TECH_PASS = '2191';
         let currentUser = '';
         let currentRole = '';
+        let pendingUnitLogin = null;
+        let attachedPhotoBase64 = '';
 
-        function showApp(user, role) {
-            currentUser = user;
-            currentRole = role;
-            document.getElementById('login-card').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            document.getElementById('welcome-title').textContent = role === 'Técnico' ? 'Painel Técnico' : user;
-            document.getElementById('role-badge').textContent = role === 'Técnico' ? '⚡ TÉCNICO' : '🏢 UNIDADE';
-            
-            if (role === 'Unidade') {
-                document.getElementById('chamadoUnidade').value = user;
-            }
-            renderChamados();
+        function getUnits() {
+            return JSON.parse(localStorage.getItem('ar_units') || '[]');
+        }
+        function saveUnits(units) {
+            localStorage.setItem('ar_units', JSON.stringify(units));
+        }
+        function getTickets() {
+            return JSON.parse(localStorage.getItem('ar_chamados') || '[]');
+        }
+        function saveTickets(tickets) {
+            localStorage.setItem('ar_chamados', JSON.stringify(tickets));
         }
 
         window.addEventListener('load', () => {
-            const savedUser = localStorage.getItem('ar_user');
-            const savedRole = localStorage.getItem('ar_role');
-
+            const savedSession = JSON.parse(localStorage.getItem('ar_session') || 'null');
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 splash.style.opacity = '0';
                 setTimeout(() => {
                     splash.style.display = 'none';
-                    if (savedUser && savedRole) {
-                        showApp(savedUser, savedRole);
+                    if (savedSession) {
+                        openDashboard(savedSession.user, savedSession.role);
                     } else {
                         document.getElementById('login-card').style.display = 'block';
                     }
-                }, 500);
-            }, 1800);
-
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            }
-        });
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('install-container').style.display = 'block';
-        });
-
-        document.getElementById('installBtn').addEventListener('click', () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-            }
+                }, 400);
+            }, 1500);
         });
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const unitInput = document.getElementById('unitLogin').value.trim();
-            const passwordInput = document.getElementById('password').value.trim();
-            const errorMsg = document.getElementById('error-msg');
-            
-            if (!passwordInput) {
-                errorMsg.textContent = 'Por favor, digite a senha.';
-                errorMsg.style.display = 'block';
+            const passInput = document.getElementById('password').value.trim();
+            const errorEl = document.getElementById('login-error');
+
+            if (!passInput) {
+                errorEl.textContent = 'Digite a senha de acesso.';
+                errorEl.style.display = 'block';
                 return;
             }
 
-            if (passwordInput === '2191') {
-                errorMsg.style.display = 'none';
-                const user = unitInput === '' ? 'Técnico' : unitInput;
-                const role = unitInput === '' ? 'Técnico' : 'Unidade';
-                localStorage.setItem('ar_user', user);
-                localStorage.setItem('ar_role', role);
-                showApp(user, role);
+            if (unitInput === '') {
+                if (passInput === TECH_PASS) {
+                    errorEl.style.display = 'none';
+                    localStorage.setItem('ar_session', JSON.stringify({ user: 'Técnico', role: 'Técnico' }));
+                    openDashboard('Técnico', 'Técnico');
+                } else {
+                    errorEl.textContent = 'Senha do técnico incorreta.';
+                    errorEl.style.display = 'block';
+                }
+                return;
+            }
+
+            const units = getUnits();
+            const unit = units.find(u => u.name.toLowerCase() === unitInput.toLowerCase());
+
+            if (!unit) {
+                errorEl.textContent = 'Unidade não cadastrada.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (unit.password !== passInput) {
+                errorEl.textContent = 'Senha da unidade incorreta.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+            if (unit.firstAccess) {
+                pendingUnitLogin = unit.name;
+                document.getElementById('login-card').style.display = 'none';
+                document.getElementById('change-pass-card').style.display = 'block';
             } else {
-                errorMsg.textContent = 'Senha incorreta.';
-                errorMsg.style.display = 'block';
+                localStorage.setItem('ar_session', JSON.stringify({ user: unit.name, role: 'Unidade' }));
+                openDashboard(unit.name, 'Unidade');
             }
         });
 
+        document.getElementById('changePassForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('newPass').value.trim();
+            const confirmPass = document.getElementById('confirmPass').value.trim();
+            const errorEl = document.getElementById('pass-error');
+
+            if (newPass.length < 4) {
+                errorEl.textContent = 'A senha deve ter pelo menos 4 caracteres.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (newPass !== confirmPass) {
+                errorEl.textContent = 'As senhas não coincidem.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const units = getUnits().map(u => {
+                if (u.name.toLowerCase() === pendingUnitLogin.toLowerCase()) {
+                    u.password = newPass;
+                    u.firstAccess = false;
+                }
+                return u;
+            });
+            saveUnits(units);
+
+            errorEl.style.display = 'none';
+            document.getElementById('change-pass-card').style.display = 'none';
+            localStorage.setItem('ar_session', JSON.stringify({ user: pendingUnitLogin, role: 'Unidade' }));
+            openDashboard(pendingUnitLogin, 'Unidade');
+            pendingUnitLogin = null;
+        });
+
+        function openDashboard(user, role) {
+            currentUser = user;
+            currentRole = role;
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+
+            document.getElementById('welcome-title').textContent = role === 'Técnico' ? 'Painel Técnico' : user;
+            document.getElementById('role-badge').textContent = role === 'Técnico' ? '⚡ TÉCNICO' : '🏢 UNIDADE';
+
+            const tabLojas = document.getElementById('tab-lojas');
+            const unidadeInput = document.getElementById('chamadoUnidade');
+
+            if (role === 'Técnico') {
+                tabLojas.style.display = 'inline-block';
+                unidadeInput.value = '';
+                unidadeInput.readOnly = false;
+                renderUnits();
+            } else {
+                tabLojas.style.display = 'none';
+                unidadeInput.value = user;
+                unidadeInput.readOnly = true;
+            }
+
+            switchTab('lista');
+        }
+
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('ar_user');
-            localStorage.removeItem('ar_role');
+            localStorage.removeItem('ar_session');
             document.getElementById('app-screen').style.display = 'none';
             document.getElementById('password').value = '';
             document.getElementById('login-card').style.display = 'block';
         });
 
-        function mudarAba(aba) {
-            document.getElementById('tab-lista').classList.toggle('active', aba === 'lista');
-            document.getElementById('tab-novo').classList.toggle('active', aba === 'novo');
-            document.getElementById('view-lista').style.display = aba === 'lista' ? 'block' : 'none';
-            document.getElementById('view-novo').style.display = aba === 'novo' ? 'block' : 'none';
-            if (aba === 'lista') renderChamados();
+        function switchTab(tab) {
+            ['lista', 'andamento', 'novo', 'lojas'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+                document.getElementById(`view-${t}`).style.display = t === tab ? 'block' : 'none';
+            });
+            if (tab === 'lista') renderTickets();
+            if (tab === 'andamento') renderInProgress();
+            if (tab === 'lojas') renderUnits();
         }
 
-        function getChamados() {
-            return JSON.parse(localStorage.getItem('ar_chamados') || '[]');
-        }
-
-        function saveChamados(lista) {
-            localStorage.setItem('ar_chamados', JSON.stringify(lista));
-        }
+        document.getElementById('chamadoFoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('photo-preview');
+            if (!file) {
+                attachedPhotoBase64 = '';
+                preview.style.display = 'none';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 600;
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                        else { w = Math.round(w * maxDim / h); h = maxDim; }
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    attachedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    preview.src = attachedPhotoBase64;
+                    preview.style.display = 'block';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
 
         document.getElementById('chamadoForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const lista = getChamados();
-            const novo = {
+            const tickets = getTickets();
+            const newTicket = {
                 id: Date.now(),
                 unidade: document.getElementById('chamadoUnidade').value.trim(),
                 tipo: document.getElementById('chamadoTipo').value,
                 desc: document.getElementById('chamadoDesc').value.trim(),
+                foto: attachedPhotoBase64,
                 data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}),
                 status: 'Pendente'
             };
-            lista.unshift(novo);
-            saveChamados(lista);
+            tickets.unshift(newTicket);
+            saveTickets(tickets);
+
             document.getElementById('chamadoDesc').value = '';
-            mudarAba('lista');
+            document.getElementById('chamadoFoto').value = '';
+            document.getElementById('photo-preview').style.display = 'none';
+            attachedPhotoBase64 = '';
+            switchTab('lista');
         });
 
-        function concluirChamado(id) {
-            const lista = getChamados().map(c => {
-                if (c.id === id) c.status = 'Concluído';
-                return c;
+        function updateTicketStatus(id, newStatus) {
+            const tickets = getTickets().map(t => {
+                if (t.id === id) t.status = newStatus;
+                return t;
             });
-            saveChamados(lista);
-            renderChamados();
+            saveTickets(tickets);
+            renderTickets();
+            renderInProgress();
         }
 
-        function renderChamados() {
-            const container = document.getElementById('lista-chamados');
-            let lista = getChamados();
+        function createTicketHTML(t) {
+            let badgeClass = 'status-pendente';
+            if (t.status === 'Em Andamento') badgeClass = 'status-andamento';
+            if (t.status === 'Concluído') badgeClass = 'status-concluido';
 
-            if (currentRole === 'Unidade') {
-                lista = lista.filter(c => c.unidade.toLowerCase() === currentUser.toLowerCase());
+            let actions = '';
+            if (currentRole === 'Técnico') {
+                if (t.status === 'Pendente') {
+                    actions = `<button class="btn-progress" onclick="updateTicketStatus(${t.id}, 'Em Andamento')">🔧 Iniciar</button>
+                               <button class="btn-action" onclick="updateTicketStatus(${t.id}, 'Concluído')">✓ Concluir</button>`;
+                } else if (t.status === 'Em Andamento') {
+                    actions = `<button class="btn-action" onclick="updateTicketStatus(${t.id}, 'Concluído')">✓ Concluir</button>`;
+                }
             }
 
-            if (lista.length === 0) {
-                container.innerHTML = '<div class="empty-state">Nenhum chamado registrado no momento.<br>Clique em <b>+ Novo Chamado</b> para abrir uma OS.</div>';
+            return `
+                <div class="item-card">
+                    <div class="item-top">
+                        <span class="item-title">${t.unidade} • ${t.tipo}</span>
+                        <span class="status-badge ${badgeClass}">${t.status}</span>
+                    </div>
+                    <div class="item-desc">${t.desc}</div>
+                    ${t.foto ? `<img src="${t.foto}" class="ticket-photo" alt="Foto do chamado">` : ''}
+                    <div class="item-footer">
+                        <span>📅 ${t.data}</span>
+                        <div>${actions}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTickets() {
+            const container = document.getElementById('lista-chamados');
+            let tickets = getTickets().filter(t => t.status !== 'Em Andamento');
+
+            if (currentRole === 'Unidade') {
+                tickets = tickets.filter(t => t.unidade.toLowerCase() === currentUser.toLowerCase());
+            }
+
+            if (tickets.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum chamado pendente ou concluído.</div>';
+                return;
+            }
+            container.innerHTML = tickets.map(createTicketHTML).join('');
+        }
+
+        function renderInProgress() {
+            const container = document.getElementById('lista-andamento');
+            let tickets = getTickets().filter(t => t.status === 'Em Andamento');
+
+            if (currentRole === 'Unidade') {
+                tickets = tickets.filter(t => t.unidade.toLowerCase() === currentUser.toLowerCase());
+            }
+
+            if (tickets.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum chamado em andamento no momento.</div>';
+                return;
+            }
+            container.innerHTML = tickets.map(createTicketHTML).join('');
+        }
+
+        document.getElementById('lojaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('novaLojaNome').value.trim();
+            const password = document.getElementById('novaLojaSenha').value.trim();
+            const units = getUnits();
+
+            const existingIndex = units.findIndex(u => u.name.toLowerCase() === name.toLowerCase());
+            if (existingIndex >= 0) {
+                units[existingIndex].password = password;
+                units[existingIndex].firstAccess = true;
+            } else {
+                units.push({ name, password, firstAccess: true });
+            }
+            saveUnits(units);
+
+            document.getElementById('novaLojaNome').value = '';
+            document.getElementById('novaLojaSenha').value = '';
+            renderUnits();
+        });
+
+        function removeUnit(name) {
+            const units = getUnits().filter(u => u.name !== name);
+            saveUnits(units);
+            renderUnits();
+        }
+
+        function renderUnits() {
+            const container = document.getElementById('lista-lojas');
+            const units = getUnits();
+
+            if (units.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhuma unidade cadastrada.</div>';
                 return;
             }
 
-            container.innerHTML = lista.map(c => `
-                <div class="chamado-card">
-                    <div class="chamado-top">
-                        <span class="chamado-unidade">${c.unidade} • ${c.tipo}</span>
-                        <span class="status-badge ${c.status === 'Pendente' ? 'status-pendente' : 'status-concluido'}">${c.status}</span>
+            container.innerHTML = units.map(u => `
+                <div class="item-card" style="padding: 12px;">
+                    <div class="item-top" style="margin-bottom: 4px;">
+                        <span class="item-title">🏢 ${u.name}</span>
+                        <button class="btn-danger" onclick="removeUnit('${u.name}')">Excluir</button>
                     </div>
-                    <div class="chamado-desc">${c.desc}</div>
-                    <div class="chamado-footer">
-                        <span>📅 ${c.data}</span>
-                        ${c.status === 'Pendente' && currentRole === 'Técnico' ? `<button class="btn-concluir" onclick="concluirChamado(${c.id})">✓ Concluir</button>` : ''}
+                    <div class="item-footer">
+                        <span>Senha: <b>${u.password}</b> (${u.firstAccess ? 'Aguardando 1º acesso' : 'Senha alterada'})</span>
                     </div>
                 </div>
             `).join('');
