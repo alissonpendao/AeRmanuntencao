@@ -1,145 +1,1899 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A&R Manutenção</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0F2537">
-<link rel="apple-touch-icon" href="logo.png">
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-body { background-color: #0F2537; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-​#splash-screen {
-position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-background-color: #0F2537; display: flex; flex-direction: column;
-justify-content: center; align-items: center; z-index: 9999;
-transition: opacity 0.5s ease;
-}
-​.logo-container {
-width: 180px; height: 180px;
-background-color: #0F2537;
-border-radius: 50%;
-display: flex; justify-content: center; align-items: center;
-overflow: hidden;
-box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-margin-bottom: 20px;
-}
-​.logo-container img {
-width: 100%; height: 100%;
-object-fit: contain;
-border-radius: 50%;
-background-color: #0F2537;
-}
-​.app-title {
-color: #FFFFFF; font-size: 24px; font-weight: bold; text-align: center;
-}
-​.app-slogan {
-background-color: #FFD700; color: #0F2537; padding: 4px 12px;
-border-radius: 15px; font-size: 14px; font-weight: bold; margin-top: 10px;
-}
-​#login-card {
-background: white; width: 90%; max-width: 400px;
-padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-text-align: center; display: none; margin: 20px auto;
-}
-​#login-card .logo-container {
-width: 120px; height: 120px; margin: 0 auto 20px auto;
-background-color: #0F2537;
-}
-​#login-card .logo-container img {
-background-color: #0F2537;
-}
-​.input-group { margin-bottom: 20px; text-align: left; }
-.input-group label { display: block; margin-bottom: 8px; color: #333; font-size: 14px; }
-.input-group input {
-width: 100%; padding: 12px; border: 2px solid #ddd;
-border-radius: 10px; font-size: 16px; outline: none; transition: border-color 0.3s;
-}
-.input-group input:focus { border-color: #FFD700; }
-​.btn-submit {
-background-color: #FFD700; color: #0F2537; border: none;
-width: 100%; padding: 15px; font-size: 18px; font-weight: bold;
-border-radius: 10px; cursor: pointer; transition: background 0.3s;
-}
-.btn-submit:hover { background-color: #e6c200; }
-​#install-container {
-margin-top: 20px; display: none;
-}
-.btn-install {
-background-color: transparent; border: 2px solid #FFD700; color: #FFD700;
-padding: 10px 20px; font-size: 14px; border-radius: 20px; cursor: pointer;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0F2537" />
+  <title>A&R Manutenção — Sistema de Chamados</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="logo.png" />
+
+  <!-- Chart.js para o gráfico de barras -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --navy: #0F2537;
+      --navy-light: #18364f;
+      --yellow: #FFD200;
+      --yellow-hover: #e6bd00;
+      --bg: #F3F5F8;
+      --card: #FFFFFF;
+      --text: #1E293B;
+      --muted: #64748B;
+      --border: #E2E8F0;
+      --green: #16A34A;
+      --green-bg: #DCFCE7;
+      --blue: #2563EB;
+      --blue-bg: #DBEAFE;
+      --amber: #D97706;
+      --amber-bg: #FEF3C7;
+      --purple: #7C3AED;
+      --purple-bg: #EDE9FE;
+      --red: #DC2626;
+      --red-bg: #FEE2E2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding-bottom: 84px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ================= TELA DE LOGIN ================= */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, var(--navy) 0%, #091724 100%);
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--card);
+      width: 100%;
+      max-width: 400px;
+      border-radius: 20px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      margin: 0 auto 14px;
+      border-radius: 16px;
+      background: var(--navy);
+      padding: 8px;
+    }
+
+    .login-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .login-slogan {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      background: #F8FAFC;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--navy);
+      background: #fff;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--yellow);
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(255, 210, 0, 0.35);
+    }
+
+    .btn-navy {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-outline {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid var(--navy);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .error-msg {
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    /* ================= HEADER & DRAWER ================= */
+    .topbar {
+      background: #fff;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--navy);
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      font-size: 16px;
+    }
+
+    .icon-btn.dark {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .badge-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .logout-pill {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* Drawer Lateral */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 37, 55, 0.55);
+      z-index: 50;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 280px;
+      background: #fff;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 16px;
+      box-shadow: 6px 0 24px rgba(0,0,0,0.15);
+    }
+
+    .drawer-brand {
+      text-align: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    .drawer-brand img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      background: var(--navy);
+      border-radius: 14px;
+      padding: 6px;
+      margin-bottom: 8px;
+    }
+
+    .drawer-brand h3 {
+      font-size: 16px;
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .drawer-brand p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .drawer-section {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.6px;
+      margin: 14px 10px 6px;
+      text-transform: uppercase;
+    }
+
+    .drawer-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+
+    .drawer-item.active {
+      background: #FEF9C3;
+      color: var(--navy);
+    }
+
+    .drawer-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--blue-bg);
+      color: var(--blue);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* ================= CONTEÚDO PRINCIPAL ================= */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .hero-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .hero-card h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .hero-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* Grid de métricas 2 colunas */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      cursor: pointer;
+      transition: transform 0.12s;
+    }
+
+    .metric-card:active { transform: scale(0.98); }
+
+    .metric-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .metric-link {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--amber);
+    }
+
+    /* Seções / Cards brancos */
+    .section-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .link-sm {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      cursor: pointer;
+    }
+
+    /* Lista de Últimos Chamados */
+    .recent-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .recent-row:last-child { border-bottom: none; }
+
+    .recent-id {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--navy);
+      min-width: 48px;
+    }
+
+    .recent-info {
+      flex: 1;
+      padding: 0 10px;
+    }
+
+    .recent-store {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .recent-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .recent-meta {
+      text-align: right;
+    }
+
+    .recent-time {
+      font-size: 11px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .b-aberto { background: var(--amber-bg); color: var(--amber); }
+    .b-visualizado { background: var(--blue-bg); color: var(--blue); }
+    .b-andamento { background: var(--purple-bg); color: var(--purple); }
+    .b-finalizado { background: var(--green-bg); color: var(--green); }
+    .b-nao_atendido { background: var(--red-bg); color: var(--red); }
+
+    .p-urgente { background: var(--red-bg); color: var(--red); }
+    .p-alta { background: #FFEDD5; color: #C2410C; }
+    .p-media { background: var(--blue-bg); color: var(--blue); }
+    .p-baixa { background: #F1F5F9; color: #475569; }
+
+    /* Cards de Lista de Chamados */
+    .ticket-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .ticket-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .ticket-num {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .ticket-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .ticket-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* Detalhes do Chamado */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .detail-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .detail-box span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .detail-box strong {
+      font-size: 14px;
+      color: var(--navy);
+    }
+
+    /* Galeria de Fotos */
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .photo-item {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #F8FAFC;
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+      cursor: pointer;
+    }
+
+    .photo-caption {
+      padding: 6px 8px;
+      font-size: 11px;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    /* Observações e Histórico */
+    .obs-card {
+      background: #F8FAFC;
+      border-left: 4px solid var(--navy);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .obs-card.admin-alert {
+      background: #FEF9C3;
+      border-left-color: var(--amber);
+    }
+
+    .obs-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .obs-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 4px 10px;
+      z-index: 40;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .nav-btn.active {
+      color: var(--navy);
+    }
+
+    .nav-btn.active .nav-icon {
+      background: #FEF9C3;
+      color: var(--amber);
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 26px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 37, 55, 0.65);
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--navy);
+    }
+  </style>
 </head>
 <body>
-​<div id="splash-screen">
-<div class="logo-container">
-<img src="logo.png" alt="A&R Logo">
-</div>
-<div class="app-title">A&R MANUTENÇÃO</div>
-<div class="app-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
-</div>
-​<div id="login-card">
-<div class="logo-container">
-<img src="logo.png" alt="A&R Logo">
-</div>
-<div class="app-title" style="color: #0F2537;">A&R MANUTENÇÃO</div>
-<div class="app-slogan">⚡ SOLUÇÕES RÁPIDAS E PRECISAS</div>
-​<form id="loginForm" style="margin-top: 30px;">
-<div class="input-group">
-<label for="unitLogin">LOGIN DA UNIDADE (OU DEIXE EM BRANCO PARA TÉCNICO)</label>
-<input type="text" id="unitLogin" placeholder="Usuário">
-</div>
-<div class="input-group">
-<label for="password">SENHA DE ACCESSO</label>
-<input type="password" id="password" placeholder="Digite sua senha..." required>
-</div>
-<button type="submit" class="btn-submit">Entrar no Sistema</button>
-</form>
-​<div id="install-container">
-<button id="installBtn" class="btn-install">Instalar App na Tela Inicial</button>
-</div>
-</div>
-​<script>
-window.addEventListener('load', () => {
-setTimeout(() => {
-const splash = document.getElementById('splash-screen');
-splash.style.opacity = '0';
-setTimeout(() => {
-splash.style.display = 'none';
-document.getElementById('login-card').style.display = 'block';
-}, 500);
-}, 2000);
-​if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('sw.js')
-.then(() => console.log('Service Worker registrado com sucesso.'))
-.catch(err => console.log('Erro ao registrar Service Worker:', err));
-}
-});
-​let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-e.preventDefault();
-deferredPrompt = e;
-document.getElementById('install-container').style.display = 'block';
-});
-​document.getElementById('installBtn').addEventListener('click', (e) => {
-if (deferredPrompt) {
-deferredPrompt.prompt();
-deferredPrompt.userChoice.then((choiceResult) => {
-if (choiceResult.outcome === 'accepted') {
-console.log('Usuário aceitou o prompt de instalação');
-}
-deferredPrompt = null;
-});
-}
-});
-​document.getElementById('loginForm').addEventListener('submit', function(e) {
-e.preventDefault();
-const unit = document.getElementById('unitLogin').value;
-const pass = document.getElementById('password').value;
-console.log('Tentativa de login:', unit, pass);
-});
-</script>
+
+  <!-- ================= TELA DE LOGIN ================= -->
+  <div id="login-screen" class="login-wrapper">
+    <div class="login-card">
+      <img src="logo.png" alt="A&R Manutenção" class="login-logo" onerror="this.style.display='none'" />
+      <div class="login-title">A&R Manutenção</div>
+      <div class="login-slogan">Manutenção e Instalação Comercial</div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-user">Usuário ou Loja</label>
+          <input type="text" id="login-user" class="form-control" placeholder="Ex: tecnico ou loja01" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label for="login-pass">Senha</label>
+          <input type="password" id="login-pass" class="form-control" placeholder="Digite sua senha" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-primary">Entrar no Sistema</button>
+        <div id="login-error" class="error-msg hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL DE TROCA DE SENHA OBRIGATÓRIA ================= -->
+  <div id="force-pass-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <h2 style="color:var(--navy); margin-bottom:8px;">🔒 Segurança: Crie sua Nova Senha</h2>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+        Por proteção da sua conta, é obrigatório alterar a senha provisória no primeiro acesso.
+      </p>
+      <form id="force-pass-form">
+        <div class="form-group">
+          <label>Nova Senha</label>
+          <input type="password" id="new-pass-1" class="form-control" minlength="4" required placeholder="Mínimo 4 caracteres" />
+        </div>
+        <div class="form-group">
+          <label>Confirmar Nova Senha</label>
+          <input type="password" id="new-pass-2" class="form-control" minlength="4" required placeholder="Repita a nova senha" />
+        </div>
+        <button type="submit" class="btn-navy">Salvar Nova Senha e Acessar</button>
+        <div id="pass-error" class="error-msg hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= APLICATIVO PRINCIPAL ================= -->
+  <div id="app-screen" class="hidden">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleDrawer(true)">☰</button>
+        <span class="topbar-title">Sistema de Manutenção</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" onclick="switchView('aberto')" title="Chamados abertos">
+          🔔<span id="notif-dot" class="badge-dot hidden"></span>
+        </button>
+        <button class="logout-pill" onclick="logout()">↪ Sair</button>
+      </div>
+    </header>
+
+    <!-- Drawer Lateral -->
+    <div id="drawer-backdrop" class="drawer-backdrop hidden" onclick="toggleDrawer(false)"></div>
+    <aside id="side-drawer" class="drawer hidden">
+      <div>
+        <div class="drawer-brand">
+          <img src="logo.png" alt="Logo A&R" onerror="this.style.display='none'" />
+          <h3>A&R Manutenção</h3>
+          <p>Gestão Técnica & Preventiva</p>
+        </div>
+
+        <div class="drawer-section">Principal</div>
+        <div class="drawer-item active" data-nav="dashboard" onclick="switchView('dashboard'); toggleDrawer(false)">🏠 Dashboard</div>
+
+        <div class="drawer-section">Chamados</div>
+        <div class="drawer-item" data-nav="aberto" onclick="switchView('aberto'); toggleDrawer(false)">🎫 Em aberto</div>
+        <div class="drawer-item" data-nav="andamento" onclick="switchView('andamento'); toggleDrawer(false)">⏳ Em andamento</div>
+        <div class="drawer-item" data-nav="finalizado" onclick="switchView('finalizado'); toggleDrawer(false)">✅ Finalizados</div>
+
+        <div class="drawer-section">Manutenção & Gestão</div>
+        <div class="drawer-item" data-nav="equipamentos" onclick="switchView('equipamentos'); toggleDrawer(false)">⚙️ Equipamentos</div>
+        <div class="drawer-item" data-nav="preventiva" onclick="switchView('preventiva'); toggleDrawer(false)">📅 Preventiva</div>
+        <div id="menu-lojas" class="drawer-item" data-nav="lojas" onclick="switchView('lojas'); toggleDrawer(false)">🏪 Lojas & Acessos</div>
+      </div>
+
+      <div class="drawer-footer">
+        <div class="avatar-circle" id="drawer-avatar">TM</div>
+        <div>
+          <div style="font-size:14px; font-weight:800; color:var(--navy);" id="drawer-username">Técnico</div>
+          <div style="font-size:11px; font-weight:700; color:var(--muted);" id="drawer-role">ADMINISTRADOR</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Dinâmico -->
+    <main class="container">
+
+      <!-- ===== VIEW: DASHBOARD ===== -->
+      <section id="view-dashboard">
+        <div class="hero-card">
+          <h1 id="welcome-title">Olá, Técnico</h1>
+          <p>Bem-vindo ao sistema de manutenção da <strong>A&R Manutenção e Instalação</strong>.</p>
+          <button class="btn-primary" onclick="openNewTicketModal()">+ Abrir novo chamado</button>
+        </div>
+
+        <!-- Cartões de Status (Sem SLA conforme solicitado) -->
+        <div class="metrics-grid">
+          <div class="metric-card" onclick="switchView('aberto')">
+            <div class="metric-icon" style="background:var(--amber-bg); color:var(--amber);">📋</div>
+            <div class="metric-label">Abertos</div>
+            <div class="metric-value" style="color:var(--amber);" id="count-aberto">0</div>
+            <div class="metric-link">Ver detalhes →</div>
+          </div>
+
+          <div class="metric-card" onclick="switchView('aberto')">
+            <div class="metric-icon" style="background:var(--blue-bg); color:var(--blue);">🛠️</div>
+            <div class="metric-label">Visualizado</div>
+            <div class="metric-value" style="color:var(--blue);" id="count-visualizado">0</div>
+            <div class="metric-link">Ver detalhes →</div>
+          </div>
+
+          <div class="metric-card" onclick="switchView('andamento')">
+            <div class="metric-icon" style="background:var(--purple-bg); color:var(--purple);">⏳</div>
+            <div class="metric-label">Em andamento</div>
+            <div class="metric-value" style="color:var(--purple);" id="count-andamento">0</div>
+            <div class="metric-link">Ver detalhes →</div>
+          </div>
+
+          <div class="metric-card" onclick="switchView('finalizado')">
+            <div class="metric-icon" style="background:var(--green-bg); color:var(--green);">✅</div>
+            <div class="metric-label">Finalizados</div>
+            <div class="metric-value" style="color:var(--green);" id="count-finalizado">0</div>
+            <div class="metric-link">Ver detalhes →</div>
+          </div>
+
+          <div class="metric-card" onclick="switchView('finalizado')">
+            <div class="metric-icon" style="background:var(--red-bg); color:var(--red);">🚫</div>
+            <div class="metric-label">Não atendidos</div>
+            <div class="metric-value" style="color:var(--red);" id="count-nao-atendido">0</div>
+            <div class="metric-link">Ver detalhes →</div>
+          </div>
+
+          <div class="metric-card" onclick="switchView('preventiva')">
+            <div class="metric-icon" style="background:#FEF9C3; color:var(--amber);">📅</div>
+            <div class="metric-label">Preventivas</div>
+            <div class="metric-value" style="color:var(--navy);" id="count-preventiva">0</div>
+            <div class="metric-link">Ver agenda →</div>
+          </div>
+        </div>
+
+        <!-- Gráfico por Loja -->
+        <div class="section-card">
+          <div class="section-title" style="margin-bottom:6px;">📊 Chamados por loja, últimos 30 dias</div>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">
+            Distribuição de chamados por unidade cadastrada.
+          </p>
+          <canvas id="storesChart" height="190"></canvas>
+        </div>
+
+        <!-- Últimos Chamados -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Últimos chamados</div>
+            <span class="link-sm" onclick="switchView('aberto')">Ver todos</span>
+          </div>
+          <div id="recent-tickets-list"></div>
+        </div>
+
+        <!-- Accordion Chamados em Aberto -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">🎫 Chamados em aberto</div>
+            <span class="link-sm" onclick="switchView('aberto')">Ver todos →</span>
+          </div>
+          <div class="accordion-header" onclick="toggleAccordion('acc-open-body')">
+            <span id="acc-open-label">Mostrar a lista de chamados em aberto (0)</span>
+            <span>⌄</span>
+          </div>
+          <div id="acc-open-body" class="hidden" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- Accordion Chamados Finalizados -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">✅ Chamados Finalizados</div>
+            <span class="link-sm" onclick="switchView('finalizado')">Ver todos →</span>
+          </div>
+          <div class="accordion-header" onclick="toggleAccordion('acc-done-body')">
+            <span id="acc-done-label">Mostrar a lista de chamados finalizados (0)</span>
+            <span>⌄</span>
+          </div>
+          <div id="acc-done-body" class="hidden" style="margin-top:12px;"></div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: LISTA DE CHAMADOS (ABERTO / ANDAMENTO / FINALIZADO) ===== -->
+      <section id="view-tickets" class="hidden">
+        <div class="section-card">
+          <h2 id="list-view-title" style="color:var(--navy); margin-bottom:12px;">Chamados em aberto</h2>
+          <button class="btn-navy" style="margin-bottom:12px;" onclick="openNewTicketModal()">+ Novo chamado</button>
+
+          <div style="display:flex; gap:8px; margin-bottom:8px;">
+            <select id="filter-store" class="form-control" onchange="renderTicketsList()">
+              <option value="">Todas as lojas</option>
+            </select>
+            <select id="filter-priority" class="form-control" onchange="renderTicketsList()">
+              <option value="">Todas prioridades</option>
+              <option value="URGENTE">Urgente</option>
+              <option value="ALTA">Alta</option>
+              <option value="MÉDIA">Média</option>
+              <option value="BAIXA">Baixa</option>
+            </select>
+          </div>
+          <input type="text" id="filter-search" class="form-control" placeholder="Buscar por título ou número..." oninput="renderTicketsList()" />
+        </div>
+
+        <div style="font-size:13px; font-weight:700; color:var(--muted); margin-bottom:10px;" id="list-count-label">0 registro(s)</div>
+        <div id="tickets-list-container"></div>
+      </section>
+
+      <!-- ===== VIEW: DETALHES DO CHAMADO ===== -->
+      <section id="view-detail" class="hidden">
+        <button class="btn-outline" style="margin-bottom:12px;" onclick="goBackFromDetail()">← Voltar para lista</button>
+
+        <div class="section-card" id="detail-header-card"></div>
+
+        <!-- Atualizar Chamado (Apenas Técnico/Admin ou observação) -->
+        <div class="section-card" id="detail-update-card">
+          <h3 style="color:var(--navy); margin-bottom:12px;">Atualizar chamado</h3>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="detail-status-select" class="form-control">
+              <option value="aberto">Em aberto</option>
+              <option value="visualizado">Visualizado pelo técnico</option>
+              <option value="andamento">Em andamento</option>
+              <option value="finalizado">Finalizado com sucesso</option>
+              <option value="nao_atendido">Não atendido</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Adicionar Observação / Relatório Técnico</label>
+            <input type="text" id="detail-new-obs" class="form-control" placeholder="Ex: Lavado condensador, trocado sensor..." />
+          </div>
+          <button class="btn-navy" onclick="saveTicketUpdate()">Salvar atualização</button>
+        </div>
+
+        <!-- Fotos (Compressão automática + Firebase Storage) -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">📷 Fotos <span class="badge b-visualizado" id="detail-photo-count">0</span></div>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" capture="environment" class="hidden" onchange="handlePhotoUpload(event)" />
+          <button class="btn-navy" id="btn-add-photo" onclick="document.getElementById('photo-input').click()">+ Adicionar foto</button>
+          <p style="font-size:12px; color:var(--muted); margin-top:8px;">
+            ℹ️ Máximo 5 fotos por chamado. A foto é comprimida automaticamente antes do envio para o Firebase.
+          </p>
+          <div id="detail-photos-grid" class="photos-grid"></div>
+        </div>
+
+        <!-- Observações -->
+        <div class="section-card">
+          <div class="section-title" style="margin-bottom:10px;">💬 Observações <span class="badge b-aberto" id="detail-obs-count">0</span></div>
+          <div id="detail-obs-list"></div>
+        </div>
+
+        <!-- Histórico de Status -->
+        <div class="section-card">
+          <div class="section-title" style="margin-bottom:10px;">🕒 Histórico de status</div>
+          <div id="detail-history-list"></div>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: EQUIPAMENTOS ===== -->
+      <section id="view-equipamentos" class="hidden">
+        <div class="section-card">
+          <h2 style="color:var(--navy); margin-bottom:12px;">⚙️ Cadastro de Equipamentos</h2>
+          <form id="equip-form">
+            <div class="form-group">
+              <label>Loja</label>
+              <select id="equip-store" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label>Nome do Equipamento</label>
+              <input type="text" id="equip-name" class="form-control" placeholder="Ex: Câmara de Congelados 01" required />
+            </div>
+            <div class="form-group">
+              <label>Modelo / Marca / Observação</label>
+              <input type="text" id="equip-model" class="form-control" placeholder="Ex: Controlador Carel / R-22" />
+            </div>
+            <button type="submit" class="btn-primary">+ Cadastrar Equipamento</button>
+          </form>
+        </div>
+        <div id="equip-list"></div>
+      </section>
+
+      <!-- ===== VIEW: MANUTENÇÃO PREVENTIVA ===== -->
+      <section id="view-preventiva" class="hidden">
+        <div class="section-card">
+          <h2 style="color:var(--navy); margin-bottom:12px;">📅 Agenda de Preventiva</h2>
+          <form id="prev-form">
+            <div class="form-group">
+              <label>Loja</label>
+              <select id="prev-store" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label>Serviço Preventivo</label>
+              <input type="text" id="prev-desc" class="form-control" placeholder="Ex: Limpeza de condensadores e revisão elétrica" required />
+            </div>
+            <div class="form-group">
+              <label>Data Programada</label>
+              <input type="date" id="prev-date" class="form-control" required />
+            </div>
+            <button type="submit" class="btn-navy">+ Agendar Preventiva</button>
+          </form>
+        </div>
+        <div id="prev-list"></div>
+      </section>
+
+      <!-- ===== VIEW: GESTÃO DE LOJAS & USUÁRIOS (APENAS ADMIN/TÉCNICO) ===== -->
+      <section id="view-lojas" class="hidden">
+        <div class="section-card">
+          <h2 style="color:var(--navy); margin-bottom:6px;">🏪 Cadastrar Nova Loja / Cliente</h2>
+          <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+            Crie o login e a senha provisória para o gerente da loja. No primeiro acesso, o sistema exigirá a troca de senha.
+          </p>
+          <form id="store-form">
+            <div class="form-group">
+              <label>Nome da Loja</label>
+              <input type="text" id="store-name" class="form-control" placeholder="Ex: Loja 01 - Centro" required />
+            </div>
+            <div class="form-group">
+              <label>Usuário de Acesso (Login)</label>
+              <input type="text" id="store-login" class="form-control" placeholder="Ex: loja01" required />
+            </div>
+            <div class="form-group">
+              <label>Senha Provisória</label>
+              <input type="text" id="store-pass" class="form-control" placeholder="Ex: 1234" required />
+            </div>
+            <button type="submit" class="btn-primary">+ Cadastrar Loja e Gerar Acesso</button>
+          </form>
+        </div>
+
+        <div class="section-card">
+          <h3 style="color:var(--navy); margin-bottom:12px;">Lojas Cadastradas</h3>
+          <div id="stores-admin-list"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Navegação Inferior -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="dashboard" onclick="switchView('dashboard')">
+        <span class="nav-icon">🕒</span>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-btn" data-tab="aberto" onclick="switchView('aberto')">
+        <span class="nav-icon">🎫</span>
+        <span>Em aberto</span>
+      </button>
+      <button class="nav-btn" data-tab="andamento" onclick="switchView('andamento')">
+        <span class="nav-icon">⏳</span>
+        <span>Andamento</span>
+      </button>
+      <button class="nav-btn" data-tab="finalizado" onclick="switchView('finalizado')">
+        <span class="nav-icon">✅</span>
+        <span>Finalizados</span>
+      </button>
+      <button class="nav-btn" onclick="logout()">
+        <span class="nav-icon">↪</span>
+        <span>Sair</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ================= MODAL: NOVO CHAMADO ================= -->
+  <div id="new-ticket-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <h2 style="color:var(--navy); margin-bottom:14px;">Novo chamado</h2>
+      <form id="new-ticket-form">
+        <div class="form-group">
+          <label>Loja</label>
+          <select id="nt-store" class="form-control" required></select>
+        </div>
+        <div class="form-group">
+          <label>Prioridade</label>
+          <select id="nt-priority" class="form-control" required>
+            <option value="MÉDIA">Média</option>
+            <option value="ALTA">Alta</option>
+            <option value="URGENTE">Urgente</option>
+            <option value="BAIXA">Baixa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Equipamento (opcional)</label>
+          <select id="nt-equip" class="form-control">
+            <option value="Nenhum / não se aplica">Nenhum / não se aplica</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" id="nt-title" class="form-control" placeholder="Ex: Câmara de congelados não baixa temperatura" required />
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea id="nt-desc" class="form-control" rows="3" placeholder="Descreva o problema, local e qualquer detalhe importante." required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Seu Nome (Aberto por)</label>
+          <input type="text" id="nt-author" class="form-control" placeholder="Ex: Wesley / Gerente" required />
+        </div>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button type="button" class="btn-outline" onclick="closeNewTicketModal()">Cancelar</button>
+          <button type="submit" class="btn-primary">+ Salvar chamado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= FIREBASE SDK & LÓGICA DO APP ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
+      onSnapshot, query, orderBy, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getStorage, ref, uploadBytes, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCBkKbHelBdh5dr3yrAEbPXp4RQbvhZ5E",
+      authDomain: "aermanuntencao.firebaseapp.com",
+      projectId: "aermanuntencao",
+      storageBucket: "aermanuntencao.firebasestorage.app",
+      messagingSenderId: "786994474703",
+      appId: "1:786994474703:web:dbf7bf64afeeb28fc4d1ba",
+      measurementId: "G-EKRKTEMJ85"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Estado Global
+    let currentUser = null;
+    let allTickets = [];
+    let allStores = [];
+    let allEquips = [];
+    let allPrevs = [];
+    let currentListFilter = 'aberto';
+    let selectedTicketId = null;
+    let chartInstance = null;
+
+    // Criptografia SHA-256 para senhas
+    async function hashPassword(text) {
+      const msgBuffer = new TextEncoder().encode(text.trim());
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Garante que o usuário master 'tecnico' com senha '2191' exista no Firestore
+    async function ensureAdminAccount() {
+      const adminRef = doc(db, 'usuarios', 'tecnico');
+      const snap = await getDoc(adminRef);
+      if (!snap.exists()) {
+        const passHash = await hashPassword('2191');
+        await setDoc(adminRef, {
+          username: 'tecnico',
+          name: 'Técnico Manutenção',
+          role: 'admin',
+          storeName: 'Todas',
+          passHash: passHash,
+          mustChangePassword: false
+        });
+      }
+    }
+
+    // Login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userRaw = document.getElementById('login-user').value.trim().toLowerCase();
+      const passRaw = document.getElementById('login-pass').value;
+      const errEl = document.getElementById('login-error');
+      errEl.classList.add('hidden');
+
+      try {
+        await ensureAdminAccount();
+        const userSnap = await getDoc(doc(db, 'usuarios', userRaw));
+        if (!userSnap.exists()) {
+          errEl.textContent = 'Usuário ou loja não encontrado.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        const userData = userSnap.data();
+        const inputHash = await hashPassword(passRaw);
+
+        if (inputHash !== userData.passHash) {
+          errEl.textContent = 'Senha incorreta.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        currentUser = { id: userSnap.id, ...userData };
+        localStorage.setItem('aer_session', JSON.stringify(currentUser));
+
+        if (currentUser.mustChangePassword) {
+          document.getElementById('force-pass-modal').classList.remove('hidden');
+        } else {
+          startApp();
+        }
+      } catch (err) {
+        console.error(err);
+        errEl.textContent = 'Erro ao conectar ao Firebase. Verifique se o Firestore está ativado.';
+        errEl.classList.remove('hidden');
+      }
+    });
+
+    // Troca obrigatória de senha
+    document.getElementById('force-pass-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const p1 = document.getElementById('new-pass-1').value;
+      const p2 = document.getElementById('new-pass-2').value;
+      const errEl = document.getElementById('pass-error');
+
+      if (p1 !== p2) {
+        errEl.textContent = 'As senhas não coincidem.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const newHash = await hashPassword(p1);
+      await updateDoc(doc(db, 'usuarios', currentUser.id), {
+        passHash: newHash,
+        mustChangePassword: false
+      });
+
+      currentUser.mustChangePassword = false;
+      localStorage.setItem('aer_session', JSON.stringify(currentUser));
+      document.getElementById('force-pass-modal').classList.add('hidden');
+      startApp();
+    });
+
+    window.logout = function() {
+      localStorage.removeItem('aer_session');
+      location.reload();
+    };
+
+    // Inicia sessão salva
+    window.addEventListener('DOMContentLoaded', async () => {
+      const saved = localStorage.getItem('aer_session');
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        if (currentUser.mustChangePassword) {
+          document.getElementById('force-pass-modal').classList.remove('hidden');
+        } else {
+          startApp();
+        }
+      }
+    });
+
+    function startApp() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-screen').classList.remove('hidden');
+
+      document.getElementById('welcome-title').textContent = `Olá, ${currentUser.name}`;
+      document.getElementById('drawer-username').textContent = currentUser.name;
+      document.getElementById('drawer-role').textContent = currentUser.role === 'admin' ? 'ADMINISTRADOR / TÉCNICO' : currentUser.storeName;
+      document.getElementById('drawer-avatar').textContent = currentUser.name.substring(0, 2).toUpperCase();
+
+      if (currentUser.role !== 'admin') {
+        document.getElementById('menu-lojas').classList.add('hidden');
+      }
+
+      subscribeRealtimeData();
+    }
+
+    // Listeners em Tempo Real (Firestore)
+    function subscribeRealtimeData() {
+      // Lojas
+      onSnapshot(collection(db, 'lojas'), (snap) => {
+        allStores = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        populateStoreSelects();
+        renderStoresAdmin();
+        updateChart();
+      });
+
+      // Chamados
+      onSnapshot(query(collection(db, 'chamados'), orderBy('createdAtMs', 'desc')), (snap) => {
+        allTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateDashboard();
+        renderTicketsList();
+        if (selectedTicketId) renderTicketDetail(selectedTicketId);
+      });
+
+      // Equipamentos
+      onSnapshot(collection(db, 'equipamentos'), (snap) => {
+        allEquips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderEquipments();
+      });
+
+      // Preventivas
+      onSnapshot(collection(db, 'preventivas'), (snap) => {
+        allPrevs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        document.getElementById('count-preventiva').textContent = allPrevs.length;
+        renderPreventivas();
+      });
+    }
+
+    function getVisibleTickets() {
+      if (currentUser.role === 'admin') return allTickets;
+      return allTickets.filter(t => t.storeName === currentUser.storeName);
+    }
+
+    function updateDashboard() {
+      const tickets = getVisibleTickets();
+      const abertos = tickets.filter(t => t.status === 'aberto');
+      const visualizados = tickets.filter(t => t.status === 'visualizado');
+      const andamento = tickets.filter(t => t.status === 'andamento');
+      const finalizados = tickets.filter(t => t.status === 'finalizado');
+      const naoAtendidos = tickets.filter(t => t.status === 'nao_atendido');
+
+      document.getElementById('count-aberto').textContent = abertos.length;
+      document.getElementById('count-visualizado').textContent = visualizados.length;
+      document.getElementById('count-andamento').textContent = andamento.length;
+      document.getElementById('count-finalizado').textContent = finalizados.length;
+      document.getElementById('count-nao-atendido').textContent = naoAtendidos.length;
+
+      const dot = document.getElementById('notif-dot');
+      abertos.length > 0 ? dot.classList.remove('hidden') : dot.classList.add('hidden');
+
+      // Últimos 6 chamados
+      const recentEl = document.getElementById('recent-tickets-list');
+      recentEl.innerHTML = tickets.slice(0, 6).map(t => `
+        <div class="recent-row" onclick="openTicketDetail('${t.id}')">
+          <div class="recent-id">#${t.number}</div>
+          <div class="recent-info">
+            <div class="recent-store">${t.storeName}</div>
+            <div class="recent-title">${t.title}</div>
+          </div>
+          <div class="recent-meta">
+            <span class="recent-time">${timeAgo(t.createdAtMs)}</span>
+            <span class="badge b-${t.status}">${statusLabel(t.status)}</span>
+          </div>
+        </div>
+      `).join('') || '<p style="font-size:13px; color:var(--muted);">Nenhum chamado registrado ainda.</p>';
+
+      // Accordions
+      const openList = tickets.filter(t => ['aberto', 'visualizado'].includes(t.status));
+      document.getElementById('acc-open-label').textContent = `Mostrar a lista de chamados em aberto (${openList.length})`;
+      document.getElementById('acc-open-body').innerHTML = openList.map(t => renderTicketCardHTML(t)).join('');
+
+      document.getElementById('acc-done-label').textContent = `Mostrar a lista de chamados finalizados (${finalizados.length})`;
+      document.getElementById('acc-done-body').innerHTML = finalizados.slice(0, 10).map(t => renderTicketCardHTML(t)).join('');
+
+      updateChart();
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('storesChart');
+      if (!ctx) return;
+
+      const labels = allStores.length ? allStores.map(s => s.name) : ['Sem lojas'];
+      const tickets = getVisibleTickets();
+
+      const dataAberto = labels.map(l => tickets.filter(t => t.storeName === l && t.status === 'aberto').length);
+      const dataVis = labels.map(l => tickets.filter(t => t.storeName === l && t.status === 'visualizado').length);
+      const dataAnd = labels.map(l => tickets.filter(t => t.storeName === l && t.status === 'andamento').length);
+      const dataFin = labels.map(l => tickets.filter(t => t.storeName === l && t.status === 'finalizado').length);
+
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Em aberto', data: dataAberto, backgroundColor: '#F59E0B' },
+            { label: 'Visualizado', data: dataVis, backgroundColor: '#3B82F6' },
+            { label: 'Em andamento', data: dataAnd, backgroundColor: '#8B5CF6' },
+            { label: 'Finalizados', data: dataFin, backgroundColor: '#22C55E' }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    // Navegação entre telas
+    window.switchView = function(view) {
+      ['view-dashboard', 'view-tickets', 'view-detail', 'view-equipamentos', 'view-preventiva', 'view-lojas']
+        .forEach(id => document.getElementById(id).classList.add('hidden'));
+
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.drawer-item').forEach(d => d.classList.remove('active'));
+
+      if (view === 'dashboard') {
+        document.getElementById('view-dashboard').classList.remove('hidden');
+      } else if (['aberto', 'andamento', 'finalizado'].includes(view)) {
+        currentListFilter = view;
+        const titles = {
+          aberto: 'Chamados em aberto',
+          andamento: 'Chamados em andamento',
+          finalizado: 'Chamados Finalizados'
+        };
+        document.getElementById('list-view-title').textContent = titles[view];
+        document.getElementById('view-tickets').classList.remove('hidden');
+        renderTicketsList();
+      } else if (view === 'equipamentos') {
+        document.getElementById('view-equipamentos').classList.remove('hidden');
+      } else if (view === 'preventiva') {
+        document.getElementById('view-preventiva').classList.remove('hidden');
+      } else if (view === 'lojas') {
+        document.getElementById('view-lojas').classList.remove('hidden');
+      }
+
+      const activeTab = document.querySelector(`.nav-btn[data-tab="${view}"]`);
+      if (activeTab) activeTab.classList.add('active');
+      const activeDrawer = document.querySelector(`.drawer-item[data-nav="${view}"]`);
+      if (activeDrawer) activeDrawer.classList.add('active');
+    };
+
+    window.toggleDrawer = function(open) {
+      document.getElementById('side-drawer').classList.toggle('hidden', !open);
+      document.getElementById('drawer-backdrop').classList.toggle('hidden', !open);
+    };
+
+    window.toggleAccordion = function(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    };
+
+    function renderTicketCardHTML(t) {
+      const days = Math.max(0, Math.floor((Date.now() - t.createdAtMs) / 86400000));
+      return `
+        <div class="ticket-card">
+          <div class="ticket-top">
+            <span class="ticket-num">#${t.number}</span>
+            <span class="badge p-${t.priority.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}">${t.priority}</span>
+            <span class="badge b-${t.status}">${statusLabel(t.status)}</span>
+          </div>
+          <div class="ticket-title">${t.title}</div>
+          <div class="ticket-sub">
+            Loja: <strong>${t.storeName}</strong> &nbsp; Abertura: ${formatDate(t.createdAtMs)}<br/>
+            Dias: ${days}
+          </div>
+          <button class="btn-outline" onclick="openTicketDetail('${t.id}')">Abrir</button>
+        </div>
+      `;
+    }
+
+    window.renderTicketsList = function() {
+      let list = getVisibleTickets();
+      if (currentListFilter === 'aberto') {
+        list = list.filter(t => ['aberto', 'visualizado'].includes(t.status));
+      } else if (currentListFilter === 'andamento') {
+        list = list.filter(t => t.status === 'andamento');
+      } else if (currentListFilter === 'finalizado') {
+        list = list.filter(t => ['finalizado', 'nao_atendido'].includes(t.status));
+      }
+
+      const storeF = document.getElementById('filter-store').value;
+      const prioF = document.getElementById('filter-priority').value;
+      const searchF = document.getElementById('filter-search').value.toLowerCase();
+
+      if (storeF) list = list.filter(t => t.storeName === storeF);
+      if (prioF) list = list.filter(t => t.priority === prioF);
+      if (searchF) list = list.filter(t => t.title.toLowerCase().includes(searchF) || String(t.number).includes(searchF));
+
+      document.getElementById('list-count-label').textContent = `${list.length} registro(s)`;
+      document.getElementById('tickets-list-container').innerHTML = list.map(t => renderTicketCardHTML(t)).join('') ||
+        '<div class="section-card"><p style="color:var(--muted);">Nenhum chamado nesta categoria.</p></div>';
+    };
+
+    // Abrir Detalhe do Chamado (e marcar como Visualizado se o técnico abrir um aberto)
+    window.openTicketDetail = async function(id) {
+      selectedTicketId = id;
+      const ticket = allTickets.find(t => t.id === id);
+      if (!ticket) return;
+
+      if (currentUser.role === 'admin' && ticket.status === 'aberto') {
+        const hist = ticket.history || [];
+        hist.unshift({
+          text: `Em aberto → Visualizado pelo técnico`,
+          by: currentUser.name,
+          at: Date.now()
+        });
+        await updateDoc(doc(db, 'chamados', id), {
+          status: 'visualizado',
+          history: hist
+        });
+      }
+
+      ['view-dashboard', 'view-tickets', 'view-equipamentos', 'view-preventiva', 'view-lojas']
+        .forEach(v => document.getElementById(v).classList.add('hidden'));
+      document.getElementById('view-detail').classList.remove('hidden');
+      renderTicketDetail(id);
+    };
+
+    window.goBackFromDetail = function() {
+      selectedTicketId = null;
+      switchView(currentListFilter);
+    };
+
+    function renderTicketDetail(id) {
+      const t = allTickets.find(item => item.id === id);
+      if (!t) return;
+
+      const totalDays = t.closedAtMs
+        ? Math.max(0, Math.round((t.closedAtMs - t.createdAtMs) / 86400000))
+        : Math.max(0, Math.floor((Date.now() - t.createdAtMs) / 86400000));
+
+      document.getElementById('detail-header-card').innerHTML = `
+        <div class="ticket-top">
+          <span class="badge p-${t.priority.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}">${t.priority}</span>
+          <span class="badge b-${t.status}">${statusLabel(t.status)}</span>
+        </div>
+        <h2 style="color:var(--navy); margin-bottom:6px;">#${t.number} ${t.title}</h2>
+        <p style="font-size:14px; color:var(--text); margin-bottom:10px;">${t.description}</p>
+        ${t.equipment && t.equipment !== 'Nenhum / não se aplica' ? `<p style="font-size:12px; font-weight:700; color:var(--blue);">⚙️ Equipamento: ${t.equipment}</p>` : ''}
+
+        <div class="detail-grid">
+          <div class="detail-box"><span>Loja</span><strong>${t.storeName}</strong></div>
+          <div class="detail-box"><span>Aberto por</span><strong>${t.openedBy}</strong></div>
+          <div class="detail-box"><span>Técnico</span><strong>${t.technician || 'Técnico Manutenção'}</strong></div>
+          <div class="detail-box"><span>Abertura</span><strong>${formatDate(t.createdAtMs)}</strong></div>
+          <div class="detail-box"><span>Fechamento</span><strong>${t.closedAtMs ? formatDate(t.closedAtMs) : 'Em aberto'}</strong></div>
+          <div class="detail-box"><span>Finalizado por</span><strong>${t.closedBy || '-'}</strong></div>
+          <div class="detail-box" style="grid-column: span 2;"><span>Tempo total</span><strong>${totalDays} dia(s)</strong></div>
+        </div>
+      `;
+
+      document.getElementById('detail-status-select').value = t.status;
+      document.getElementById('detail-update-card').classList.toggle('hidden', currentUser.role !== 'admin');
+
+      // Fotos
+      const photos = t.photos || [];
+      document.getElementById('detail-photo-count').textContent = photos.length;
+      document.getElementById('btn-add-photo').disabled = photos.length >= 5;
+      document.getElementById('detail-photos-grid').innerHTML = photos.map(p => `
+        <div class="photo-item">
+          <img src="${p.url}" alt="Foto chamado" onclick="window.open('${p.url}', '_blank')" />
+          <div class="photo-caption">${p.by}<br/>${formatDate(p.at)}</div>
+        </div>
+      `).join('');
+
+      // Observações
+      const obs = t.observations || [];
+      document.getElementById('detail-obs-count').textContent = `${obs.length} registro(s)`;
+      document.getElementById('detail-obs-list').innerHTML = obs.map(o => `
+        <div class="obs-card ${o.isSystem ? 'admin-alert' : ''}">
+          <div class="obs-text">${o.text}</div>
+          <div class="obs-meta">👤 Por: ${o.by} • ${formatDate(o.at)}</div>
+        </div>
+      `).join('') || '<p style="font-size:13px; color:var(--muted);">Nenhuma observação registrada.</p>';
+
+      // Histórico
+      const hist = t.history || [];
+      document.getElementById('detail-history-list').innerHTML = hist.map(h => `
+        <div class="obs-card">
+          <div class="obs-text">${h.text}</div>
+          <div class="obs-meta">👤 Por: ${h.by} • ${formatDate(h.at)}</div>
+        </div>
+      `).join('');
+    }
+
+    // Salvar atualização de status e observação
+    window.saveTicketUpdate = async function() {
+      const t = allTickets.find(item => item.id === selectedTicketId);
+      if (!t) return;
+
+      const newStatus = document.getElementById('detail-status-select').value;
+      const obsText = document.getElementById('detail-new-obs').value.trim();
+
+      const updates = { status: newStatus };
+      const hist = t.history || [];
+      const obs = t.observations || [];
+
+      if (newStatus !== t.status) {
+        hist.unshift({
+          text: `${statusLabel(t.status)} → ${statusLabel(newStatus)}`,
+          by: currentUser.name,
+          at: Date.now()
+        });
+        updates.history = hist;
+
+        if (newStatus === 'finalizado' || newStatus === 'nao_atendido') {
+          updates.closedAtMs = Date.now();
+          updates.closedBy = currentUser.name;
+        }
+      }
+
+      if (obsText) {
+        obs.unshift({
+          text: obsText,
+          by: currentUser.name,
+          at: Date.now(),
+          isSystem: false
+        });
+        updates.observations = obs;
+        document.getElementById('detail-new-obs').value = '';
+      }
+
+      await updateDoc(doc(db, 'chamados', t.id), updates);
+      alert('Chamado atualizado com sucesso!');
+    };
+
+    // Compressão de Imagem em Canvas + Envio ao Firebase Storage
+    function compressImage(file, maxWidth = 1024, quality = 0.72) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    window.handlePhotoUpload = async function(event) {
+      const file = event.target.files[0];
+      if (!file || !selectedTicketId) return;
+
+      const t = allTickets.find(item => item.id === selectedTicketId);
+      const photos = t.photos || [];
+      if (photos.length >= 5) {
+        alert('Limite de 5 fotos por chamado atingido.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-add-photo');
+      btn.textContent = 'Comprimindo e enviando...';
+      btn.disabled = true;
+
+      try {
+        const compressedBlob = await compressImage(file);
+        const storageRef = ref(storage, `chamados/${t.id}/${Date.now()}.jpg`);
+        await uploadBytes(storageRef, compressedBlob);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        photos.push({
+          url: downloadURL,
+          by: currentUser.name,
+          at: Date.now()
+        });
+
+        await updateDoc(doc(db, 'chamados', t.id), { photos });
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao enviar foto. Verifique se o Firebase Storage está ativado no console.');
+      } finally {
+        btn.textContent = '+ Adicionar foto';
+        btn.disabled = false;
+        event.target.value = '';
+      }
+    };
+
+    // Modal Novo Chamado
+    window.openNewTicketModal = function() {
+      const storeSelect = document.getElementById('nt-store');
+      if (currentUser.role !== 'admin') {
+        storeSelect.innerHTML = `<option value="${currentUser.storeName}">${currentUser.storeName}</option>`;
+      }
+      document.getElementById('new-ticket-modal').classList.remove('hidden');
+    };
+
+    window.closeNewTicketModal = function() {
+      document.getElementById('new-ticket-modal').classList.add('hidden');
+    };
+
+    document.getElementById('new-ticket-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const storeName = document.getElementById('nt-store').value;
+      const priority = document.getElementById('nt-priority').value;
+      const equipment = document.getElementById('nt-equip').value;
+      const title = document.getElementById('nt-title').value.trim();
+      const description = document.getElementById('nt-desc').value.trim();
+      const openedBy = document.getElementById('nt-author').value.trim();
+
+      const nextNumber = allTickets.length > 0
+        ? Math.max(...allTickets.map(t => t.number || 480)) + 1
+        : 485;
+
+      const now = Date.now();
+      await addDoc(collection(db, 'chamados'), {
+        number: nextNumber,
+        storeName,
+        priority,
+        equipment,
+        title,
+        description,
+        openedBy,
+        technician: 'Técnico Manutenção',
+        status: 'aberto',
+        createdAtMs: now,
+        photos: [],
+        observations: [],
+        history: [{
+          text: 'Criado → Em aberto',
+          by: openedBy,
+          at: now
+        }]
+      });
+
+      e.target.reset();
+      closeNewTicketModal();
+      switchView('aberto');
+    });
+
+    // Cadastro de Lojas & Usuários
+    document.getElementById('store-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('store-name').value.trim();
+      const login = document.getElementById('store-login').value.trim().toLowerCase();
+      const tempPass = document.getElementById('store-pass').value.trim();
+
+      const passHash = await hashPassword(tempPass);
+
+      await addDoc(collection(db, 'lojas'), { name, login });
+      await setDoc(doc(db, 'usuarios', login), {
+        username: login,
+        name: `Gerente ${name}`,
+        role: 'loja',
+        storeName: name,
+        passHash,
+        mustChangePassword: true
+      });
+
+      e.target.reset();
+      alert(`Loja "${name}" cadastrada! Usuário: ${login} | Senha provisória: ${tempPass}`);
+    });
+
+    function renderStoresAdmin() {
+      const container = document.getElementById('stores-admin-list');
+      if (!container) return;
+      container.innerHTML = allStores.map(s => `
+        <div class="recent-row">
+          <div>
+            <strong>${s.name}</strong><br/>
+            <span style="font-size:12px; color:var(--muted);">Login: ${s.login}</span>
+          </div>
+          <button class="logout-pill" style="color:var(--red);" onclick="deleteStore('${s.id}', '${s.login}')">Excluir</button>
+        </div>
+      `).join('') || '<p style="font-size:13px; color:var(--muted);">Nenhuma loja cadastrada.</p>';
+    }
+
+    window.deleteStore = async function(storeId, login) {
+      if (!confirm('Deseja remover esta loja e o acesso dela?')) return;
+      await deleteDoc(doc(db, 'lojas', storeId));
+      await deleteDoc(doc(db, 'usuarios', login));
+    };
+
+    // Equipamentos & Preventivas
+    document.getElementById('equip-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await addDoc(collection(db, 'equipamentos'), {
+        storeName: document.getElementById('equip-store').value,
+        name: document.getElementById('equip-name').value.trim(),
+        model: document.getElementById('equip-model').value.trim()
+      });
+      e.target.reset();
+    });
+
+    function renderEquipments() {
+      const el = document.getElementById('equip-list');
+      el.innerHTML = allEquips.map(eq => `
+        <div class="ticket-card">
+          <div class="recent-store">${eq.storeName}</div>
+          <div class="ticket-title">${eq.name}</div>
+          <div class="ticket-sub">${eq.model || 'Sem modelo especificado'}</div>
+        </div>
+      `).join('');
+
+      const ntEquip = document.getElementById('nt-equip');
+      ntEquip.innerHTML = '<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>' +
+        allEquips.map(eq => `<option value="${eq.name} (${eq.storeName})">${eq.name} - ${eq.storeName}</option>`).join('');
+    }
+
+    document.getElementById('prev-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await addDoc(collection(db, 'preventivas'), {
+        storeName: document.getElementById('prev-store').value,
+        desc: document.getElementById('prev-desc').value.trim(),
+        date: document.getElementById('prev-date').value
+      });
+      e.target.reset();
+    });
+
+    function renderPreventivas() {
+      const el = document.getElementById('prev-list');
+      el.innerHTML = allPrevs.map(p => `
+        <div class="ticket-card">
+          <div class="recent-store">${p.storeName} • 📅 ${p.date}</div>
+          <div class="ticket-title">${p.desc}</div>
+        </div>
+      `).join('');
+    }
+
+    function populateStoreSelects() {
+      const options = allStores.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+      document.getElementById('nt-store').innerHTML = options || '<option value="">Cadastre uma loja primeiro</option>';
+      document.getElementById('equip-store').innerHTML = options;
+      document.getElementById('prev-store').innerHTML = options;
+      document.getElementById('filter-store').innerHTML = '<option value="">Todas as lojas</option>' + options;
+    }
+
+    // Helpers
+    function statusLabel(s) {
+      const map = {
+        aberto: 'Em aberto',
+        visualizado: 'Visualizado',
+        andamento: 'Em andamento',
+        finalizado: 'Finalizado',
+        nao_atendido: 'Não atendido'
+      };
+      return map[s] || s;
+    }
+
+    function formatDate(ms) {
+      if (!ms) return '-';
+      const d = new Date(ms);
+      return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function timeAgo(ms) {
+      const diffHrs = Math.floor((Date.now() - ms) / 3600000);
+      if (diffHrs < 1) return 'agora';
+      if (diffHrs < 24) return `há ${diffHrs} horas`;
+      const days = Math.floor(diffHrs / 24);
+      return `há ${days} dias`;
+    }
+  </script>
 </body>
 </html>
