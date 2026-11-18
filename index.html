@@ -450,11 +450,11 @@
             </div>
             <div class="form-group">
               <label>Título</label>
-              <input type="text" id="ch-titulo" class="form-control" placeholder="Ex: Câmara de congelados não baixa temp." required />
+              <input type="text" id="ch-titulo" class="form-control" maxlength="150" placeholder="Ex: Câmara de congelados não baixa temp." required />
             </div>
             <div class="form-group">
               <label>Descrição</label>
-              <textarea id="ch-descricao" class="form-control" rows="3" placeholder="Descreva o problema, local e detalhes..." required></textarea>
+              <textarea id="ch-descricao" class="form-control" rows="3" maxlength="2000" placeholder="Descreva o problema, local e detalhes..." required></textarea>
             </div>
             <div class="form-group">
               <label>Foto do Problema (Opcional)</label>
@@ -466,7 +466,7 @@
             </div>
             <div class="form-group">
               <label>Seu Nome (Aberto por)</label>
-              <input type="text" id="ch-autor" class="form-control" placeholder="Ex: Wesley / Gerente" required />
+              <input type="text" id="ch-autor" class="form-control" maxlength="100" placeholder="Ex: Wesley / Gerente" required />
             </div>
             <div style="display:flex;gap:10px;">
               <button type="button" class="btn-secondary" onclick="navigate('dashboard')">Cancelar</button>
@@ -757,6 +757,14 @@
       localStorage.setItem("ar_dark", isDark ? "1" : "0");
     }
 
+    function clearAppLocalCache() {
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith("ar_") && k !== "ar_dark") {
+          localStorage.removeItem(k);
+        }
+      });
+    }
+
     let currentUser = null;
     let pendingUnitLogin = null;
     let currentFilter = "abertos";
@@ -767,6 +775,7 @@
     let cachedLojas = [];
     let cachedEquipamentos = [];
     let selectedTicketIds = new Set();
+    let migrationDone = false;
 
     function escapeHTML(str) {
       if (str === null || str === undefined) return "";
@@ -851,6 +860,7 @@
               currentUser = { role: "loja", name: found.nome, loja: found.nome, email: email };
               openApp();
             } else {
+              clearAppLocalCache();
               await auth.signOut();
               currentUser = null;
               document.getElementById("app-view").style.display = "none";
@@ -862,6 +872,7 @@
             }
           }
         } else {
+          clearAppLocalCache();
           currentUser = null;
           document.getElementById("app-view").style.display = "none";
           document.getElementById("first-access-view").style.display = "none";
@@ -954,7 +965,7 @@
           await fbUser.updatePassword(p1);
         }
         await updateDocItem("lojas", pendingUnitLogin.id, { firstAccess: false });
-        currentUser = { role: "loja", name: pendingUnitLogin.nome, loja: pendingUnitLogin.nome };
+        currentUser = { role: "loja", name: pendingUnitLogin.nome, loja: pendingUnitLogin.nome, email: (fbUser && fbUser.email ? fbUser.email.toLowerCase() : "") };
         document.getElementById("first-access-view").style.display = "none";
         openApp();
       } catch (error) {
@@ -966,8 +977,8 @@
     });
 
     async function logout() {
+      clearAppLocalCache();
       await auth.signOut();
-      localStorage.removeItem("ar_session");
       location.reload();
     }
 
@@ -1174,7 +1185,12 @@
 
     async function fetchCollection(col) {
       try {
-        const snap = await db.collection(col).get();
+        let snap;
+        if (currentUser && currentUser.role !== "admin" && (col === "chamados" || col === "notas_servico")) {
+          snap = await db.collection(col).where("lojaEmail", "==", currentUser.email.toLowerCase()).get();
+        } else {
+          snap = await db.collection(col).get();
+        }
         const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         setLocal(col, data);
         document.getElementById("sync-status").textContent = "● Nuvem Protegida";
@@ -1182,6 +1198,40 @@
       } catch (e) {
         document.getElementById("sync-status").textContent = "● Modo Local";
         return getLocal(col);
+      }
+    }
+
+    async function migrateMissingLojaEmails(lojas, chamados, notas) {
+      if (migrationDone || !currentUser || currentUser.role !== "admin") return;
+      migrationDone = true;
+
+      const resolveEmailByLojaName = (lojaName) => {
+        const key = normalizeKey(lojaName);
+        const found = lojas.find(l => normalizeKey(l.nome) === key || normalizeKey(l.user) === key);
+        if (found && found.authEmail) return found.authEmail.toLowerCase();
+        if (found && found.user) return `${sanitizeUserSlug(found.user)}@${STORE_DOMAIN}`;
+        const slug = sanitizeUserSlug(lojaName);
+        return slug ? `${slug}@${STORE_DOMAIN}` : "";
+      };
+
+      for (const c of chamados) {
+        if (!c.lojaEmail && c.loja) {
+          const email = resolveEmailByLojaName(c.loja);
+          if (email) {
+            c.lojaEmail = email;
+            db.collection("chamados").doc(c.id).update({ lojaEmail: email }).catch(() => {});
+          }
+        }
+      }
+
+      for (const n of notas) {
+        if (!n.lojaEmail && n.loja) {
+          const email = resolveEmailByLojaName(n.loja);
+          if (email) {
+            n.lojaEmail = email;
+            db.collection("notas_servico").doc(n.id).update({ lojaEmail: email }).catch(() => {});
+          }
+        }
       }
     }
 
@@ -1385,6 +1435,7 @@
       if (selectedList.length === 0) return;
       const lojaNome = selectedList[0].loja;
       const foundLoja = cachedLojas.find(l => normalizeKey(l.nome) === normalizeKey(lojaNome));
+      const lojaEmail = foundLoja && foundLoja.authEmail ? foundLoja.authEmail.toLowerCase() : (selectedList[0].lojaEmail || "");
       const totalGeral = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
       const numeroNota = "NS:" + String(cachedNotas.length + 1).padStart(4, "0");
 
@@ -1404,6 +1455,7 @@
       const notaId = await addItem("notas_servico", {
         numero: numeroNota,
         loja: lojaNome,
+        lojaEmail: lojaEmail,
         lojaCnpj: foundLoja ? foundLoja.cnpj : "",
         itens: itensNota,
         valorTotal: totalGeral,
@@ -1608,11 +1660,23 @@
 
     document.getElementById("form-chamado").addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (compressedPhotoBase64 && compressedPhotoBase64.length > 340000) {
+        alert("A imagem selecionada é muito grande. Escolha uma foto menor.");
+        return;
+      }
       const btn = document.getElementById("btn-save-chamado");
       btn.disabled = true;
       btn.textContent = "Salvando...";
+
+      const lojaNome = document.getElementById("ch-loja").value;
+      const foundLoja = cachedLojas.find(l => normalizeKey(l.nome) === normalizeKey(lojaNome));
+      const lojaEmail = currentUser.role === "loja"
+        ? currentUser.email.toLowerCase()
+        : (foundLoja && foundLoja.authEmail ? foundLoja.authEmail.toLowerCase() : `${sanitizeUserSlug(lojaNome)}@${STORE_DOMAIN}`);
+
       await addItem("chamados", {
-        loja: document.getElementById("ch-loja").value,
+        loja: lojaNome,
+        lojaEmail: lojaEmail,
         prioridade: document.getElementById("ch-prioridade").value,
         equipamento: document.getElementById("ch-equipamento").value,
         titulo: document.getElementById("ch-titulo").value.trim(),
@@ -1636,6 +1700,10 @@
       cachedEquipamentos = equipamentos;
       let chamados = await fetchCollection("chamados");
       let notas = await fetchCollection("notas_servico");
+
+      if (currentUser.role === "admin") {
+        await migrateMissingLojaEmails(lojas, chamados, notas);
+      }
 
       chamados.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       notas.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
