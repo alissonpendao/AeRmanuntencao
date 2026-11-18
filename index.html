@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="logo.png" />
 
-  <!-- Firebase SDK (Compat) + Authentication -->
+  <!-- Firebase SDK (Compat) + Authentication + Firestore -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -67,6 +67,7 @@
       justify-content: center;
       padding: 24px;
       text-align: center;
+      transition: opacity 0.35s ease;
     }
 
     .splash-logo-wrap {
@@ -123,6 +124,7 @@
     .form-control:focus { border-color: var(--yellow); }
 
     .btn-primary { width: 100%; padding: 15px; background: var(--yellow); color: #0F294A; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 16px rgba(255, 215, 0, 0.35); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
     .btn-secondary { width: 100%; padding: 14px; background: var(--border); color: var(--text); border: none; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
     .error-msg { color: var(--danger); font-size: 13px; font-weight: 700; margin-top: 12px; display: none; }
 
@@ -133,7 +135,7 @@
     .topbar-title { font-size: 17px; font-weight: 800; line-height: 1.2; }
     .sync-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); color: #6EE7B7; display: inline-block; margin-top: 2px; }
     .topbar-actions { display: flex; align-items: center; gap: 8px; }
-    .icon-top-btn { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); color: #FFFFFF; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .icon-top-btn { position: relative; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); color: #FFFFFF; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .bell-dot { position: absolute; top: 4px; right: 4px; width: 9px; height: 9px; background: var(--danger); border-radius: 50%; display: none; }
     .btn-logout { background: rgba(255, 255, 255, 0.12); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 13px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
@@ -274,7 +276,7 @@
       <form id="login-form">
         <div class="form-group">
           <label for="login-user">E-mail ou Usuário da Loja</label>
-          <input type="text" id="login-user" class="form-control" placeholder="Ex: saogeraldo, castro ou e-mail..." required />
+          <input type="text" id="login-user" class="form-control" placeholder="Ex: sao-geraldo, castro ou e-mail..." required />
         </div>
         <div class="form-group">
           <label for="login-pass">Senha de Acesso</label>
@@ -332,23 +334,23 @@
         </div>
         <nav class="drawer-nav">
           <div class="nav-section">Principal</div>
-          <div class="nav-item active" onclick="navigate('dashboard')">🏠 Dashboard</div>
+          <div class="nav-item active" data-nav="dashboard" onclick="navigate('dashboard')">🏠 Dashboard</div>
           <div class="nav-section">Chamados</div>
-          <div class="nav-item" onclick="navigate('abertos')">🎫 Em aberto</div>
-          <div class="nav-item" onclick="navigate('visualizado')">👁️ Visualizado</div>
-          <div class="nav-item" onclick="navigate('andamento')">⏳ Em andamento</div>
-          <div class="nav-item" onclick="navigate('finalizados')">✅ Finalizados</div>
-          <div class="nav-item" onclick="navigate('nao_atendidos')">🚫 Não atendidos</div>
+          <div class="nav-item" data-nav="abertos" onclick="navigate('abertos')">🎫 Em aberto</div>
+          <div class="nav-item" data-nav="visualizado" onclick="navigate('visualizado')">👁️ Visualizado</div>
+          <div class="nav-item" data-nav="andamento" onclick="navigate('andamento')">⏳ Em andamento</div>
+          <div class="nav-item" data-nav="finalizados" onclick="navigate('finalizados')">✅ Finalizados</div>
+          <div class="nav-item" data-nav="nao_atendidos" onclick="navigate('nao_atendidos')">🚫 Não atendidos</div>
           <div class="nav-section">Faturamento</div>
-          <div class="nav-item" onclick="navigate('notas')">🧾 Notas de Serviço</div>
+          <div class="nav-item" data-nav="notas" onclick="navigate('notas')">🧾 Notas de Serviço</div>
           <div id="client-menu" class="hidden">
             <div class="nav-section">Segurança</div>
             <div class="nav-item" onclick="openClientPasswordModal()">🔑 Alterar Minha Senha</div>
           </div>
           <div id="admin-menu">
             <div class="nav-section">Manutenção & Gestão</div>
-            <div class="nav-item" onclick="navigate('equipamentos')">⚙️ Equipamentos</div>
-            <div class="nav-item" onclick="navigate('lojas')">🏪 Lojas & Acessos</div>
+            <div class="nav-item" data-nav="equipamentos" onclick="navigate('equipamentos')">⚙️ Equipamentos</div>
+            <div class="nav-item" data-nav="lojas" onclick="navigate('lojas')">🏪 Lojas & Acessos</div>
           </div>
         </nav>
       </div>
@@ -544,8 +546,8 @@
               <input type="text" id="lj-cnpj" class="form-control" placeholder="Ex: 00.000.000/0001-00" required />
             </div>
             <div class="form-group">
-              <label>Usuário de Acesso (Login sem espaços)</label>
-              <input type="text" id="lj-user" class="form-control" placeholder="Ex: castro" required />
+              <label>Usuário de Acesso (Ex: sao-geraldo ou castro)</label>
+              <input type="text" id="lj-user" class="form-control" placeholder="Ex: sao-geraldo" required />
             </div>
             <div class="form-group">
               <label>Senha Provisória (Mínimo 6 caracteres)</label>
@@ -725,10 +727,10 @@
     </div>
 
     <nav class="bottom-nav">
-      <div class="bottom-item active" onclick="navigate('dashboard')"><span class="bottom-icon">🕒</span>Dashboard</div>
-      <div class="bottom-item" onclick="navigate('abertos')"><span class="bottom-icon">🎫</span>Em aberto</div>
-      <div class="bottom-item" onclick="navigate('finalizados')"><span class="bottom-icon">✅</span>Finalizados</div>
-      <div class="bottom-item" onclick="navigate('notas')"><span class="bottom-icon">🧾</span>Notas</div>
+      <div class="bottom-item active" data-bnav="dashboard" onclick="navigate('dashboard')"><span class="bottom-icon">🕒</span>Dashboard</div>
+      <div class="bottom-item" data-bnav="abertos" onclick="navigate('abertos')"><span class="bottom-icon">🎫</span>Em aberto</div>
+      <div class="bottom-item" data-bnav="finalizados" onclick="navigate('finalizados')"><span class="bottom-icon">✅</span>Finalizados</div>
+      <div class="bottom-item" data-bnav="notas" onclick="navigate('notas')"><span class="bottom-icon">🧾</span>Notas</div>
     </nav>
   </div>
 
@@ -748,6 +750,7 @@
     const db = firebase.firestore();
 
     const ADMIN_EMAIL = "aermanutencao@superdito.com.br";
+    const STORE_DOMAIN = "aermanutencao.com.br";
 
     function toggleDarkMode() {
       const isDark = document.body.classList.toggle("dark-mode");
@@ -764,7 +767,24 @@
     let cachedLojas = [];
     let cachedEquipamentos = [];
     let selectedTicketIds = new Set();
-    let lastKnownOpenCount = null;
+
+    function normalizeKey(str) {
+      return (str || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/g, "");
+    }
+
+    function sanitizeUserSlug(str) {
+      return (str || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+    }
 
     window.addEventListener("DOMContentLoaded", () => {
       if (localStorage.getItem("ar_dark") === "1") {
@@ -786,9 +806,11 @@
           } else {
             const lojas = await fetchCollection("lojas");
             const userPrefix = email.split("@")[0];
+            const cleanPrefix = normalizeKey(userPrefix);
             const found = lojas.find(l =>
               (l.authEmail && l.authEmail.toLowerCase() === email) ||
-              (l.user && l.user.toLowerCase() === userPrefix)
+              normalizeKey(l.user) === cleanPrefix ||
+              normalizeKey(l.nome) === cleanPrefix
             );
 
             if (found) {
@@ -822,7 +844,6 @@
     function getLocal(key) { return JSON.parse(localStorage.getItem("ar_" + key) || "[]"); }
     function setLocal(key, data) { localStorage.setItem("ar_" + key, JSON.stringify(data)); }
 
-    // Resolve o e-mail digitado no login (suporta admin, e-mail completo ou nome curto da loja)
     function resolveAuthEmails(input) {
       const clean = input.trim().toLowerCase();
       if (!clean) return [];
@@ -832,11 +853,16 @@
       if (clean.includes("@")) {
         return [clean];
       }
-      return [
-        `${clean}@aermanutencao.local`,
-        `${clean}@manuntencao.com.br`,
-        `${clean}@manuntencao.local`
-      ];
+      const noAccents = clean.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const compact = noAccents.replace(/[^a-z0-9]/g, "");
+      const hyphenated = noAccents.trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+      return [...new Set([
+        `${hyphenated}@${STORE_DOMAIN}`,
+        `${compact}@${STORE_DOMAIN}`,
+        `${hyphenated}@aermanutencao.local`,
+        `${compact}@aermanutencao.local`
+      ])];
     }
 
     document.getElementById("login-form").addEventListener("submit", async (e) => {
@@ -859,7 +885,7 @@
           loggedIn = true;
           break;
         } catch (errAuth) {
-          // Continua testando as opções de e-mail mapeadas
+          // Testa a próxima variação mapeada
         }
       }
 
@@ -924,6 +950,8 @@
         document.getElementById("btn-new-nota-shortcut").classList.add("hidden");
         document.getElementById("client-menu").classList.remove("hidden");
       } else {
+        document.getElementById("admin-menu").classList.remove("hidden");
+        document.getElementById("btn-new-nota-shortcut").classList.remove("hidden");
         document.getElementById("client-menu").classList.add("hidden");
       }
 
@@ -981,6 +1009,13 @@
     function navigate(page) {
       document.getElementById("drawer").classList.remove("open");
       document.getElementById("drawer-overlay").style.display = "none";
+
+      document.querySelectorAll(".nav-item[data-nav]").forEach(el => {
+        el.classList.toggle("active", el.getAttribute("data-nav") === page);
+      });
+      document.querySelectorAll(".bottom-item[data-bnav]").forEach(el => {
+        el.classList.toggle("active", el.getAttribute("data-bnav") === page);
+      });
 
       ["sec-dashboard", "sec-novo-chamado", "sec-lista", "sec-notas", "sec-equipamentos", "sec-lojas"].forEach(id => {
         document.getElementById(id).classList.add("hidden");
@@ -1171,8 +1206,9 @@
 
     function updateEquipamentosDropdown() {
       const lojaSelecionada = document.getElementById("ch-loja").value;
+      const lojaKey = normalizeKey(lojaSelecionada);
       const chEq = document.getElementById("ch-equipamento");
-      const eqDaLoja = cachedEquipamentos.filter(eq => eq.loja === lojaSelecionada);
+      const eqDaLoja = cachedEquipamentos.filter(eq => normalizeKey(eq.loja) === lojaKey);
       chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
         eqDaLoja.map(eq => `<option value="${eq.nome}${eq.modelo ? ' (' + eq.modelo + ')' : ''}">${eq.nome}${eq.modelo ? ' - ' + eq.modelo : ''}</option>`).join("");
     }
@@ -1311,7 +1347,7 @@
       const selectedList = cachedChamados.filter(c => selectedTicketIds.has(c.id));
       if (selectedList.length === 0) return;
       const lojaNome = selectedList[0].loja;
-      const foundLoja = cachedLojas.find(l => l.nome === lojaNome);
+      const foundLoja = cachedLojas.find(l => normalizeKey(l.nome) === normalizeKey(lojaNome));
       const totalGeral = selectedList.reduce((acc, item) => acc + (parseFloat(item.valorTotal) || 0), 0);
       const numeroNota = "NS:" + String(cachedNotas.length + 1).padStart(4, "0");
 
@@ -1490,19 +1526,25 @@
       const btn = document.getElementById("btn-save-loja");
       const nome = document.getElementById("lj-nome").value.trim();
       const cnpj = document.getElementById("lj-cnpj").value.trim();
-      const rawUser = document.getElementById("lj-user").value.trim().toLowerCase().replace(/\s+/g, "");
+      const rawUser = sanitizeUserSlug(document.getElementById("lj-user").value);
       const rawPass = document.getElementById("lj-pass").value.trim();
-      const authEmail = `${rawUser}@aermanutencao.local`;
+      const authEmail = `${rawUser}@${STORE_DOMAIN}`;
 
       btn.disabled = true;
       btn.textContent = "Criando conta segura...";
       try {
         const secondaryApp = firebase.apps.find(a => a.name === "Secondary") || firebase.initializeApp(firebaseConfig, "Secondary");
-        await secondaryApp.auth().createUserWithEmailAndPassword(authEmail, rawPass);
-        await secondaryApp.auth().signOut();
+        try {
+          await secondaryApp.auth().createUserWithEmailAndPassword(authEmail, rawPass);
+          await secondaryApp.auth().signOut();
+        } catch (authErr) {
+          if (authErr.code !== "auth/email-already-in-use") {
+            throw authErr;
+          }
+        }
         await addItem("lojas", { nome: nome, cnpj: cnpj, user: rawUser, authEmail: authEmail, firstAccess: true });
         e.target.reset();
-        alert(`Loja "${nome}" cadastrada com sucesso!\nUsuário de login: ${rawUser}`);
+        alert(`Loja "${nome}" cadastrada com sucesso!\nLogin: ${rawUser}\nE-mail: ${authEmail}`);
       } catch (error) {
         alert("Erro ao criar acesso: " + error.message);
       } finally {
@@ -1556,8 +1598,9 @@
       notas.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
       if (currentUser.role !== "admin") {
-        chamados = chamados.filter(c => c.loja === currentUser.loja);
-        notas = notas.filter(n => n.loja === currentUser.loja);
+        const userLojaKey = normalizeKey(currentUser.loja);
+        chamados = chamados.filter(c => normalizeKey(c.loja) === userLojaKey);
+        notas = notas.filter(n => normalizeKey(n.loja) === userLojaKey);
       }
 
       cachedChamados = chamados;
@@ -1626,11 +1669,14 @@
         filterNtSelect.innerHTML = optsFilter;
         if (prevCh) filterChSelect.value = prevCh;
         if (prevNt) filterNtSelect.value = prevNt;
+      } else {
+        filterChWrap.classList.add("hidden");
+        filterNtWrap.classList.add("hidden");
       }
 
       let filtrados = currentFilter === "urgentes" ? urgentesAtivos : (currentFilter === "todos" ? chamados : chamados.filter(c => c.status === currentFilter));
       if (currentUser.role === "admin" && filterChSelect.value && filterChSelect.value !== "TODAS") {
-        filtrados = filtrados.filter(c => c.loja === filterChSelect.value);
+        filtrados = filtrados.filter(c => normalizeKey(c.loja) === normalizeKey(filterChSelect.value));
       }
 
       document.getElementById("chamados-container").innerHTML = filtrados.map(c => {
@@ -1658,8 +1704,7 @@
               ${currentUser.role === "admin" ? `
                 <button class="btn-sm btn-status" onclick="openEditTicketModal('${c.id}')">✏️ Editar</button>
                 ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
-                ${c.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${c.id}')">✅ Finalizar</button>` : ""}
-                ${isFin ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 Valor</button>` : ""}
+                ${ticketActionsFor(c)}
                 <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">🗑️</button>
               ` : ""}
             </div>
@@ -1671,7 +1716,7 @@
 
       let notasFilt = notas;
       if (currentUser.role === "admin" && filterNtSelect.value && filterNtSelect.value !== "TODAS") {
-        notasFilt = notasFilt.filter(n => n.loja === filterNtSelect.value);
+        notasFilt = notasFilt.filter(n => normalizeKey(n.loja) === normalizeKey(filterNtSelect.value));
       }
 
       document.getElementById("notas-container").innerHTML = notasFilt.map(n => {
@@ -1698,7 +1743,7 @@
       document.getElementById("lista-lojas").innerHTML = lojas.map(l => `
         <div class="item-card">
           <div class="item-title">${l.nome}</div>
-          <div class="item-meta">CNPJ: <strong>${l.cnpj || '-'}</strong> | Login: <strong>${l.user}</strong></div>
+          <div class="item-meta">CNPJ: <strong>${l.cnpj || '-'}</strong> | Login: <strong>${l.user}</strong> (${l.authEmail || l.user + '@' + STORE_DOMAIN})</div>
           <button class="btn-sm btn-del" onclick="deleteItem('lojas', '${l.id}')">Excluir Loja</button>
         </div>
       `).join("") || `<p style="color:var(--muted);font-size:13px;">Nenhuma loja cadastrada.</p>`;
@@ -1710,6 +1755,16 @@
           <button class="btn-sm btn-del" onclick="deleteItem('equipamentos', '${eq.id}')">Excluir</button>
         </div>
       `).join("") || `<p style="color:var(--muted);font-size:13px;">Nenhum equipamento cadastrado.</p>`;
+    }
+
+    function ticketActionsFor(c) {
+      if (c.status === "andamento") {
+        return `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${c.id}')">✅ Finalizar</button>`;
+      }
+      if (c.status === "finalizados") {
+        return `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 Valor</button>`;
+      }
+      return "";
     }
   </script>
 </body>
