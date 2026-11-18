@@ -275,8 +275,8 @@
 
       <form id="login-form">
         <div class="form-group">
-          <label for="login-user">E-mail ou Usuário da Loja</label>
-          <input type="text" id="login-user" class="form-control" placeholder="Ex: sao-geraldo, castro ou e-mail..." required />
+          <label for="login-user">Usuário da Loja ou E-mail</label>
+          <input type="text" id="login-user" class="form-control" placeholder="Ex: sao-geraldo ou castro" required />
         </div>
         <div class="form-group">
           <label for="login-pass">Senha de Acesso</label>
@@ -768,6 +768,34 @@
     let cachedEquipamentos = [];
     let selectedTicketIds = new Set();
 
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function safeImageSrc(src) {
+      if (typeof src !== "string") return "";
+      return src.startsWith("data:image/") ? src : "";
+    }
+
+    function openImageSafe(src) {
+      const valid = safeImageSrc(src);
+      if (valid) {
+        const win = window.open();
+        if (win) {
+          const img = win.document.createElement("img");
+          img.src = valid;
+          img.style.maxWidth = "100%";
+          win.document.body.appendChild(img);
+        }
+      }
+    }
+
     function normalizeKey(str) {
       return (str || "")
         .toLowerCase()
@@ -823,8 +851,14 @@
               currentUser = { role: "loja", name: found.nome, loja: found.nome, email: email };
               openApp();
             } else {
-              currentUser = { role: "loja", name: userPrefix, loja: userPrefix, email: email };
-              openApp();
+              await auth.signOut();
+              currentUser = null;
+              document.getElementById("app-view").style.display = "none";
+              document.getElementById("first-access-view").style.display = "none";
+              document.getElementById("login-view").style.display = "flex";
+              const err = document.getElementById("login-error");
+              err.textContent = "Acesso negado: conta não vinculada a nenhuma loja cadastrada.";
+              err.style.display = "block";
             }
           }
         } else {
@@ -885,7 +919,7 @@
           loggedIn = true;
           break;
         } catch (errAuth) {
-          // Testa a próxima variação mapeada
+          // Testa próxima variação mapeada
         }
       }
 
@@ -1210,7 +1244,10 @@
       const chEq = document.getElementById("ch-equipamento");
       const eqDaLoja = cachedEquipamentos.filter(eq => normalizeKey(eq.loja) === lojaKey);
       chEq.innerHTML = `<option value="Nenhum / não se aplica">Nenhum / não se aplica</option>` +
-        eqDaLoja.map(eq => `<option value="${eq.nome}${eq.modelo ? ' (' + eq.modelo + ')' : ''}">${eq.nome}${eq.modelo ? ' - ' + eq.modelo : ''}</option>`).join("");
+        eqDaLoja.map(eq => {
+          const label = `${escapeHTML(eq.nome)}${eq.modelo ? ' (' + escapeHTML(eq.modelo) + ')' : ''}`;
+          return `<option value="${label}">${escapeHTML(eq.nome)}${eq.modelo ? ' - ' + escapeHTML(eq.modelo) : ''}</option>`;
+        }).join("");
     }
 
     function openFinishTicketModal(id) {
@@ -1332,7 +1369,7 @@
       document.getElementById("nota-preview-summary").innerHTML = `
         <div style="background:var(--navy);color:#FFF;padding:12px 14px;border-radius:12px;margin-bottom:10px;">
           <div style="font-size:11px;color:var(--yellow);font-weight:800;">CLIENTE / UNIDADE</div>
-          <div style="font-size:17px;font-weight:800;">${lojasUnicas[0]}</div>
+          <div style="font-size:17px;font-weight:800;">${escapeHTML(lojasUnicas[0])}</div>
           <div style="font-size:13px;margin-top:4px;">${selectedList.length} serviço(s) • <strong>Total: ${formatBRL(total)}</strong></div>
         </div>
       `;
@@ -1399,21 +1436,23 @@
       const nota = cachedNotas.find(n => n.id === notaId);
       if (!nota) return;
       const isPago = nota.statusPagamento === "pago";
+      const safeNotaId = escapeHTML(nota.id);
+      const validNfFoto = safeImageSrc(nota.notaFiscalFoto);
 
       document.getElementById("receipt-admin-actions").innerHTML = currentUser.role === "admin" ? `
-        ${!isPago ? `<button class="btn-sm btn-done" onclick="toggleNotaStatus('${nota.id}', 'pago')">✅ Marcar Pago</button>` : `<button class="btn-sm btn-unattended" onclick="toggleNotaStatus('${nota.id}', 'em_aberto')">↩️ Reabrir</button>`}
-        <button class="btn-sm btn-del" onclick="deleteNota('${nota.id}')">🗑️</button>
+        ${!isPago ? `<button class="btn-sm btn-done" onclick="toggleNotaStatus('${safeNotaId}', 'pago')">✅ Marcar Pago</button>` : `<button class="btn-sm btn-unattended" onclick="toggleNotaStatus('${safeNotaId}', 'em_aberto')">↩️ Reabrir</button>`}
+        <button class="btn-sm btn-del" onclick="deleteNota('${safeNotaId}')">🗑️</button>
       ` : "";
 
       const itensHtml = (nota.itens || []).map((it, idx) => `
         <div class="receipt-service-item">
           <div class="receipt-service-top">
-            <span>${idx + 1}. ${it.titulo}</span>
+            <span>${idx + 1}. ${escapeHTML(it.titulo)}</span>
             <span>${formatBRL(it.valorTotal)}</span>
           </div>
           <div class="receipt-service-desc">
-            <strong>Equipamento:</strong> ${it.equipamento} • <strong>Concluído:</strong> ${it.dataFinalizacao || "-"} (${it.duracao})<br/>
-            <strong>Serviço:</strong> ${it.servicoRealizado}
+            <strong>Equipamento:</strong> ${escapeHTML(it.equipamento)} • <strong>Concluído:</strong> ${escapeHTML(it.dataFinalizacao || "-")} (${escapeHTML(it.duracao)})<br/>
+            <strong>Serviço:</strong> ${escapeHTML(it.servicoRealizado)}
           </div>
         </div>
       `).join("");
@@ -1432,30 +1471,30 @@
           </div>
           <div class="receipt-body-white">
             <div style="text-align:center;font-weight:900;font-size:15px;color:#0F294A;margin-bottom:10px;text-transform:uppercase;">
-              NOTA DE PRESTAÇÃO DE SERVIÇO • ${nota.numero}
+              NOTA DE PRESTAÇÃO DE SERVIÇO • ${escapeHTML(nota.numero)}
             </div>
             <div class="receipt-meta-grid">
               <div>
                 <div style="color:#64748B;font-size:11px;font-weight:700;">CLIENTE / UNIDADE</div>
-                <div style="font-size:15px;font-weight:900;color:#0F294A;">${nota.loja}</div>
-                ${nota.lojaCnpj ? `<div style="font-size:12px;color:#475569;font-weight:700;">CNPJ: ${nota.lojaCnpj}</div>` : ""}
+                <div style="font-size:15px;font-weight:900;color:#0F294A;">${escapeHTML(nota.loja)}</div>
+                ${nota.lojaCnpj ? `<div style="font-size:12px;color:#475569;font-weight:700;">CNPJ: ${escapeHTML(nota.lojaCnpj)}</div>` : ""}
               </div>
               <div style="text-align:right;">
                 <div style="color:#64748B;font-size:11px;font-weight:700;">EMISSÃO</div>
-                <div style="font-weight:800;">${nota.createdAt || "-"}</div>
+                <div style="font-weight:800;">${escapeHTML(nota.createdAt || "-")}</div>
                 <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}" style="margin-top:4px;display:inline-block;">${isPago ? '✅ PAGO' : '⏳ EM ABERTO'}</span>
               </div>
             </div>
             ${itensHtml}
-            ${nota.observacao ? `<div style="margin-top:10px;padding:8px 10px;background:#FFFBEB;border-radius:8px;font-size:12px;color:#92400E;"><strong>Obs.:</strong> ${nota.observacao}</div>` : ""}
+            ${nota.observacao ? `<div style="margin-top:10px;padding:8px 10px;background:#FFFBEB;border-radius:8px;font-size:12px;color:#92400E;"><strong>Obs.:</strong> ${escapeHTML(nota.observacao)}</div>` : ""}
             <div class="receipt-total-box">
               <span style="font-size:14px;font-weight:900;color:#0F294A;">VALOR TOTAL</span>
               <span style="font-size:20px;font-weight:900;color:#0F294A;">${formatBRL(nota.valorTotal)}</span>
             </div>
-            ${nota.notaFiscalFoto ? `<div style="margin-top:16px;border-top:1.5px dashed #CBD5E1;padding-top:12px;"><img src="${nota.notaFiscalFoto}" style="width:100%;max-height:280px;object-fit:contain;border-radius:8px;" /></div>` : ""}
+            ${validNfFoto ? `<div style="margin-top:16px;border-top:1.5px dashed #CBD5E1;padding-top:12px;"><img src="${validNfFoto}" style="width:100%;max-height:280px;object-fit:contain;border-radius:8px;" /></div>` : ""}
           </div>
           <div class="receipt-footer">
-            ${nota.pix ? `<div style="margin-bottom:6px;color:#FFD700;font-weight:800;">CHAVE PIX: ${nota.pix}</div>` : ""}
+            ${nota.pix ? `<div style="margin-bottom:6px;color:#FFD700;font-weight:800;">CHAVE PIX: ${escapeHTML(nota.pix)}</div>` : ""}
             <div>Garantia técnica A&R Manutenção.</div>
             <div class="signature-line">A&R Manutenção e Instalação LTDA / Assinatura Cliente</div>
           </div>
@@ -1481,29 +1520,32 @@
         ticket = cachedChamados.find(c => c.id === id) || { ...ticket, status: "visualizado" };
       }
 
+      const safeId = escapeHTML(ticket.id);
+      const validFoto = safeImageSrc(ticket.foto);
       const statusLabels = { abertos: "Em aberto", visualizado: "Visualizado", andamento: "Em andamento", finalizados: "Finalizado", nao_atendidos: "Não atendido" };
+
       document.getElementById("ticket-modal-content").innerHTML = `
         <div class="item-header">
           <div class="badge-group">
-            <span class="badge ${getPriorityBadgeClass(ticket.prioridade)}">${ticket.prioridade}</span>
-            <span class="badge badge-st-${ticket.status}">${statusLabels[ticket.status] || ticket.status}</span>
+            <span class="badge ${getPriorityBadgeClass(ticket.prioridade)}">${escapeHTML(ticket.prioridade)}</span>
+            <span class="badge badge-st-${escapeHTML(ticket.status)}">${escapeHTML(statusLabels[ticket.status] || ticket.status)}</span>
           </div>
-          <span class="badge badge-status">${ticket.loja}</span>
+          <span class="badge badge-status">${escapeHTML(ticket.loja)}</span>
         </div>
-        <div class="item-title" style="font-size:19px;margin-top:6px;">${ticket.titulo}</div>
-        <div class="item-meta">Equipamento: ${ticket.equipamento}<br/>Aberto por: ${ticket.autor} em ${ticket.createdAt || "-"}</div>
-        <p style="font-size:14px;background:var(--bg-light);padding:12px;border-radius:12px;border:1px solid var(--border);">${ticket.descricao}</p>
-        ${ticket.status === "finalizados" && ticket.servicoRealizado ? `<div class="tech-report-box"><strong>Serviço:</strong> ${ticket.servicoRealizado}</div>` : ""}
+        <div class="item-title" style="font-size:19px;margin-top:6px;">${escapeHTML(ticket.titulo)}</div>
+        <div class="item-meta">Equipamento: ${escapeHTML(ticket.equipamento)}<br/>Aberto por: ${escapeHTML(ticket.autor)} em ${escapeHTML(ticket.createdAt || "-")}</div>
+        <p style="font-size:14px;background:var(--bg-light);padding:12px;border-radius:12px;border:1px solid var(--border);">${escapeHTML(ticket.descricao)}</p>
+        ${ticket.status === "finalizados" && ticket.servicoRealizado ? `<div class="tech-report-box"><strong>Serviço:</strong> ${escapeHTML(ticket.servicoRealizado)}</div>` : ""}
         ${ticket.status === "finalizados" && ticket.durationMs ? `<div class="duration-pill">⏱️ Duração: ${formatDuration(ticket.durationMs)}</div>` : ""}
         ${ticket.valorTotal > 0 ? `<div class="price-pill" style="display:block;margin-top:10px;">🧾 Valor: ${formatBRL(ticket.valorTotal)}</div>` : ""}
-        ${ticket.foto ? `<img src="${ticket.foto}" class="ticket-photo" onclick="window.open(this.src)" />` : ""}
+        ${validFoto ? `<img src="${validFoto}" class="ticket-photo" onclick="openImageSafe(this.src)" />` : ""}
         ${currentUser.role === "admin" ? `
           <div class="item-actions" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
-            ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${ticket.id}', 'andamento')">▶️ Iniciar</button>` : ""}
-            ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${ticket.id}')">✅ Finalizar</button>` : ""}
-            ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${ticket.id}')">💰 Valor</button>` : ""}
-            <button class="btn-sm btn-status" onclick="openEditTicketModal('${ticket.id}')">✏️ Editar</button>
-            <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${ticket.id}')">🗑️ Excluir</button>
+            ${(ticket.status === "abertos" || ticket.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${safeId}', 'andamento')">▶️ Iniciar</button>` : ""}
+            ${ticket.status === "andamento" ? `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${safeId}')">✅ Finalizar</button>` : ""}
+            ${ticket.status === "finalizados" ? `<button class="btn-sm btn-gold" onclick="openPriceModal('${safeId}')">💰 Valor</button>` : ""}
+            <button class="btn-sm btn-status" onclick="openEditTicketModal('${safeId}')">✏️ Editar</button>
+            <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${safeId}')">🗑️ Excluir</button>
           </div>
         ` : ""}
       `;
@@ -1587,6 +1629,7 @@
     });
 
     async function refreshAll() {
+      if (!currentUser) return;
       const lojas = await fetchCollection("lojas");
       cachedLojas = lojas;
       const equipamentos = await fetchCollection("equipamentos");
@@ -1630,13 +1673,13 @@
       const statusLabels = { abertos: "Em aberto", visualizado: "Visualizado", andamento: "Em andamento", finalizados: "Finalizado", nao_atendidos: "Não atendido" };
 
       document.getElementById("recent-chamados-container").innerHTML = chamados.slice(0, 5).map(c => `
-        <div class="recent-row" onclick="viewTicket('${c.id}')">
+        <div class="recent-row" onclick="viewTicket('${escapeHTML(c.id)}')">
           <div>
-            <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;">${c.loja} ${c.prioridade === "Urgente" ? "• 🚨 URGENTE" : ""}</div>
-            <div style="font-size:15px;font-weight:800;color:var(--text);">${c.titulo}</div>
+            <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;">${escapeHTML(c.loja)} ${c.prioridade === "Urgente" ? "• 🚨 URGENTE" : ""}</div>
+            <div style="font-size:15px;font-weight:800;color:var(--text);">${escapeHTML(c.titulo)}</div>
             <div style="font-size:12px;color:var(--muted);">${timeAgo(c.timestamp)}</div>
           </div>
-          <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
+          <span class="badge badge-st-${escapeHTML(c.status)}">${escapeHTML(statusLabels[c.status] || c.status)}</span>
         </div>
       `).join("") || `<p style="color:var(--muted);font-size:13px;padding:8px 0;">Nenhum chamado registrado.</p>`;
 
@@ -1645,12 +1688,12 @@
       const prevLoja = chLoja.value;
 
       if (currentUser.role === "admin") {
-        const opts = lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("") || `<option value="">Cadastre uma loja</option>`;
+        const opts = lojas.map(l => `<option value="${escapeHTML(l.nome)}">${escapeHTML(l.nome)}</option>`).join("") || `<option value="">Cadastre uma loja</option>`;
         chLoja.innerHTML = opts;
         eqLoja.innerHTML = opts;
         if (prevLoja) chLoja.value = prevLoja;
       } else {
-        chLoja.innerHTML = `<option value="${currentUser.loja}">${currentUser.loja}</option>`;
+        chLoja.innerHTML = `<option value="${escapeHTML(currentUser.loja)}">${escapeHTML(currentUser.loja)}</option>`;
       }
       updateEquipamentosDropdown();
 
@@ -1662,7 +1705,7 @@
       if (currentUser.role === "admin") {
         filterChWrap.classList.remove("hidden");
         filterNtWrap.classList.remove("hidden");
-        const optsFilter = `<option value="TODAS">Todas as Lojas</option>` + lojas.map(l => `<option value="${l.nome}">${l.nome}</option>`).join("");
+        const optsFilter = `<option value="TODAS">Todas as Lojas</option>` + lojas.map(l => `<option value="${escapeHTML(l.nome)}">${escapeHTML(l.nome)}</option>`).join("");
         const prevCh = filterChSelect.value;
         const prevNt = filterNtSelect.value;
         filterChSelect.innerHTML = optsFilter;
@@ -1683,29 +1726,32 @@
         const isFin = c.status === "finalizados";
         const isSel = selectedTicketIds.has(c.id);
         const showCb = isFin && currentUser.role === "admin";
+        const safeId = escapeHTML(c.id);
+        const validFoto = safeImageSrc(c.foto);
+
         return `
           <div class="item-card ${c.prioridade === 'Urgente' && !isFin ? 'urgent-card' : ''} ${isSel ? 'selected-ticket' : ''}">
             <div class="item-header">
               <div class="badge-group">
-                ${showCb ? `<input type="checkbox" class="ticket-select-checkbox" ${isSel ? "checked" : ""} onchange="toggleTicketSelection('${c.id}')" />` : ""}
-                <span class="badge ${getPriorityBadgeClass(c.prioridade)}">${c.prioridade}</span>
-                <span class="badge badge-st-${c.status}">${statusLabels[c.status] || c.status}</span>
+                ${showCb ? `<input type="checkbox" class="ticket-select-checkbox" ${isSel ? "checked" : ""} onchange="toggleTicketSelection('${safeId}')" />` : ""}
+                <span class="badge ${getPriorityBadgeClass(c.prioridade)}">${escapeHTML(c.prioridade)}</span>
+                <span class="badge badge-st-${escapeHTML(c.status)}">${escapeHTML(statusLabels[c.status] || c.status)}</span>
                 ${isFin && c.valorTotal > 0 ? `<span class="badge badge-price">${formatBRL(c.valorTotal)}</span>` : ""}
               </div>
-              <span class="badge badge-status">${c.loja}</span>
+              <span class="badge badge-status">${escapeHTML(c.loja)}</span>
             </div>
-            <div class="item-title" style="cursor:pointer;" onclick="viewTicket('${c.id}')">${c.titulo}</div>
-            <div class="item-meta">Equipamento: ${c.equipamento} • Aberto por: ${c.autor}</div>
-            <p style="font-size:14px;color:var(--text);">${c.descricao}</p>
-            ${isFin && c.servicoRealizado ? `<div class="tech-report-box"><strong>Feito:</strong> ${c.servicoRealizado}</div>` : ""}
-            ${c.foto ? `<img src="${c.foto}" class="ticket-photo" onclick="viewTicket('${c.id}')" />` : ""}
+            <div class="item-title" style="cursor:pointer;" onclick="viewTicket('${safeId}')">${escapeHTML(c.titulo)}</div>
+            <div class="item-meta">Equipamento: ${escapeHTML(c.equipamento)} • Aberto por: ${escapeHTML(c.autor)}</div>
+            <p style="font-size:14px;color:var(--text);">${escapeHTML(c.descricao)}</p>
+            ${isFin && c.servicoRealizado ? `<div class="tech-report-box"><strong>Feito:</strong> ${escapeHTML(c.servicoRealizado)}</div>` : ""}
+            ${validFoto ? `<img src="${validFoto}" class="ticket-photo" onclick="viewTicket('${safeId}')" />` : ""}
             <div class="item-actions">
-              <button class="btn-sm btn-view" onclick="viewTicket('${c.id}')">👁️ Abrir</button>
+              <button class="btn-sm btn-view" onclick="viewTicket('${safeId}')">👁️ Abrir</button>
               ${currentUser.role === "admin" ? `
-                <button class="btn-sm btn-status" onclick="openEditTicketModal('${c.id}')">✏️ Editar</button>
-                ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${c.id}', 'andamento')">▶️ Iniciar</button>` : ""}
+                <button class="btn-sm btn-status" onclick="openEditTicketModal('${safeId}')">✏️ Editar</button>
+                ${(c.status === "abertos" || c.status === "visualizado") ? `<button class="btn-sm btn-gold" onclick="updateStatus('${safeId}', 'andamento')">▶️ Iniciar</button>` : ""}
                 ${ticketActionsFor(c)}
-                <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${c.id}')">🗑️</button>
+                <button class="btn-sm btn-del" onclick="deleteItem('chamados', '${safeId}')">🗑️</button>
               ` : ""}
             </div>
           </div>
@@ -1721,20 +1767,21 @@
 
       document.getElementById("notas-container").innerHTML = notasFilt.map(n => {
         const isPago = n.statusPagamento === "pago";
+        const safeNotaId = escapeHTML(n.id);
         return `
           <div class="item-card" style="border-left: 5px solid var(--yellow);">
             <div class="item-header">
               <div class="badge-group">
-                <span class="badge badge-price">${n.numero}</span>
+                <span class="badge badge-price">${escapeHTML(n.numero)}</span>
                 <span class="badge ${isPago ? 'badge-nota-ok' : 'badge-nota-open'}">${isPago ? '✅ PAGO' : '⏳ EM ABERTO'}</span>
               </div>
-              <span class="badge badge-status">${n.loja}</span>
+              <span class="badge badge-status">${escapeHTML(n.loja)}</span>
             </div>
             <div class="item-title">${formatBRL(n.valorTotal)} <span style="font-size:13px;color:var(--muted);">(${(n.itens || []).length} serviço(s))</span></div>
-            <div class="item-meta">Emitida em: ${n.createdAt || "-"}</div>
+            <div class="item-meta">Emitida em: ${escapeHTML(n.createdAt || "-")}</div>
             <div class="item-actions">
-              <button class="btn-sm btn-status" onclick="viewNotaReceipt('${n.id}')">📄 Ver Notinha</button>
-              ${currentUser.role === "admin" && !isPago ? `<button class="btn-sm btn-done" onclick="toggleNotaStatus('${n.id}', 'pago')">✅ Baixa</button>` : ""}
+              <button class="btn-sm btn-status" onclick="viewNotaReceipt('${safeNotaId}')">📄 Ver Notinha</button>
+              ${currentUser.role === "admin" && !isPago ? `<button class="btn-sm btn-done" onclick="toggleNotaStatus('${safeNotaId}', 'pago')">✅ Baixa</button>` : ""}
             </div>
           </div>
         `;
@@ -1742,27 +1789,28 @@
 
       document.getElementById("lista-lojas").innerHTML = lojas.map(l => `
         <div class="item-card">
-          <div class="item-title">${l.nome}</div>
-          <div class="item-meta">CNPJ: <strong>${l.cnpj || '-'}</strong> | Login: <strong>${l.user}</strong> (${l.authEmail || l.user + '@' + STORE_DOMAIN})</div>
-          <button class="btn-sm btn-del" onclick="deleteItem('lojas', '${l.id}')">Excluir Loja</button>
+          <div class="item-title">${escapeHTML(l.nome)}</div>
+          <div class="item-meta">CNPJ: <strong>${escapeHTML(l.cnpj || '-')}</strong> | Login: <strong>${escapeHTML(l.user)}</strong> (${escapeHTML(l.authEmail || l.user + '@' + STORE_DOMAIN)})</div>
+          <button class="btn-sm btn-del" onclick="deleteItem('lojas', '${escapeHTML(l.id)}')">Excluir Loja</button>
         </div>
       `).join("") || `<p style="color:var(--muted);font-size:13px;">Nenhuma loja cadastrada.</p>`;
 
       document.getElementById("lista-equipamentos").innerHTML = equipamentos.map(eq => `
         <div class="item-card">
-          <div class="item-title">${eq.nome}</div>
-          <div class="item-meta">Loja: ${eq.loja} • ${eq.modelo || ''}</div>
-          <button class="btn-sm btn-del" onclick="deleteItem('equipamentos', '${eq.id}')">Excluir</button>
+          <div class="item-title">${escapeHTML(eq.nome)}</div>
+          <div class="item-meta">Loja: ${escapeHTML(eq.loja)} • ${escapeHTML(eq.modelo || '')}</div>
+          <button class="btn-sm btn-del" onclick="deleteItem('equipamentos', '${escapeHTML(eq.id)}')">Excluir</button>
         </div>
       `).join("") || `<p style="color:var(--muted);font-size:13px;">Nenhum equipamento cadastrado.</p>`;
     }
 
     function ticketActionsFor(c) {
+      const safeId = escapeHTML(c.id);
       if (c.status === "andamento") {
-        return `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${c.id}')">✅ Finalizar</button>`;
+        return `<button class="btn-sm btn-done" onclick="openFinishTicketModal('${safeId}')">✅ Finalizar</button>`;
       }
       if (c.status === "finalizados") {
-        return `<button class="btn-sm btn-gold" onclick="openPriceModal('${c.id}')">💰 Valor</button>`;
+        return `<button class="btn-sm btn-gold" onclick="openPriceModal('${safeId}')">💰 Valor</button>`;
       }
       return "";
     }
